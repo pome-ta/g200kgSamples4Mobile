@@ -9,11 +9,13 @@ const capitalize = str => {
 
 
 let playing = false;
+let osc, gain;
 function Play() {
   if (playing) return;
   const audioctx = new AudioContext();
-  const osc = new OscillatorNode(audioctx);
-  osc.connect(audioctx.destination);
+  osc = new OscillatorNode(audioctx);
+  gain = new GainNode(audioctx);
+  osc.connect(gain).connect(audioctx.destination);
   osc.start();
   playing = true;
 }
@@ -37,14 +39,19 @@ for (const wType of waveTypes) {
   waveSelect.appendChild(option);
 }
 
+waveSelect.addEventListener('change', Setup);
+
 const freq = document.createElement('input');
 freq.type = 'range';
 freq.id = 'freq';
 freq.min = 50;
 freq.max = 3000;
 freq.value = 440;
-freq.addEventListener('input', (e) => console.log(e.target.value));
+freq.addEventListener('input', Setup);
 
+const freqdisp = document.createElement('div');
+freqdisp.id = 'freqdisp';
+freqdisp.textContent = freq.value;
 
 const level = document.createElement('input');
 level.type = 'range';
@@ -53,8 +60,23 @@ level.min = 0.0;
 level.max = 1.0;
 level.step = 0.01;
 level.value = 0.5;
-level.addEventListener('input', (e) => console.log(e.target.value));
+level.addEventListener('input', Setup);
 
+const leveldisp = document.createElement('div');
+leveldisp.id = 'freqdisp';
+leveldisp.textContent = level.value;
+
+function Setup() {
+  const typeValue = waveSelect.value;
+  const freqValue = freq.value;
+  const levelValue = level.value;
+  freqdisp.textContent = freqValue;
+  leveldisp.textContent = levelValue;
+  osc.type = typeValue;
+  osc.frequency.value = freqValue;
+  gain.gain.value = levelValue;
+  
+}
 
 
 const tbl = document.createElement('table');
@@ -75,6 +97,9 @@ body.appendChild(playButton);
 tbl.appendChild(tblBody);
 body.appendChild(tbl);
 body.appendChild(waveSelect);
+body.appendChild(freqdisp);
 body.appendChild(freq);
+body.appendChild(leveldisp);
 body.appendChild(level);
+
 
