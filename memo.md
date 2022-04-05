@@ -1,7 +1,19 @@
 # 📝 2022/04/05
 
-
 [オプショナルチェーン `(?.)`](https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Operators/Optional_chaining)
+
+
+## 機能仕様
+
+音再生させないでcontroller 関係やるとエラー（←当たり前
+
+
+
+## html の方
+
+js でのelement こだわると終わりなさそうだから、効率悪くても、まぁええやろ
+
+
 
 
 
