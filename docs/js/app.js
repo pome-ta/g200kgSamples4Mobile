@@ -38,7 +38,6 @@ for (const wType of waveTypes) {
   option.text = capitalize(wType);
   waveSelect.appendChild(option);
 }
-
 waveSelect.addEventListener('change', Setup);
 
 const freq = document.createElement('input');
@@ -49,7 +48,8 @@ freq.max = 3000;
 freq.value = 440;
 freq.addEventListener('input', Setup);
 
-const freqdisp = document.createElement('div');
+//const freqdisp = document.createElement('div');
+const freqdisp = document.createElement('td');
 freqdisp.id = 'freqdisp';
 freqdisp.textContent = freq.value;
 
@@ -62,16 +62,20 @@ level.step = 0.01;
 level.value = 0.5;
 level.addEventListener('input', Setup);
 
-const leveldisp = document.createElement('div');
+//const leveldisp = document.createElement('div');
+const leveldisp = document.createElement('td');
 leveldisp.id = 'freqdisp';
 leveldisp.textContent = level.value;
-
+console.log(leveldisp.nodeName==='td');
+console.log(leveldisp.nodeName==='TD');
 function Setup() {
   const typeValue = waveSelect.value;
   const freqValue = freq.value;
   const levelValue = level.value;
+  
   freqdisp.textContent = freqValue;
   leveldisp.textContent = levelValue;
+  
   osc.type = typeValue;
   osc.frequency.value = freqValue;
   gain.gain.value = levelValue;
@@ -82,6 +86,29 @@ function Setup() {
 const tbl = document.createElement('table');
 const tblBody = document.createElement('tbody');
 
+const controllerObj = {
+  'Type': [waveSelect],
+  'Freq(Hz)': [freq, freqdisp],
+  'Level': [level, leveldisp]
+};
+
+for (const key of Object.keys(controllerObj)) {
+  const row = document.createElement('tr');
+  const th = document.createElement('th');
+  th.textContent = key;
+  row.appendChild(th);
+  for (const value of controllerObj[key]) {
+    if (value === 'TD') {
+      row.appendChild(value);
+    } else {
+      const td = document.createElement('td');
+      td.appendChild(value);
+      row.appendChild(td);
+    }
+  }
+  tblBody.appendChild(row);
+}
+/*
 const thValues = ['Type', 'Freq(Hz)', 'Level'];
 for (const thValue of thValues) {
   const row = document.createElement('tr');
@@ -90,16 +117,17 @@ for (const thValue of thValues) {
   row.appendChild(tHeader);
   tblBody.appendChild(row);
 }
-
+*/
 // xxx: 関数つくろうかな
 const body = document.body;
 body.appendChild(playButton);
 tbl.appendChild(tblBody);
 body.appendChild(tbl);
+/*
 body.appendChild(waveSelect);
 body.appendChild(freqdisp);
 body.appendChild(freq);
 body.appendChild(leveldisp);
 body.appendChild(level);
 
-
+*/
