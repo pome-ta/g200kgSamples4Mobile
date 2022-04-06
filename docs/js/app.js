@@ -11,7 +11,9 @@ const depth = new GainNode(audioctx, {gain: 10});
 osc.connect(audioctx.destination);
 lfo.connect(depth).connect(osc.frequency);
 
-
+document.addEventListener('DOMContentLoaded', () => {
+  Setup();
+});
 function Play() {
   if (playing) return;
   osc.start();
@@ -23,7 +25,7 @@ function Play() {
 function Setup() {
   osc.frequency.value = oscfreqval.textContent = oscfreq.value;
   lfo.frequency.value = lfofreqval.textContent = lfofreq.value;
-  depth.gain.value = oscfreqval.textContent = oscfreq.value;
+  depth.gain.value = depthval.textContent = depthfreq.value;
 }
 
 
@@ -80,13 +82,13 @@ oscfreq.addEventListener('input', Setup);
 
 const lfofreqval = document.createElement('td');
 lfofreqval.id = 'lfofreqval';
-lfofreqval.textContent = lfofreq.value;
+//lfofreqval.textContent = lfofreq.value;
 const depthval = document.createElement('td');
 depthval.id = 'depthval';
-depthval.textContent = depthfreq.value;
+//depthval.textContent = depthfreq.value;
 const oscfreqval = document.createElement('td');
 oscfreqval.id = 'oscfreqval';
-oscfreqval.textContent = oscfreq.value;
+//oscfreqval.textContent = oscfreq.value;
 
 
 const controllerObjs = {
