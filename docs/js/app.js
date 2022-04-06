@@ -4,16 +4,17 @@ const tapStart = typeof document.ontouchstart !== 'undefined' ? 'touchstart' : '
 
 let playing = false;
 
+const FREQUENCY_VALUE = 5.0;
+const GAIN_VALUE = 10.0;
+
 const audioctx = new AudioContext();
 const osc = new OscillatorNode(audioctx);
-const lfo = new OscillatorNode(audioctx, {frequency: 5});
-const depth = new GainNode(audioctx, {gain: 10});
+const lfo = new OscillatorNode(audioctx, {frequency: FREQUENCY_VALUE});
+const depth = new GainNode(audioctx, {gain: GAIN_VALUE});
 osc.connect(audioctx.destination);
 lfo.connect(depth).connect(osc.frequency);
 
-document.addEventListener('DOMContentLoaded', () => {
-  Setup();
-});
+
 function Play() {
   if (playing) return;
   osc.start();
@@ -27,7 +28,6 @@ function Setup() {
   lfo.frequency.value = lfofreqval.textContent = lfofreq.value;
   depth.gain.value = depthval.textContent = depthfreq.value;
 }
-
 
 
 const playButton = document.createElement('button');
@@ -55,14 +55,14 @@ const lfofreqObj = {
   min: 0.1,
   max: 20.0,
   step: 0.1,
-  value: 5.0
+  value: FREQUENCY_VALUE
 };
 
 const depthObj = {
   id: 'depth',
   min: 0.0,
   max: 100.0,
-  value: 10.0
+  value: GAIN_VALUE
 };
 
 const oscfreqObj = {
@@ -79,16 +79,16 @@ const oscfreq = createInputRange(oscfreqObj);
 lfofreq.addEventListener('input', Setup);
 depthfreq.addEventListener('input', Setup);
 oscfreq.addEventListener('input', Setup);
+document.addEventListener('DOMContentLoaded', Setup);
 
 const lfofreqval = document.createElement('td');
 lfofreqval.id = 'lfofreqval';
-//lfofreqval.textContent = lfofreq.value;
+
 const depthval = document.createElement('td');
 depthval.id = 'depthval';
-//depthval.textContent = depthfreq.value;
+
 const oscfreqval = document.createElement('td');
 oscfreqval.id = 'oscfreqval';
-//oscfreqval.textContent = oscfreq.value;
 
 
 const controllerObjs = {
