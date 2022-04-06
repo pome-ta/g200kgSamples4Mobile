@@ -6,8 +6,8 @@ let playing = false;
 
 const audioctx = new AudioContext();
 const osc = new OscillatorNode(audioctx);
-const lfo = new OscillatorNode(audioctx, {frequency:5});
-const depth = new GainNode(audioctx, {gain:10});
+const lfo = new OscillatorNode(audioctx, {frequency: 5});
+const depth = new GainNode(audioctx, {gain: 10});
 osc.connect(audioctx.destination);
 lfo.connect(depth).connect(osc.frequency);
 
@@ -21,8 +21,9 @@ function Play() {
 
 
 function Setup() {
-  osc.frequency.value = document.getElementById("oscfreqval").innerHTML
-            = document.getElementById("oscfreq").value;
+  osc.frequency.value = oscfreqval.textContent = oscfreq.value;
+  lfo.frequency.value = lfofreqval.textContent = lfofreq.value;
+  depth.gain.value = oscfreqval.textContent = oscfreq.value;
 }
 
 
