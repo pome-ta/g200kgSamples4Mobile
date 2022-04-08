@@ -1,3 +1,12 @@
+# 📝 2022/04/07
+
+
+```
+/System/Library/Audio/UISounds/Swish.caf
+/System/Library/Audio/UISounds/mail-sent.caf
+```
+
+
 # 📝 2022/04/05
 
 [オプショナルチェーン `(?.)`](https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Operators/Optional_chaining)

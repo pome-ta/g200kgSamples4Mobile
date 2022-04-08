@@ -1,6 +1,10 @@
 'use strict';
 
-const tapStart = typeof document.ontouchstart !== 'undefined' ? 'touchstart' : 'mousedown';
+const {tapDown, tapMove, tapUp} = {
+  tapDown: typeof document.ontouchstart !== 'undefined' ? 'touchstart' : 'mousedown',
+  tapMove: typeof document.ontouchmove !== 'undefined' ? 'touchmove' : 'mousemove',
+  tapUp: typeof document.ontouchend !== 'undefined' ? 'touchend' : 'mouseup',
+};
 
 
 let audioctx, mastervol;
@@ -28,7 +32,7 @@ const playButton = document.createElement('button');
 playButton.id = 'play';
 playButton.type = 'button';
 playButton.textContent = 'Play';
-playButton.addEventListener(tapStart, Start);
+playButton.addEventListener(tapDown, Start);
 
 const body = document.body;
 body.appendChild(playButton);
