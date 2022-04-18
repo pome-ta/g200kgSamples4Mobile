@@ -15,46 +15,58 @@ function createPlayButton() {
   return bttn;
 }
 
+const sleep = waitTime => new Promise(resolve => setTimeout(resolve, waitTime));
+
+
 async function loadSample(actx, uri) {
   const res = await fetch(uri);
   const arraybuf = await res.arrayBuffer();
   await sleep(1000);
-  console.log('hoge');
   return actx.decodeAudioData(arraybuf);
 }
+
+const soundPath = './sounds/440_out.wav';
+const audioctx = new AudioContext();
+
+const sound = await loadSample(audioctx, soundPath);
+
 
 const playButton = createPlayButton();
 
 //playButton.addEventListener(tapDown, Start);
 
-const body = document.body;
-body.appendChild(playButton);
+
 
 //const soundPath = '/System/Library/Audio/UISounds/SIMToolkitPositiveACK.caf';
-const soundPath = './sounds/440_out.wav';
+const body = document.body;
 
 window.addEventListener('load', async() => {
+  
+body.appendChild(playButton);
+});
+
+
+//const sound = await LoadSample(audioctx, soundPath);
+
+playButton.addEventListener(tapDown, () => {
+  const src = new AudioBufferSourceNode(audioctx, {buffer:sound});
+  src.connect(audioctx.destination);
+  src.start();
+});
+/*
+window.addEventListener('load', async() => {
   const audioctx = new AudioContext();
-  //const sound = await loadSample(audioctx, soundPath);
-  const sound = await LoadSample(audioctx, soundPath);
+  const sound = await loadSample(audioctx, soundPath);
+  //const sound = await LoadSample(audioctx, soundPath);
   
   playButton.addEventListener(tapDown, () => {
     const src = new AudioBufferSourceNode(audioctx, {buffer:sound});
     src.connect(audioctx.destination);
     src.start();
   });
-  
-  function LoadSample(actx, url) {
-    return new Promise((resolv) => {
-      fetch(url).then((response) => {
-        return response.arrayBuffer();
-      }).then((arraybuf) => {
-        return actx.decodeAudioData(arraybuf);
-      }).then((buf) => {
-        resolv(buf);
-      })
-    });
-  }
-  
-  
 });
+*/
+
+
+
+
