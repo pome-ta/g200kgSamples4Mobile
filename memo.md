@@ -6,6 +6,12 @@
 - Promise をasync に書き換え
 - クソデカオーディオデータ読む時の挙動確認もしとる？
 
+## 07.パラメータとオートメーション
+
+sample が鳴らない [07.パラメータとオートメーション](https://www.g200kg.com/jp/docs/webaudio/audioparam.html)
+
+
+
 
 # 📝 2022/04/18
 
