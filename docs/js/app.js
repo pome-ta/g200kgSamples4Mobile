@@ -18,7 +18,7 @@ const sleep = (waitTime) =>
 async function loadSample(actx, uri) {
   const res = await fetch(uri);
   const arraybuf = await res.arrayBuffer();
-  //await sleep(3000);
+  await sleep(3000);
   return actx.decodeAudioData(arraybuf);
 }
 
