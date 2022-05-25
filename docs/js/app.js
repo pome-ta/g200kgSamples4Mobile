@@ -2,10 +2,8 @@
 
 // xxx: click とかtouch とか
 const { tapDown, tapMove, tapUp } = {
-  tapDown:
-    typeof document.ontouchstart !== 'undefined' ? 'touchstart' : 'mousedown',
-  tapMove:
-    typeof document.ontouchmove !== 'undefined' ? 'touchmove' : 'mousemove',
+  tapDown: typeof document.ontouchstart !== 'undefined' ? 'touchstart' : 'mousedown',
+  tapMove: typeof document.ontouchmove !== 'undefined' ? 'touchmove' : 'mousemove',
   tapUp: typeof document.ontouchend !== 'undefined' ? 'touchend' : 'mouseup',
 };
 
@@ -104,6 +102,7 @@ function createInputRange(rangeObj) {
   element.max = max;
   element.step = step;
   element.value = value;
+  element.style.width = '100%';
   return element;
 }
 
@@ -142,22 +141,26 @@ const {
 const tbl = document.createElement('table');
 const tblBody = document.createElement('tbody');
 for (const key of Object.keys(controllerObjs)) {
-  const row = document.createElement('tr');
+  const tr = document.createElement('tr');
   const th = document.createElement('th');
   th.textContent = key;
-  row.appendChild(th);
+  // th.style.whiteSpace = 'nowrap';
+  th.style.width = '0%';
+  // th.style.minWidth = 0;
+  tr.appendChild(th);
   for (const value of controllerObjs[key]) {
-    if (value === 'TD') {
-      row.appendChild(value);
+    if (value.nodeName === 'TD') {
+      tr.appendChild(value);
     } else {
       const td = document.createElement('td');
+      td.style.width = '100%';
       td.appendChild(value);
-      row.appendChild(td);
+      tr.appendChild(td);
     }
   }
-  tblBody.appendChild(row);
+  tblBody.appendChild(tr);
 }
-
+tbl.style.width = '100%';
 
 
 const mainTitleHeader = document.createElement('h1');
@@ -170,8 +173,12 @@ body.appendChild(mainTitleHeader);
 tbl.appendChild(tblBody);
 body.appendChild(tbl);
 
+
 const cnvsDiv = document.createElement('div');
+cnvsDiv.style.width = '100%';
+console.log(cnvsDiv.style);
 const canvas = document.createElement('canvas');
+canvas.style.width = '100%';
 
 body.appendChild(cnvsDiv);
 cnvsDiv.appendChild(canvas);
