@@ -192,6 +192,7 @@ cnvsDiv.addEventListener(tapDown, () => {
   if (audioctx.state === 'suspended') {
     audioctx.resume();
   }
+  x=0;
   canvasctx.fillStyle = canvasBgColor;
   canvasctx.fillRect(0, 0, WIDTH, HEIGHT);
   
@@ -236,7 +237,22 @@ document.addEventListener('DOMContentLoaded', () => {
      .connect(audioctx.destination);
   osc.start();
 
-  
+  setInterval(()=>{
+        if(x<WIDTH) {
+            ana.getByteTimeDomainData(graphdata);
+            let y=0;
+            for(let i=0;i<128;++i){
+                const d = Math.abs(graphdata[i]-128);
+                if(Math.abs(d>y))
+                    y=d;
+            }
+            canvasctx.fillStyle = "#222222";
+            canvasctx.fillRect(x, 0, 2, HEIGHT);
+            canvasctx.fillStyle = "#00ff00";
+            canvasctx.fillRect(x, HEIGHT - 2*y, 2, 2*y);
+        }
+        x += 2;
+    },50);
 });
 
 
