@@ -9,20 +9,7 @@ const { tapDown, tapMove, tapUp } = {
   tapUp: typeof document.ontouchend !== 'undefined' ? 'touchend' : 'mouseup',
 };
 
-window.addEventListener('load', async () => {
-  sound = await loadSample(audioctx, soundPath);
-});
 
-const sleep = (waitTime) =>
-  new Promise((resolve) => setTimeout(resolve, waitTime));
-async function loadSample(actx, uri) {
-  const res = await fetch(uri);
-  const arraybuf = await res.arrayBuffer();
-  await sleep(3000);
-  return actx.decodeAudioData(arraybuf);
-}
-
-const soundPath = './sounds/440_out.wav';
 const audioctx = new AudioContext();
 let sound = null;
 
@@ -45,7 +32,7 @@ playButton.addEventListener(tapDown, () => {
 
 /* setup document element */
 const attackObj = {
-  inputObj : {
+  inputObj: {
     id: 'atk',
     min: 0.0,
     max: 5.0,
@@ -57,7 +44,7 @@ const attackObj = {
 };
 
 const decayObj = {
-  inputObj : {
+  inputObj: {
     id: 'dcy',
     min: 0.0,
     max: 5.0,
@@ -69,7 +56,7 @@ const decayObj = {
 };
 
 const sustainObj = {
-  inputObj : {
+  inputObj: {
     id: 'sus',
     min: 0.0,
     max: 1.0,
@@ -81,7 +68,7 @@ const sustainObj = {
 };
 
 const releaseObj = {
-  inputObj : {
+  inputObj: {
     id: 'rel',
     min: 0.0,
     max: 5.0,
@@ -109,7 +96,7 @@ function Setup() {
 */
 
 function createInputRange(rangeObj) {
-  const {id, min, max, value, step=''} = rangeObj;
+  const { id, min, max, value, step = '' } = rangeObj;
   const element = document.createElement('input');
   element.type = 'range';
   element.id = id;
@@ -125,15 +112,15 @@ function createControllerObjs(objArray) {
   for (const obj of objArray) {
     const inputElement = createInputRange(obj['inputObj']);
     //inputElement.addEventListener('input', Setup);
-    
+
     const tdElement = document.createElement('td');
     tdElement.id = obj['tableId'];
     tdElement.textContent = parseFloat(inputElement.value).toFixed(2);
-    
+
     inputElement.addEventListener('input', (e) => {
       tdElement.textContent = parseFloat(e.target.value).toFixed(2);
     });
-    
+
     controllerObjs[obj['objName']] = [inputElement, tdElement];
   }
   return controllerObjs;
