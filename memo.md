@@ -15,6 +15,39 @@ sample が鳴らない [07.パラメータとオートメーション](https://w
 
 長押し判定とか、見てみるか
 
+### 原因
+
+`"mousedown"` で呼び出していた
+
+
+``` .js
+const tapStart = typeof document.ontouchstart !== 'undefined' ? 'touchstart' : 'mousedown';
+```
+
+`tapStart` <= `"mousedown"`
+
+置き換え
+
+
+
+
+## 長押し選択を解除する
+
+
+これで、ええか
+
+``` .css
+html {
+  height: 100%;
+  /* タップアクション制御 */
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+```
+
 
 # 📝 2022/04/18
 
