@@ -45,9 +45,6 @@ playButton.addEventListener(tapDown, () => {
 
 /* setup document element */
 
-const FREQUENCY_VALUE = 5.0;
-const GAIN_VALUE = 10.0;
-
 const body = document.body;
 body.appendChild(playButton);
 
@@ -64,31 +61,42 @@ function createInputRange(rangeObj) {
   return element;
 }
 
-const lfofreqObj = {
-  id: 'lfofreq',
-  min: 0.1,
-  max: 20.0,
-  step: 0.1,
-  value: FREQUENCY_VALUE
-};
-
-const depthObj = {
-  id: 'depth',
+const attackObj = {
+  id: 'atk',
   min: 0.0,
-  max: 100.0,
-  value: GAIN_VALUE
+  max: 5.0,
+  step: 0.01,
+  value: 0.3
 };
 
-const oscfreqObj = {
-  id: 'oscfreq',
-  min: 50.0,
-  max: 3000.0,
-  value: 440.0
+const decayObj = {
+  id: 'dcy',
+  min: 0.0,
+  max: 5.0,
+  step: 0.01,
+  value: 1.0
 };
 
-const lfofreq = createInputRange(lfofreqObj);
-const depthfreq = createInputRange(depthObj);
-const oscfreq = createInputRange(oscfreqObj);
+const sustainObj = {
+  id: 'sus',
+  min: 0.0,
+  max: 1.0,
+  step: 0.01,
+  value: 0.5
+};
+
+const releaseObj = {
+  id: 'rel',
+  min: 0.0,
+  max: 5.0,
+  step: 0.01,
+  value: 1.0
+};
+
+const attackInput = createInputRange(attackObj);
+const decayInput = createInputRange(decayObj);
+const sustainInput = createInputRange(sustainObj);
+const releaseInput = createInputRange(releaseObj);
 
 /*
 lfofreq.addEventListener('input', Setup);
@@ -97,20 +105,24 @@ oscfreq.addEventListener('input', Setup);
 */
 //document.addEventListener('DOMContentLoaded', Setup);
 
-const lfofreqval = document.createElement('td');
-lfofreqval.id = 'lfofreqval';
+const atkval = document.createElement('td');
+atkval.id = 'atkval';
 
-const depthval = document.createElement('td');
-depthval.id = 'depthval';
+const dcyval = document.createElement('td');
+dcyval.id = 'dcyval';
 
-const oscfreqval = document.createElement('td');
-oscfreqval.id = 'oscfreqval';
+const susval = document.createElement('td');
+susval.id = 'susval';
+
+const relval = document.createElement('td');
+relval.id = 'relval';
 
 
 const controllerObjs = {
-  'LFO Freq': [lfofreq, lfofreqval],
-  'Depth': [depthfreq, depthval],
-  'OSC Freq': [oscfreq, oscfreqval]
+  'Attack': [attackInput, atkval],
+  'Decay': [decayInput, dcyval],
+  'Sustain': [sustainInput, susval],
+  'Release': [releaseInput, relval]
 };
 
 const tbl = document.createElement('table');
