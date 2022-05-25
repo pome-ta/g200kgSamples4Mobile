@@ -45,114 +45,6 @@ playButton.addEventListener(tapDown, () => {
 
 /* setup document element */
 
-const body = document.body;
-body.appendChild(playButton);
-
-
-function createInputRange(rangeObj) {
-  const {id, min, max, value, step=''} = rangeObj;
-  const element = document.createElement('input');
-  element.type = 'range';
-  element.id = id;
-  element.min = min;
-  element.max = max;
-  element.step = step;
-  element.value = value;
-  return element;
-}
-/*
-const attackObj = {
-  id: 'atk',
-  min: 0.0,
-  max: 5.0,
-  step: 0.01,
-  value: 0.3
-};
-
-const decayObj = {
-  id: 'dcy',
-  min: 0.0,
-  max: 5.0,
-  step: 0.01,
-  value: 1.0
-};
-
-const sustainObj = {
-  id: 'sus',
-  min: 0.0,
-  max: 1.0,
-  step: 0.01,
-  value: 0.5
-};
-
-const releaseObj = {
-  id: 'rel',
-  min: 0.0,
-  max: 5.0,
-  step: 0.01,
-  value: 1.0
-};
-*/
-
-function Setup() {
-  atkval.textContent = parseFloat(atk.value).toFixed(2);
-  dcyval.textContent = parseFloat(dcy.value).toFixed(2);
-  susval.textContent = parseFloat(sus.value).toFixed(2);
-  relval.textContent = parseFloat(rel.value).toFixed(2);
-  
-}
-
-
-function createControllerObjs(objArray) {
-  const controllerObj = {};
-  for (const obj of objArray) {
-    const inputElement = createInputRange(obj['inputObj']);
-    inputElement.addEventListener('input', Setup);
-    
-    const tdElement = document.createElement('td');
-    tdElement.id = obj['tableId'];
-    
-    controllerObj[obj['objName']] = [inputElement, tdElement];
-  }
-  return controllerObj;
-}
-
-/*
-const attackInput = createInputRange(attackObj);
-const decayInput = createInputRange(decayObj);
-const sustainInput = createInputRange(sustainObj);
-const releaseInput = createInputRange(releaseObj);
-*/
-
-/*
-lfofreq.addEventListener('input', Setup);
-depthfreq.addEventListener('input', Setup);
-oscfreq.addEventListener('input', Setup);
-*/
-//document.addEventListener('DOMContentLoaded', Setup);
-/*
-const atkval = document.createElement('td');
-atkval.id = 'atkval';
-
-const dcyval = document.createElement('td');
-dcyval.id = 'dcyval';
-
-const susval = document.createElement('td');
-susval.id = 'susval';
-
-const relval = document.createElement('td');
-relval.id = 'relval';
-
-
-const controllerObjs = {
-  'Attack': [attackInput, atkval],
-  'Decay': [decayInput, dcyval],
-  'Sustain': [sustainInput, susval],
-  'Release': [releaseInput, relval]
-};
-
-
-*/
 const attackObj = {
   inputObj : {
     id: 'atk',
@@ -202,7 +94,57 @@ const releaseObj = {
 };
 
 
+
+
+
+
+
+function Setup() {
+  // xxx: 小数点表示桁数
+  atkval.textContent = parseFloat(atk.value).toFixed(2);
+  dcyval.textContent = parseFloat(dcy.value).toFixed(2);
+  susval.textContent = parseFloat(sus.value).toFixed(2);
+  relval.textContent = parseFloat(rel.value).toFixed(2);
+  
+}
+
+function createInputRange(rangeObj) {
+  const {id, min, max, value, step=''} = rangeObj;
+  const element = document.createElement('input');
+  element.type = 'range';
+  element.id = id;
+  element.min = min;
+  element.max = max;
+  element.step = step;
+  element.value = value;
+  return element;
+}
+
+function createControllerObjs(objArray) {
+  const controllerObjs = {};
+  for (const obj of objArray) {
+    const inputElement = createInputRange(obj['inputObj']);
+    //inputElement.addEventListener('input', Setup);
+    
+    const tdElement = document.createElement('td');
+    tdElement.id = obj['tableId'];
+    tdElement.textContent = parseFloat(inputElement.value).toFixed(2);
+    
+    inputElement.addEventListener('input', (e) => {
+      tdElement.textContent = parseFloat(e.target.value).toFixed(2);
+    });
+    
+    controllerObjs[obj['objName']] = [inputElement, tdElement];
+  }
+  return controllerObjs;
+}
+
+
+
+
 const controllerObjs = createControllerObjs([attackObj, decayObj, sustainObj, releaseObj]);
+
+console.table({controllerObjs});
 
 
 const tbl = document.createElement('table');
@@ -229,12 +171,22 @@ for (const key of Object.keys(controllerObjs)) {
 const mainTitleHeader = document.createElement('h1');
 mainTitleHeader.textContent = 'AudioParam Automation';
 
+
+const body = document.body;
+body.appendChild(playButton);
 body.appendChild(mainTitleHeader);
 tbl.appendChild(tblBody);
 body.appendChild(tbl);
 
-document.addEventListener('DOMContentLoaded', Setup);
-/* 羅列気持ち悪い */
+const cnvsDiv = document.createElement('div');
+const canvas = document.createElement('canvas');
+
+body.appendChild(cnvsDiv);
+cnvsDiv.appendChild(canvas);
+
+
+//document.addEventListener('DOMContentLoaded', Setup);
+/* 連続気持ち悪い */
 const atk = document.querySelector('#atk');
 const dcy = document.querySelector('#dcy');
 const sus = document.querySelector('#sus');
@@ -244,3 +196,4 @@ const atkval = document.querySelector('#atkval');
 const dcyval = document.querySelector('#dcyval');
 const susval = document.querySelector('#susval');
 const relval = document.querySelector('#relval');
+
