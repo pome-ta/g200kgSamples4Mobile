@@ -168,7 +168,7 @@ mainTitleHeader.textContent = 'AudioParam Automation';
 
 
 const body = document.body;
-body.appendChild(playButton);
+//body.appendChild(playButton);
 body.appendChild(mainTitleHeader);
 tbl.appendChild(tblBody);
 body.appendChild(tbl);
