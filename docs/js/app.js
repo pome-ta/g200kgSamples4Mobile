@@ -60,7 +60,7 @@ function createInputRange(rangeObj) {
   element.value = value;
   return element;
 }
-
+/*
 const attackObj = {
   id: 'atk',
   min: 0.0,
@@ -92,11 +92,37 @@ const releaseObj = {
   step: 0.01,
   value: 1.0
 };
+*/
 
+function Setup() {
+  atkval.textContent = parseFloat(atk.value).toFixed(2);
+  dcyval.textContent = parseFloat(dcy.value).toFixed(2);
+  susval.textContent = parseFloat(sus.value).toFixed(2);
+  relval.textContent = parseFloat(rel.value).toFixed(2);
+  
+}
+
+
+function createControllerObjs(objArray) {
+  const controllerObj = {};
+  for (const obj of objArray) {
+    const inputElement = createInputRange(obj['inputObj']);
+    inputElement.addEventListener('input', Setup);
+    
+    const tdElement = document.createElement('td');
+    tdElement.id = obj['tableId'];
+    
+    controllerObj[obj['objName']] = [inputElement, tdElement];
+  }
+  return controllerObj;
+}
+
+/*
 const attackInput = createInputRange(attackObj);
 const decayInput = createInputRange(decayObj);
 const sustainInput = createInputRange(sustainObj);
 const releaseInput = createInputRange(releaseObj);
+*/
 
 /*
 lfofreq.addEventListener('input', Setup);
@@ -104,7 +130,7 @@ depthfreq.addEventListener('input', Setup);
 oscfreq.addEventListener('input', Setup);
 */
 //document.addEventListener('DOMContentLoaded', Setup);
-
+/*
 const atkval = document.createElement('td');
 atkval.id = 'atkval';
 
@@ -124,6 +150,60 @@ const controllerObjs = {
   'Sustain': [sustainInput, susval],
   'Release': [releaseInput, relval]
 };
+
+
+*/
+const attackObj = {
+  inputObj : {
+    id: 'atk',
+    min: 0.0,
+    max: 5.0,
+    step: 0.01,
+    value: 0.3
+  },
+  tableId: 'atkval',
+  objName: 'Attack'
+};
+
+const decayObj = {
+  inputObj : {
+    id: 'dcy',
+    min: 0.0,
+    max: 5.0,
+    step: 0.01,
+    value: 1.0
+  },
+  tableId: 'dcyval',
+  objName: 'Decay'
+};
+
+const sustainObj = {
+  inputObj : {
+    id: 'sus',
+    min: 0.0,
+    max: 1.0,
+    step: 0.01,
+    value: 0.5
+  },
+  tableId: 'susval',
+  objName: 'Sustain'
+};
+
+const releaseObj = {
+  inputObj : {
+    id: 'rel',
+    min: 0.0,
+    max: 5.0,
+    step: 0.01,
+    value: 1.0
+  },
+  tableId: 'relval',
+  objName: 'Release'
+};
+
+
+const controllerObjs = createControllerObjs([attackObj, decayObj, sustainObj, releaseObj]);
+
 
 const tbl = document.createElement('table');
 const tblBody = document.createElement('tbody');
@@ -152,3 +232,14 @@ mainTitleHeader.textContent = 'AudioParam Automation';
 body.appendChild(mainTitleHeader);
 tbl.appendChild(tblBody);
 body.appendChild(tbl);
+
+document.addEventListener('DOMContentLoaded', Setup);
+const atk = document.querySelector('#atk');
+const dcy = document.querySelector('#dcy');
+const sus = document.querySelector('#sus');
+const rel = document.querySelector('#rel');
+
+const atkval = document.querySelector('#atkval');
+const dcyval = document.querySelector('#dcyval');
+const susval = document.querySelector('#susval');
+const relval = document.querySelector('#relval');
