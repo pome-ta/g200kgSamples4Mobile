@@ -234,6 +234,7 @@ tbl.appendChild(tblBody);
 body.appendChild(tbl);
 
 document.addEventListener('DOMContentLoaded', Setup);
+/* 羅列気持ち悪い */
 const atk = document.querySelector('#atk');
 const dcy = document.querySelector('#dcy');
 const sus = document.querySelector('#sus');
