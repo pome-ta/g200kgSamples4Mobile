@@ -44,7 +44,6 @@ playButton.addEventListener(tapDown, () => {
 
 
 /* setup document element */
-
 const attackObj = {
   inputObj : {
     id: 'atk',
@@ -98,7 +97,7 @@ const releaseObj = {
 
 
 
-
+/*
 function Setup() {
   // xxx: 小数点表示桁数
   atkval.textContent = parseFloat(atk.value).toFixed(2);
@@ -107,6 +106,7 @@ function Setup() {
   relval.textContent = parseFloat(rel.value).toFixed(2);
   
 }
+*/
 
 function createInputRange(rangeObj) {
   const {id, min, max, value, step=''} = rangeObj;
@@ -144,7 +144,12 @@ function createControllerObjs(objArray) {
 
 const controllerObjs = createControllerObjs([attackObj, decayObj, sustainObj, releaseObj]);
 
-console.table({controllerObjs});
+const {
+  Attack: [atk, atkval],
+  Decay: [dcy, dcyval],
+  Sustain: [sus, susval],
+  Release: [rel, relval]
+} = controllerObjs;
 
 
 const tbl = document.createElement('table');
@@ -187,6 +192,7 @@ cnvsDiv.appendChild(canvas);
 
 //document.addEventListener('DOMContentLoaded', Setup);
 /* 連続気持ち悪い */
+/*
 const atk = document.querySelector('#atk');
 const dcy = document.querySelector('#dcy');
 const sus = document.querySelector('#sus');
@@ -196,4 +202,4 @@ const atkval = document.querySelector('#atkval');
 const dcyval = document.querySelector('#dcyval');
 const susval = document.querySelector('#susval');
 const relval = document.querySelector('#relval');
-
+*/
