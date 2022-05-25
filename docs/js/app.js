@@ -8,7 +8,7 @@ const { tapDown, tapMove, tapUp } = {
 };
 
 
-const audioctx = new AudioContext();
+//const audioctx = new AudioContext();
 let sound = null;
 
 function createPlayButton() {
@@ -130,6 +130,7 @@ function createControllerObjs(objArray) {
 
 const controllerObjs = createControllerObjs([attackObj, decayObj, sustainObj, releaseObj]);
 
+// xxx: 無駄打ち多い気がする
 const {
   Attack: [atk, atkval],
   Decay: [dcy, dcyval],
@@ -163,9 +164,91 @@ for (const key of Object.keys(controllerObjs)) {
 tbl.style.width = '100%';
 
 
-const mainTitleHeader = document.createElement('h1');
-mainTitleHeader.textContent = 'AudioParam Automation';
 
+const cnvsDiv = document.createElement('div');
+cnvsDiv.style.width = '100%';
+const canvas = document.createElement('canvas');
+//canvas.style.width = '100%';
+const canvasctx = canvas.getContext("2d");
+
+let WIDTH, HEIGHT;
+
+/*   xxx: 今度サイズ確認
+window.addEventListener('resize', ()=>{
+console.log('resize');
+  canvas.width = cnvsDiv.clientWidth;
+  canvas.height = cnvsDiv.clientHeight;
+});*/
+
+let count = 0
+
+const colors = ['#f8f8ff', '#1e90ff', '#98fb98', '#ff8c00', '#ff00ff', '#800000'];
+const clngth = colors.length -1;
+
+const canvasBgColor = '#222222';
+
+let x = 0;
+cnvsDiv.addEventListener(tapDown, () => {
+  if (audioctx.state === 'suspended') {
+    audioctx.resume();
+  }
+  canvasctx.fillStyle = canvasBgColor;
+  canvasctx.fillRect(0, 0, WIDTH, HEIGHT);
+  
+  const t0 = audioctx.currentTime;
+  const t1 = t0 + parseFloat(atk.value);
+  const d = parseFloat(dcy.value);
+  const s = parseFloat(sus.value);
+  gain.gain.setValueAtTime(0, t0);
+  gain.gain.linearRampToValueAtTime(1, t1);
+  gain.gain.setTargetAtTime(s, t1, d);
+  
+});
+
+
+cnvsDiv.addEventListener(tapUp, () => {
+  const r = parseFloat(rel.value);
+  const t0 = audioctx.currentTime;
+  if (gain.gain.cancelAndHoldAtTime) {
+    gain.gain.cancelAndHoldAtTime(t0);
+  }
+  gain.gain.setTargetAtTime(0, t0, r);
+});
+
+const audioctx = new AudioContext();
+const osc = new OscillatorNode(audioctx);
+const gain = new GainNode(audioctx, {gain:0});
+const ana = new AnalyserNode(audioctx);
+
+document.addEventListener('DOMContentLoaded', () => {
+  canvas.width = cnvsDiv.clientWidth;
+  canvas.height = cnvsDiv.clientHeight;
+  WIDTH = cnvsDiv.clientWidth / 2;
+  HEIGHT = cnvsDiv.clientHeight / 2;
+  
+  x = 0;
+  const graphdata = new Uint8Array(128);
+  canvasctx.fillStyle = canvasBgColor;
+  canvasctx.fillRect(0, 0, WIDTH, HEIGHT);
+  
+  osc.connect(gain)
+     .connect(ana)
+     .connect(audioctx.destination);
+  osc.start();
+
+  
+});
+
+
+
+
+
+
+
+
+
+const mainTitleHeader = document.createElement('h2');
+mainTitleHeader.textContent = 'AudioParam Automation';
 
 const body = document.body;
 //body.appendChild(playButton);
@@ -174,26 +257,7 @@ tbl.appendChild(tblBody);
 body.appendChild(tbl);
 
 
-const cnvsDiv = document.createElement('div');
-cnvsDiv.style.width = '100%';
-console.log(cnvsDiv.style);
-const canvas = document.createElement('canvas');
-canvas.style.width = '100%';
 
 body.appendChild(cnvsDiv);
 cnvsDiv.appendChild(canvas);
 
-
-//document.addEventListener('DOMContentLoaded', Setup);
-/* 連続気持ち悪い */
-/*
-const atk = document.querySelector('#atk');
-const dcy = document.querySelector('#dcy');
-const sus = document.querySelector('#sus');
-const rel = document.querySelector('#rel');
-
-const atkval = document.querySelector('#atkval');
-const dcyval = document.querySelector('#dcyval');
-const susval = document.querySelector('#susval');
-const relval = document.querySelector('#relval');
-*/
