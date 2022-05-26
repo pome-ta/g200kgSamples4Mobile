@@ -17,11 +17,11 @@ const ana = new AnalyserNode(audioctx);
 const canvas = document.createElement('canvas');
 const canvasctx = canvas.getContext('2d');
 
+let x = 0;
 let WIDTH, HEIGHT;
 const setting_height = 0.75;  // 4:3
-const canvasBgColor = '#222222';
-let x = 0;
 const uint8length = 128;
+const canvasBgColor = '#222222';
 
 const cnvsDiv = document.createElement('div');
       cnvsDiv.style.width = '100%';
@@ -31,14 +31,11 @@ const cnvsDiv = document.createElement('div');
 
 
 function touchBeganHandler() {
-  /*if (audioctx.state === 'suspended') {
-    audioctx.resume();
-  }*/
-  (audioctx.state === 'suspended') ? audioctx.resume() : null;
   x = 0;
   canvasctx.fillStyle = canvasBgColor;
   canvasctx.fillRect(0, 0, WIDTH, HEIGHT);
-
+  
+  (audioctx.state === 'suspended') ? audioctx.resume() : null;
   const t0 = audioctx.currentTime;
   const t1 = t0 + parseFloat(atk.value);
   const d = parseFloat(dcy.value);
@@ -52,23 +49,21 @@ function touchBeganHandler() {
 function touchEndedHandler() {
   const r = parseFloat(rel.value);
   const t0 = audioctx.currentTime;
-  /*if (gain.gain.cancelAndHoldAtTime) {
-    console.log(t0);
-    gain.gain.cancelAndHoldAtTime(t0);
-  }*/
   (gain.gain.cancelAndHoldAtTime) ? gain.gain.cancelAndHoldAtTime(t0) : null;
   gain.gain.setTargetAtTime(0, t0, r);
 }
 
 
 document.addEventListener('DOMContentLoaded', () => {
-  canvas.width = cnvsDiv.clientWidth;
-  canvas.height = cnvsDiv.clientWidth * setting_height;
-  WIDTH = cnvsDiv.clientWidth;
-  HEIGHT = cnvsDiv.clientHeight;
-
   x = 0;
   const graphdata = new Uint8Array(uint8length);
+  
+  canvas.width = cnvsDiv.clientWidth;
+  canvas.height = cnvsDiv.clientWidth * setting_height;
+  
+  WIDTH = canvas.width;
+  HEIGHT = canvas.height;
+
   canvasctx.fillStyle = canvasBgColor;
   canvasctx.fillRect(0, 0, WIDTH, HEIGHT);
 
@@ -76,22 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
      .connect(ana)
      .connect(audioctx.destination);
   osc.start();
-
-  /*setInterval(() => {
-    if (x < WIDTH) {
-      ana.getByteTimeDomainData(graphdata);
-      let y = 0;
-      for (let i = 0; i < 128; ++i) {
-        const d = Math.abs(graphdata[i] - 128);
-        if (Math.abs(d > y)) y = d;
-      }
-      canvasctx.fillStyle = canvasBgColor;
-      canvasctx.fillRect(x, 0, 2, HEIGHT);
-      canvasctx.fillStyle = '#00ff00';
-      canvasctx.fillRect(x, HEIGHT - 2 * y, 2, 2 * y);
-    }
-    x += 2;
-  }, 50);*/
   
   draw();
   function draw() {
@@ -109,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
       canvasctx.fillStyle = '#00ff00';
       canvasctx.fillRect(x, HEIGHT - 2 * y, 1, 2 * y);
     }
-    x += 1;
+    x += 2;
   }
 });
 
