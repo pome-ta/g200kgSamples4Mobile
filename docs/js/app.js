@@ -149,29 +149,7 @@ const {
   Release: [rel, relval]
 } = controllerObjs;
 
-const tbl = document.createElement('table');
-      tbl.style.width = '100%';
-const tblBody = document.createElement('tbody');
-for (const key of Object.keys(controllerObjs)) {
-  const th = document.createElement('th');
-        th.textContent = key;
-        th.style.width = '0%';
-  const tr = document.createElement('tr');
-        tr.appendChild(th);
-  for (const value of controllerObjs[key]) {
-    if (value.nodeName === 'TD') {
-      tr.appendChild(value);
-    } else {
-      const td = document.createElement('td');
-            td.style.width = '100%';
-            td.appendChild(value);
-      tr.appendChild(td);
-    }
-  }
-  tblBody.appendChild(tr);
-}
-
-
+const controllerTable = createControllerTable(controllerObjs);
 
 
 const mainTitleHeader = document.createElement('h2');
@@ -179,43 +157,66 @@ const mainTitleHeader = document.createElement('h2');
 /* appendChild document element */
 const body = document.body;
 body.appendChild(mainTitleHeader);
-body.appendChild(tbl);
-  tbl.appendChild(tblBody);  // 自分認識用インデント
+body.appendChild(controllerTable);
 body.appendChild(cnvsDiv);
   cnvsDiv.appendChild(canvas);  // 自分認識用インデント
 
 
 /* create document element funcs */
 function createInputRange(rangeObj) {
-  let element;
   const { id, min, max, value, step = '' } = rangeObj;
-  element = document.createElement('input');
-  element.type = 'range';
-  element.id = id;
-  element.min = min;
-  element.max = max;
-  element.step = step;
-  element.value = value;
-  element.style.width = '100%';
+  const element = document.createElement('input');
+        element.type = 'range';
+        element.id = id;
+        element.min = min;
+        element.max = max;
+        element.step = step;
+        element.value = value;
+        element.style.width = '100%';
   return element;
 }
 
 function createControllerObjs(objArray) {
   const controllerObjs = {};
-  let inputElement, tdElement;
-  
   for (const obj of objArray) {
-    inputElement = createInputRange(obj['inputObj']);
-    inputElement.addEventListener('input', (e) => {
-      tdElement.textContent = parseFloat(e.target.value).toFixed(2);
-    });
+    const inputElement = createInputRange(obj['inputObj']);
+          inputElement.addEventListener('input', (e) => {
+            tdElement.textContent = parseFloat(e.target.value).toFixed(2);
+          });
 
-    tdElement = document.createElement('td');
-    tdElement.id = obj['tableId'];
-    tdElement.textContent = parseFloat(inputElement.value).toFixed(2);
+    const tdElement = document.createElement('td');
+          tdElement.id = obj['tableId'];
+          tdElement.textContent = parseFloat(inputElement.value).toFixed(2);
 
     controllerObjs[obj['objName']] = [inputElement, tdElement];
   }
   return controllerObjs;
 }
+
+function createControllerTable(controllers) {
+  const tblBody = document.createElement('tbody');
+  for (const key of Object.keys(controllers)) {
+    const th = document.createElement('th');
+          th.textContent = key;
+          th.style.width = '0%';
+    const tr = document.createElement('tr');
+          tr.appendChild(th);
+    for (const value of controllers[key]) {
+      if (value.nodeName === 'TD') {
+        tr.appendChild(value);
+      } else {
+        const td = document.createElement('td');
+              td.style.width = '100%';
+              td.appendChild(value);
+        tr.appendChild(td);
+      }
+    }
+    tblBody.appendChild(tr);
+  }
+  const tbl = document.createElement('table');
+        tbl.style.width = '100%';
+        tbl.appendChild(tblBody);
+  return tbl;
+}
+
 
