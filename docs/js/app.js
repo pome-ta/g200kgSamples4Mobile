@@ -1,27 +1,33 @@
 'use strict';
 
 // xxx: click とかtouch とか
-const { tapDown, tapMove, tapUp } = {
-  tapDown: typeof document.ontouchstart !== 'undefined' ? 'touchstart' : 'mousedown',
-  tapMove: typeof document.ontouchmove !== 'undefined' ? 'touchmove' : 'mousemove',
-  tapUp: typeof document.ontouchend !== 'undefined' ? 'touchend' : 'mouseup',
+const { touchBegan, touchMoved, touchEnded } = {
+  touchBegan: typeof document.ontouchstart !== 'undefined' ? 'touchstart' : 'mousedown',
+  touchMoved: typeof document.ontouchmove !== 'undefined' ? 'touchmove' : 'mousemove',
+  touchEnded: typeof document.ontouchend !== 'undefined' ? 'touchend' : 'mouseup',
 };
 
-let x = 0;
-let WIDTH, HEIGHT;
 
 const audioctx = new AudioContext();
 const osc = new OscillatorNode(audioctx);
 const gain = new GainNode(audioctx, { gain: 0 });
 const ana = new AnalyserNode(audioctx);
 
-const cnvsDiv = document.createElement('div');
-      cnvsDiv.style.width = '100%';
 const canvas = document.createElement('canvas');
 const canvasctx = canvas.getContext('2d');
+
+let x = 0;
+let WIDTH, HEIGHT;
 const canvasBgColor = '#222222';
 
-cnvsDiv.addEventListener(tapDown, () => {
+const cnvsDiv = document.createElement('div');
+      cnvsDiv.style.width = '100%';
+      cnvsDiv.addEventListener(touchBegan, touchBeganHandler);
+      cnvsDiv.addEventListener(touchEnded, touchEndedHandler);
+      cnvsDiv.appendChild(canvas);
+
+
+function touchBeganHandler() {
   if (audioctx.state === 'suspended') {
     audioctx.resume();
   }
@@ -36,22 +42,25 @@ cnvsDiv.addEventListener(tapDown, () => {
   gain.gain.setValueAtTime(0, t0);
   gain.gain.linearRampToValueAtTime(1, t1);
   gain.gain.setTargetAtTime(s, t1, d);
-});
+}
 
-cnvsDiv.addEventListener(tapUp, () => {
+
+function touchEndedHandler() {
   const r = parseFloat(rel.value);
   const t0 = audioctx.currentTime;
   if (gain.gain.cancelAndHoldAtTime) {
     gain.gain.cancelAndHoldAtTime(t0);
   }
   gain.gain.setTargetAtTime(0, t0, r);
-});
+}
+
 
 document.addEventListener('DOMContentLoaded', () => {
+  const setting_height = 0.75;  // 4:3
   canvas.width = cnvsDiv.clientWidth;
-  canvas.height = cnvsDiv.clientHeight;
-  WIDTH = cnvsDiv.clientWidth / 2;
-  HEIGHT = cnvsDiv.clientHeight / 2;
+  canvas.height = cnvsDiv.clientWidth * setting_height;
+  WIDTH = cnvsDiv.clientWidth;
+  HEIGHT = cnvsDiv.clientHeight;
 
   x = 0;
   const graphdata = new Uint8Array(128);
@@ -71,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const d = Math.abs(graphdata[i] - 128);
         if (Math.abs(d > y)) y = d;
       }
-      canvasctx.fillStyle = '#222222';
+      canvasctx.fillStyle = canvasBgColor;
       canvasctx.fillRect(x, 0, 2, HEIGHT);
       canvasctx.fillStyle = '#00ff00';
       canvasctx.fillRect(x, HEIGHT - 2 * y, 2, 2 * y);
@@ -80,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }, 50);
 });
 
-/*   xxx: 今度サイズ確認
+/*   xxx: リサイズ処理確認
 window.addEventListener('resize', ()=>{
 console.log('resize');
   canvas.width = cnvsDiv.clientWidth;
@@ -151,16 +160,15 @@ const {
 
 const controllerTable = createControllerTable(controllerObjs);
 
-
 const mainTitleHeader = document.createElement('h2');
       mainTitleHeader.textContent = 'AudioParam Automation';
+
 
 /* appendChild document element */
 const body = document.body;
 body.appendChild(mainTitleHeader);
 body.appendChild(controllerTable);
 body.appendChild(cnvsDiv);
-  cnvsDiv.appendChild(canvas);  // 自分認識用インデント
 
 
 /* create document element funcs */
@@ -176,6 +184,7 @@ function createInputRange(rangeObj) {
         element.style.width = '100%';
   return element;
 }
+
 
 function createControllerObjs(objArray) {
   const controllerObjs = {};
@@ -193,6 +202,7 @@ function createControllerObjs(objArray) {
   }
   return controllerObjs;
 }
+
 
 function createControllerTable(controllers) {
   const tblBody = document.createElement('tbody');
@@ -219,5 +229,4 @@ function createControllerTable(controllers) {
         tbl.appendChild(tblBody);
   return tbl;
 }
-
 
