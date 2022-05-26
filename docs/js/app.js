@@ -32,9 +32,11 @@ let WIDTH, HEIGHT;
 const setting_height = 0.75;  // 4:3
 const uint8length = 128;
 const canvasBgColor = '#222222';
+let isTouch = false;
 
 
 function touchBeganHandler() {
+  isTouch = true;
   (audioctx.state === 'suspended') ? audioctx.resume() : null;
   const t0 = audioctx.currentTime;
   const t1 = t0 + parseFloat(atk.value);
@@ -51,54 +53,12 @@ function touchBeganHandler() {
 
 
 function touchEndedHandler() {
+  isTouch = false;
   const r = parseFloat(rel.value);
   const t0 = audioctx.currentTime;
   (gain.gain.cancelAndHoldAtTime) ? gain.gain.cancelAndHoldAtTime(t0) : null;
   gain.gain.setTargetAtTime(0, t0, r);
 }
-
-
-document.addEventListener('DOMContentLoaded', () => {
-  x = 0;
-  initResize();
-  const graphdata = new Uint8Array(uint8length);
-
-   osc.connect(gain)
-     .connect(ana)
-     .connect(audioctx.destination);
-  osc.start();
-  
-  draw();
-  function draw() {
-    requestAnimationFrame(draw);
-    if (x < WIDTH) {
-      ana.getByteTimeDomainData(graphdata);
-      let y = 0;
-      //console.log(graphdata);
-      // memo: `graphdata` 配列内の数値(0 ~ 255) を、±128 に整え、最大値を取得する
-      
-      //for (let i = 0; i < uint8length; ++i) {
-      for (const setData of new Set(graphdata)) {
-        const data = Math.abs(setData - uint8length);
-        //console.log(d);
-        if (Math.abs(data > y)) y = data;
-      }
-      canvasctx.fillStyle = canvasBgColor;
-      canvasctx.fillRect(x, 0, 2, HEIGHT);
-      canvasctx.fillStyle = '#00ff00';
-      //console.log(`h:${HEIGHT - (y * ratio)}  y:${y}`);
-      canvasctx.fillRect(x, HEIGHT - (y * ratio), 1, HEIGHT);
-    } else {
-      x = 0;
-    }
-    x += 1;
-  }
-  
-});
-
-// xxx: リサイズ処理確認
-window.addEventListener('resize', initResize);
-
 
 function initResize() {
   canvas.width = cnvsDiv.clientWidth;
@@ -112,6 +72,45 @@ function initResize() {
   x = 0;
   ratio = HEIGHT / 128  // todo: uint8
 }
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  x = 0;
+  initResize();
+  const graphdata = new Uint8Array(uint8length);
+
+  osc.connect(gain)
+     .connect(ana)
+     .connect(audioctx.destination);
+  osc.start();
+  
+  draw();
+  function draw() {
+    requestAnimationFrame(draw);
+    if (x < WIDTH) {
+      ana.getByteTimeDomainData(graphdata);
+      let y = 0;
+      for (const setData of new Set(graphdata)) {
+        const data = Math.abs(setData - uint8length);
+        if (Math.abs(data > y)) y = data;
+      }
+      canvasctx.fillStyle = canvasBgColor;
+      canvasctx.fillRect(x, 0, 2, HEIGHT);
+      
+      canvasctx.fillStyle = (isTouch) ? '#ff00ff' : '#00ff00';
+      canvasctx.fillRect(x, HEIGHT - (y * ratio), 1, HEIGHT);
+    } else {
+      x = -1;
+    }
+    x += 2;
+  }
+  
+});
+
+// xxx: リサイズ処理確認
+window.addEventListener('resize', initResize);
+
+
 
 /* setup document element */
 /* create controller elements */
