@@ -7,6 +7,7 @@ const { touchBegan, touchMoved, touchEnded } = {
   touchEnded: typeof document.ontouchend !== 'undefined' ? 'touchend' : 'mouseup',
 };
 
+
 /* audio */
 const audioctx = new AudioContext();
 const osc = new OscillatorNode(audioctx);
@@ -19,6 +20,12 @@ const canvas = document.createElement('canvas');
       canvas.style.width = '100%';
 const canvasctx = canvas.getContext('2d');
 
+const cnvsDiv = document.createElement('div');
+      cnvsDiv.style.width = '100%';
+      cnvsDiv.addEventListener(touchBegan, touchBeganHandler);
+      cnvsDiv.addEventListener(touchEnded, touchEndedHandler);
+      cnvsDiv.appendChild(canvas);
+
 let x = 0;
 let ratio;
 let WIDTH, HEIGHT;
@@ -27,18 +34,7 @@ const uint8length = 128;
 const canvasBgColor = '#222222';
 
 
-const cnvsDiv = document.createElement('div');
-      cnvsDiv.style.width = '100%';
-      cnvsDiv.addEventListener(touchBegan, touchBeganHandler);
-      cnvsDiv.addEventListener(touchEnded, touchEndedHandler);
-      cnvsDiv.appendChild(canvas);
-
-
 function touchBeganHandler() {
-  x = 0;
-  canvasctx.fillStyle = canvasBgColor;
-  canvasctx.fillRect(0, 0, WIDTH, HEIGHT);
-  
   (audioctx.state === 'suspended') ? audioctx.resume() : null;
   const t0 = audioctx.currentTime;
   const t1 = t0 + parseFloat(atk.value);
@@ -47,6 +43,10 @@ function touchBeganHandler() {
   gain.gain.setValueAtTime(0, t0);
   gain.gain.linearRampToValueAtTime(1, t1);
   gain.gain.setTargetAtTime(s, t1, d);
+  
+  x = 0;
+  canvasctx.fillStyle = canvasBgColor;
+  canvasctx.fillRect(0, 0, WIDTH, HEIGHT);
 }
 
 
