@@ -17,9 +17,11 @@ const ana = new AnalyserNode(audioctx);
 const canvas = document.createElement('canvas');
 const canvasctx = canvas.getContext('2d');
 
-let x = 0;
 let WIDTH, HEIGHT;
+const setting_height = 0.75;  // 4:3
 const canvasBgColor = '#222222';
+let x = 0;
+const uint8length = 128;
 
 const cnvsDiv = document.createElement('div');
       cnvsDiv.style.width = '100%';
@@ -60,14 +62,13 @@ function touchEndedHandler() {
 
 
 document.addEventListener('DOMContentLoaded', () => {
-  const setting_height = 0.75;  // 4:3
   canvas.width = cnvsDiv.clientWidth;
   canvas.height = cnvsDiv.clientWidth * setting_height;
   WIDTH = cnvsDiv.clientWidth;
   HEIGHT = cnvsDiv.clientHeight;
 
   x = 0;
-  const graphdata = new Uint8Array(128);
+  const graphdata = new Uint8Array(uint8length);
   canvasctx.fillStyle = canvasBgColor;
   canvasctx.fillRect(0, 0, WIDTH, HEIGHT);
 
@@ -76,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
      .connect(audioctx.destination);
   osc.start();
 
-  setInterval(() => {
+  /*setInterval(() => {
     if (x < WIDTH) {
       ana.getByteTimeDomainData(graphdata);
       let y = 0;
@@ -90,7 +91,26 @@ document.addEventListener('DOMContentLoaded', () => {
       canvasctx.fillRect(x, HEIGHT - 2 * y, 2, 2 * y);
     }
     x += 2;
-  }, 50);
+  }, 50);*/
+  
+  draw();
+  function draw() {
+    requestAnimationFrame(draw);
+    if (x < WIDTH) {
+      ana.getByteTimeDomainData(graphdata);
+      let y = 0;
+      for (let i = 0; i < uint8length; ++i) {
+        const d = Math.abs(graphdata[i] - uint8length);
+        if (Math.abs(d > y)) y = d;
+      }
+      // xxx: 不要？上書きしてる様子。`touchBegan` でリセット済
+      //canvasctx.fillStyle = canvasBgColor;
+      //canvasctx.fillRect(x, 0, 2, HEIGHT);
+      canvasctx.fillStyle = '#00ff00';
+      canvasctx.fillRect(x, HEIGHT - 2 * y, 1, 2 * y);
+    }
+    x += 1;
+  }
 });
 
 /*   xxx: リサイズ処理確認
