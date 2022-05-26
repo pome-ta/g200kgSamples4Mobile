@@ -142,7 +142,12 @@ const controllerObjs = createControllerObjs([
 ]);
 
 // xxx: 無駄打ち多い気がする
-const { Attack: [atk, atkval], Decay: [dcy, dcyval], Sustain: [sus, susval], Release: [rel, relval] } = controllerObjs;
+const { 
+  Attack: [atk, atkval],
+  Decay: [dcy, dcyval],
+  Sustain: [sus, susval],
+  Release: [rel, relval]
+} = controllerObjs;
 
 const tbl = document.createElement('table');
       tbl.style.width = '100%';
