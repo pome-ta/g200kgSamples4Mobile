@@ -12,7 +12,7 @@ let WIDTH, HEIGHT;
 
 const audioctx = new AudioContext();
 const osc = new OscillatorNode(audioctx);
-const gain = new GainNode(audioctx, {gain: 0});
+const gain = new GainNode(audioctx, { gain: 0 });
 const ana = new AnalyserNode(audioctx);
 
 const cnvsDiv = document.createElement('div');
@@ -142,7 +142,7 @@ const controllerObjs = createControllerObjs([
 ]);
 
 // xxx: 無駄打ち多い気がする
-const { 
+const {
   Attack: [atk, atkval],
   Decay: [dcy, dcyval],
   Sustain: [sus, susval],
@@ -154,6 +154,7 @@ const controllerTable = createControllerTable(controllerObjs);
 
 const mainTitleHeader = document.createElement('h2');
       mainTitleHeader.textContent = 'AudioParam Automation';
+
 /* appendChild document element */
 const body = document.body;
 body.appendChild(mainTitleHeader);
