@@ -1,3 +1,11 @@
+# 📝 2022/05/26
+
+
+`setInterval` と`requestAnimationFrame`
+
+[2 つの時計のお話 - Web Audio の正確なスケジューリングについて](https://www.html5rocks.com/ja/tutorials/audio/scheduling/)
+
+
 # 📝 2022/05/25
 
 

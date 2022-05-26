@@ -7,12 +7,13 @@ const { touchBegan, touchMoved, touchEnded } = {
   touchEnded: typeof document.ontouchend !== 'undefined' ? 'touchend' : 'mouseup',
 };
 
-
+/* audio */
 const audioctx = new AudioContext();
 const osc = new OscillatorNode(audioctx);
 const gain = new GainNode(audioctx, { gain: 0 });
 const ana = new AnalyserNode(audioctx);
 
+/* canvas */
 const canvas = document.createElement('canvas');
 const canvasctx = canvas.getContext('2d');
 
