@@ -20,6 +20,7 @@ const canvas = document.createElement('canvas');
 const canvasctx = canvas.getContext('2d');
 
 let x = 0;
+let ratio;
 let WIDTH, HEIGHT;
 const setting_height = 0.75;  // 4:3
 const uint8length = 128;
@@ -59,24 +60,13 @@ function touchEndedHandler() {
 
 document.addEventListener('DOMContentLoaded', () => {
   x = 0;
-  
+  initResize();
   const graphdata = new Uint8Array(uint8length);
-  
-  canvas.width = cnvsDiv.clientWidth;
-  canvas.height = cnvsDiv.clientWidth * setting_height;
-  
-  WIDTH = canvas.width;
-  HEIGHT = canvas.height;
-  const ratio = HEIGHT / 128  // todo: uint8
 
-  canvasctx.fillStyle = canvasBgColor;
-  canvasctx.fillRect(0, 0, WIDTH, HEIGHT);
-
-  osc.connect(gain)
+   osc.connect(gain)
      .connect(ana)
      .connect(audioctx.destination);
   osc.start();
-  
   
   draw();
   function draw() {
@@ -84,22 +74,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (x < WIDTH) {
       ana.getByteTimeDomainData(graphdata);
       let y = 0;
+      console.log(graphdata);
+      // memo: `graphdata` 配列内の数値(0 ~ 255) を、±128 に整え、最大値を取得する
       for (let i = 0; i < uint8length; ++i) {
         const d = Math.abs(graphdata[i] - uint8length);
+        console.log(d);
         if (Math.abs(d > y)) y = d;
       }
-      
-      // todo: 最大が128 の音量
-      // 300 <= 128
-      // HEIGHT = 128
-      // 0=0
-      // xxx: 不要？上書きしてる様子。`touchBegan` でリセット済
-      const ratioHeight = HEIGHT - (y * ratio);
       canvasctx.fillStyle = canvasBgColor;
       canvasctx.fillRect(x, 0, 2, HEIGHT);
       canvasctx.fillStyle = '#00ff00';
-      //canvasctx.fillRect(x, HEIGHT - 2 * y, 1, 2 * y);
-      canvasctx.fillRect(x, ratioHeight, 1, HEIGHT);
+      console.log(`h:${HEIGHT - (y * ratio)}  y:${y}`);
+      canvasctx.fillRect(x, HEIGHT - (y * ratio), 1, HEIGHT);
     } else {
       x = 0;
     }
@@ -108,12 +94,22 @@ document.addEventListener('DOMContentLoaded', () => {
   
 });
 
-/*   xxx: リサイズ処理確認
-window.addEventListener('resize', ()=>{
-console.log('resize');
+// xxx: リサイズ処理確認
+window.addEventListener('resize', initResize);
+
+
+function initResize() {
   canvas.width = cnvsDiv.clientWidth;
-  canvas.height = cnvsDiv.clientHeight;
-});*/
+  canvas.height = cnvsDiv.clientWidth * setting_height;
+  
+  WIDTH = canvas.width;
+  HEIGHT = canvas.height;
+
+  canvasctx.fillStyle = canvasBgColor;
+  canvasctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+  ratio = HEIGHT / 128  // todo: uint8
+}
 
 /* setup document element */
 /* create controller elements */
