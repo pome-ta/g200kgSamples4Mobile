@@ -13,8 +13,10 @@ const osc = new OscillatorNode(audioctx);
 const gain = new GainNode(audioctx, { gain: 0 });
 const ana = new AnalyserNode(audioctx);
 
+
 /* canvas */
 const canvas = document.createElement('canvas');
+      canvas.style.width = '100%';
 const canvasctx = canvas.getContext('2d');
 
 let x = 0;
@@ -22,6 +24,7 @@ let WIDTH, HEIGHT;
 const setting_height = 0.75;  // 4:3
 const uint8length = 128;
 const canvasBgColor = '#222222';
+
 
 const cnvsDiv = document.createElement('div');
       cnvsDiv.style.width = '100%';
@@ -56,6 +59,7 @@ function touchEndedHandler() {
 
 document.addEventListener('DOMContentLoaded', () => {
   x = 0;
+  
   const graphdata = new Uint8Array(uint8length);
   
   canvas.width = cnvsDiv.clientWidth;
@@ -63,6 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   WIDTH = canvas.width;
   HEIGHT = canvas.height;
+  const ratio = HEIGHT / 128  // todo: uint8
 
   canvasctx.fillStyle = canvasBgColor;
   canvasctx.fillRect(0, 0, WIDTH, HEIGHT);
@@ -71,6 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
      .connect(ana)
      .connect(audioctx.destination);
   osc.start();
+  
   
   draw();
   function draw() {
@@ -82,14 +88,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const d = Math.abs(graphdata[i] - uint8length);
         if (Math.abs(d > y)) y = d;
       }
+      
+      // todo: 最大が128 の音量
+      // 300 <= 128
+      // HEIGHT = 128
+      // 0=0
       // xxx: 不要？上書きしてる様子。`touchBegan` でリセット済
-      //canvasctx.fillStyle = canvasBgColor;
-      //canvasctx.fillRect(x, 0, 2, HEIGHT);
+      const ratioHeight = HEIGHT - (y * ratio);
+      canvasctx.fillStyle = canvasBgColor;
+      canvasctx.fillRect(x, 0, 2, HEIGHT);
       canvasctx.fillStyle = '#00ff00';
-      canvasctx.fillRect(x, HEIGHT - 2 * y, 1, 2 * y);
+      //canvasctx.fillRect(x, HEIGHT - 2 * y, 1, 2 * y);
+      canvasctx.fillRect(x, ratioHeight, 1, HEIGHT);
+    } else {
+      x = 0;
     }
     x += 2;
   }
+  
 });
 
 /*   xxx: リサイズ処理確認
