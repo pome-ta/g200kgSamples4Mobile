@@ -29,9 +29,10 @@ const cnvsDiv = document.createElement('div');
 
 
 function touchBeganHandler() {
-  if (audioctx.state === 'suspended') {
+  /*if (audioctx.state === 'suspended') {
     audioctx.resume();
-  }
+  }*/
+  (audioctx.state === 'suspended') ? audioctx.resume() : null;
   x = 0;
   canvasctx.fillStyle = canvasBgColor;
   canvasctx.fillRect(0, 0, WIDTH, HEIGHT);
@@ -49,9 +50,11 @@ function touchBeganHandler() {
 function touchEndedHandler() {
   const r = parseFloat(rel.value);
   const t0 = audioctx.currentTime;
-  if (gain.gain.cancelAndHoldAtTime) {
+  /*if (gain.gain.cancelAndHoldAtTime) {
+    console.log(t0);
     gain.gain.cancelAndHoldAtTime(t0);
-  }
+  }*/
+  (gain.gain.cancelAndHoldAtTime) ? gain.gain.cancelAndHoldAtTime(t0) : null;
   gain.gain.setTargetAtTime(0, t0, r);
 }
 
