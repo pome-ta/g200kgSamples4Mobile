@@ -1,6 +1,6 @@
 'use strict';
 
-// xxx: click とかtouch とか
+// todo: MouseEvent TouchEvent wrapper
 const { touchBegan, touchMoved, touchEnded } = {
   touchBegan: typeof document.ontouchstart !== 'undefined' ? 'touchstart' : 'mousedown',
   touchMoved: typeof document.ontouchmove !== 'undefined' ? 'touchmove' : 'mousemove',
