@@ -74,22 +74,24 @@ document.addEventListener('DOMContentLoaded', () => {
     if (x < WIDTH) {
       ana.getByteTimeDomainData(graphdata);
       let y = 0;
-      console.log(graphdata);
+      //console.log(graphdata);
       // memo: `graphdata` 配列内の数値(0 ~ 255) を、±128 に整え、最大値を取得する
-      for (let i = 0; i < uint8length; ++i) {
-        const d = Math.abs(graphdata[i] - uint8length);
-        console.log(d);
-        if (Math.abs(d > y)) y = d;
+      
+      //for (let i = 0; i < uint8length; ++i) {
+      for (const setData of new Set(graphdata)) {
+        const data = Math.abs(setData - uint8length);
+        //console.log(d);
+        if (Math.abs(data > y)) y = data;
       }
       canvasctx.fillStyle = canvasBgColor;
       canvasctx.fillRect(x, 0, 2, HEIGHT);
       canvasctx.fillStyle = '#00ff00';
-      console.log(`h:${HEIGHT - (y * ratio)}  y:${y}`);
+      //console.log(`h:${HEIGHT - (y * ratio)}  y:${y}`);
       canvasctx.fillRect(x, HEIGHT - (y * ratio), 1, HEIGHT);
     } else {
       x = 0;
     }
-    x += 2;
+    x += 1;
   }
   
 });
@@ -107,7 +109,7 @@ function initResize() {
 
   canvasctx.fillStyle = canvasBgColor;
   canvasctx.fillRect(0, 0, WIDTH, HEIGHT);
-
+  x = 0;
   ratio = HEIGHT / 128  // todo: uint8
 }
 
