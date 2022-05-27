@@ -73,7 +73,7 @@ function initCanvas() {
 }
 
 
-window.addEventListener('resize', initResize);
+window.addEventListener('resize', initCanvas);
 
 document.addEventListener('DOMContentLoaded', () => {
   const graphdata = new Uint8Array(uint8length);
@@ -161,18 +161,12 @@ const controllerObjs = createControllerObjs([
   attackObj, decayObj, sustainObj, releaseObj
 ]);
 
-// xxx: 無駄打ち多い気がする
-const {
-  Attack: [atk, atkval],
-  Decay: [dcy, dcyval],
-  Sustain: [sus, susval],
-  Release: [rel, relval]
-} = controllerObjs;
+const [[atk, atkval], [dcy, dcyval], [sus, susval], [rel, relval]] = Object.keys(controllerObjs).map(key => controllerObjs[key]);
 
 const controllerTable = createControllerTable(controllerObjs);
 
 const mainTitleHeader = document.createElement('h2');
-      mainTitleHeader.textContent = 'AudioParam Automation';
+      mainTitleHeader.textContent = 'FM synthesize Test';
 
 
 /* appendChild document element */
