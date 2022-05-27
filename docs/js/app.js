@@ -73,8 +73,8 @@ function initCanvas() {
 }
 
 
-window.addEventListener('resize', initCanvas);
-
+//window.addEventListener('resize', initCanvas);
+/*
 document.addEventListener('DOMContentLoaded', () => {
   const graphdata = new Uint8Array(uint8length);
   osc.connect(gain)
@@ -104,64 +104,61 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   draw();
 });
-
+*/
 
 
 /* setup document element */
 /* create controller elements */
-const attackObj = {
+const op1freqObj = {
   inputObj: {
-    id: 'atk',
-    min: 0.0,
-    max: 5.0,
-    step: 0.01,
-    value: 0.3
+    id: 'op1freq',
+    min: 10,
+    max: 999,
+    value: 220
   },
-  tableId: 'atkval',
-  objName: 'Attack'
+  tableId: 'op1freqval',
+  objName: 'OP1 Freq'
 };
 
-const decayObj = {
+const op1levelObj = {
   inputObj: {
-    id: 'dcy',
-    min: 0.0,
-    max: 5.0,
-    step: 0.01,
-    value: 1.0
+    id: 'op1level',
+    min: 0,
+    max: 999,
+    value: 300
   },
-  tableId: 'dcyval',
-  objName: 'Decay'
+  tableId: 'op1levelval',
+  objName: 'OP1 Level'
 };
 
-const sustainObj = {
+const op2freqvalObj = {
   inputObj: {
-    id: 'sus',
-    min: 0.0,
-    max: 1.0,
+    id: 'op2freq',
+    min: 10,
+    max: 999,
+    value: 440
+  },
+  tableId: 'op2freqval',
+  objName: 'OP2 Freq'
+};
+
+const op2levelvalObj = {
+  inputObj: {
+    id: 'op2level',
+    min: 0,
+    max: 1,
     step: 0.01,
     value: 0.5
   },
-  tableId: 'susval',
-  objName: 'Sustain'
-};
-
-const releaseObj = {
-  inputObj: {
-    id: 'rel',
-    min: 0.0,
-    max: 5.0,
-    step: 0.01,
-    value: 1.0
-  },
-  tableId: 'relval',
-  objName: 'Release'
+  tableId: 'op2levelval',
+  objName: 'OP2 Level'
 };
 
 const controllerObjs = createControllerObjs([
-  attackObj, decayObj, sustainObj, releaseObj
+  op1freqObj, op1levelObj, op2freqvalObj, op2levelvalObj
 ]);
 
-const [[atk, atkval], [dcy, dcyval], [sus, susval], [rel, relval]] = Object.keys(controllerObjs).map(key => controllerObjs[key]);
+const [[op1freq, op1freqval], [op1level, op1levelval], [op2freq, op2freqval], [op2level, op2levelval]] = Object.keys(controllerObjs).map(key => controllerObjs[key]);
 
 const controllerTable = createControllerTable(controllerObjs);
 
@@ -173,7 +170,7 @@ const mainTitleHeader = document.createElement('h2');
 const body = document.body;
 body.appendChild(mainTitleHeader);
 body.appendChild(controllerTable);
-body.appendChild(cnvsDiv);
+//body.appendChild(cnvsDiv);
 
 
 /* create document element funcs */
@@ -191,6 +188,36 @@ function createInputRange(rangeObj) {
 }
 
 
+function zeroPadding(targetValue) {
+  const regex = new RegExp('\\d\\.\\d');
+  
+  return regex.test(targetValue) ? parseFloat(targetValue).toFixed(2) : parseInt(targetValue);
+}
+
+
+function createControllerObjs(objArray) {
+  const controllerObjs = {};
+  for (const obj of objArray) {
+    const inputElement = createInputRange(obj['inputObj']);
+          inputElement.addEventListener('input', (e) => {
+            tdElement.textContent = zeroPadding(e.target.value);
+            
+            
+            //tdElement.textContent = parseFloat(e.target.value).toFixed(2);
+          });
+
+    const tdElement = document.createElement('td');
+          tdElement.id = obj['tableId'];
+          tdElement.textContent = zeroPadding(inputElement.value);
+          //tdElement.textContent = inputElement.value;
+
+    controllerObjs[obj['objName']] = [inputElement, tdElement];
+  }
+  return controllerObjs;
+}
+
+/*
+
 function createControllerObjs(objArray) {
   const controllerObjs = {};
   for (const obj of objArray) {
@@ -207,6 +234,7 @@ function createControllerObjs(objArray) {
   }
   return controllerObjs;
 }
+*/
 
 
 function createControllerTable(controllers) {
