@@ -73,7 +73,7 @@ function initCanvas() {
 }
 
 
-window.addEventListener('resize', initResize);
+window.addEventListener('resize', initCanvas);
 
 document.addEventListener('DOMContentLoaded', () => {
   const graphdata = new Uint8Array(uint8length);
