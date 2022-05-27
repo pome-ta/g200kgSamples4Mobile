@@ -201,8 +201,6 @@ function createControllerObjs(objArray) {
     const inputElement = createInputRange(obj['inputObj']);
           inputElement.addEventListener('input', (e) => {
             tdElement.textContent = zeroPadding(e.target.value);
-            
-            
             //tdElement.textContent = parseFloat(e.target.value).toFixed(2);
           });
 
