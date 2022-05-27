@@ -26,9 +26,10 @@ const cnvsDiv = document.createElement('div');
       cnvsDiv.addEventListener(touchEnded, touchEndedHandler);
       cnvsDiv.appendChild(canvas);
 
+
+let WIDTH, HEIGHT;
 let x = 0;
 let ratio;
-let WIDTH, HEIGHT;
 const setting_height = 0.75;  // 4:3
 const uint8length = 128;
 const canvasBgColor = '#222222';
@@ -45,10 +46,8 @@ function touchBeganHandler() {
   gain.gain.setValueAtTime(0, t0);
   gain.gain.linearRampToValueAtTime(1, t1);
   gain.gain.setTargetAtTime(s, t1, d);
+  initCanvas();
   
-  x = 0;
-  canvasctx.fillStyle = canvasBgColor;
-  canvasctx.fillRect(0, 0, WIDTH, HEIGHT);
 }
 
 
@@ -60,33 +59,31 @@ function touchEndedHandler() {
   gain.gain.setTargetAtTime(0, t0, r);
 }
 
-function initResize() {
+
+function initCanvas() {
   canvas.width = cnvsDiv.clientWidth;
   canvas.height = cnvsDiv.clientWidth * setting_height;
-  
   WIDTH = canvas.width;
   HEIGHT = canvas.height;
-
-  canvasctx.fillStyle = canvasBgColor;
-  canvasctx.fillRect(0, 0, WIDTH, HEIGHT);
+  
   x = 0;
   ratio = HEIGHT / 128  // todo: uint8
+  canvasctx.fillStyle = canvasBgColor;
+  canvasctx.fillRect(0, 0, WIDTH, HEIGHT);
 }
 
 
-document.addEventListener('DOMContentLoaded', () => {
-  x = 0;
-  initResize();
-  const graphdata = new Uint8Array(uint8length);
+window.addEventListener('resize', initResize);
 
+document.addEventListener('DOMContentLoaded', () => {
+  const graphdata = new Uint8Array(uint8length);
   osc.connect(gain)
      .connect(ana)
      .connect(audioctx.destination);
   osc.start();
   
-  draw();
+  initCanvas();
   function draw() {
-    requestAnimationFrame(draw);
     if (x < WIDTH) {
       ana.getByteTimeDomainData(graphdata);
       let y = 0;
@@ -103,12 +100,10 @@ document.addEventListener('DOMContentLoaded', () => {
       x = -1;
     }
     x += 2;
+    requestAnimationFrame(draw);
   }
-  
+  draw();
 });
-
-// xxx: リサイズ処理確認
-window.addEventListener('resize', initResize);
 
 
 
