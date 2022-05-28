@@ -116,11 +116,6 @@ const mainTitleHeader = document.createElement('h2');
 
 
 /* appendChild document element */
-/*  // xxx: あとで考える
-function setAppendChild(childArrays, nodeParent=document.body) {
-  
-  Array.isArray(childArrays) ? childArrays.map(child => setAppendChild(child), childArrays) : nodeParent.appendChild(childArrays);
-}*/
 
 const body = document.body;
 
@@ -161,10 +156,6 @@ function createInputRange(rangeObj) {
 }
 
 
-function zeroPadding(targetValue) {
-  const regex = new RegExp('\\d\\.\\d');
-  return regex.test(targetValue) ? parseFloat(targetValue).toFixed(2) : parseInt(targetValue);
-}
 
 function createControllerObjs(objArray) {
   const controllerObjs = {};
@@ -174,7 +165,6 @@ function createControllerObjs(objArray) {
 
     const tdElement = document.createElement('td');
           tdElement.id = obj['tableId'];
-          //tdElement.textContent = zeroPadding(inputElement.value);
           tdElement.textContent = inputElement.value;
 
     controllerObjs[obj['objName']] = [inputElement, tdElement];
