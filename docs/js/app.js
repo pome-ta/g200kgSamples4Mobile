@@ -9,102 +9,30 @@ const { touchBegan, touchMoved, touchEnded } = {
 
 
 /* audio */
+//let play = 0;
 const audioctx = new AudioContext();
-const osc = new OscillatorNode(audioctx);
-const gain = new GainNode(audioctx, { gain: 0 });
-const ana = new AnalyserNode(audioctx);
+const op1 = new OscillatorNode(audioctx);
+const gain1 = new GainNode(audioctx);
+const op2 = new OscillatorNode(audioctx);
+const gain2 = new GainNode(audioctx);
 
-
-/* canvas */
-const canvas = document.createElement('canvas');
-      canvas.style.width = '100%';
-const canvasctx = canvas.getContext('2d');
-
-const cnvsDiv = document.createElement('div');
-      cnvsDiv.style.width = '100%';
-      cnvsDiv.addEventListener(touchBegan, touchBeganHandler);
-      cnvsDiv.addEventListener(touchEnded, touchEndedHandler);
-      cnvsDiv.appendChild(canvas);
-
-
-let WIDTH, HEIGHT;
-let x = 0;
-let ratio;
-const setting_height = 0.75;  // 4:3
-const uint8length = 128;
-const canvasBgColor = '#222222';
-let isTouch = false;
-
-
-function touchBeganHandler() {
-  isTouch = true;
-  (audioctx.state === 'suspended') ? audioctx.resume() : null;
-  const t0 = audioctx.currentTime;
-  const t1 = t0 + parseFloat(atk.value);
-  const d = parseFloat(dcy.value);
-  const s = parseFloat(sus.value);
-  gain.gain.setValueAtTime(0, t0);
-  gain.gain.linearRampToValueAtTime(1, t1);
-  gain.gain.setTargetAtTime(s, t1, d);
-  initCanvas();
-  
-}
-
-
-function touchEndedHandler() {
-  isTouch = false;
-  const r = parseFloat(rel.value);
-  const t0 = audioctx.currentTime;
-  (gain.gain.cancelAndHoldAtTime) ? gain.gain.cancelAndHoldAtTime(t0) : null;
-  gain.gain.setTargetAtTime(0, t0, r);
-}
-
-
-function initCanvas() {
-  canvas.width = cnvsDiv.clientWidth;
-  canvas.height = cnvsDiv.clientWidth * setting_height;
-  WIDTH = canvas.width;
-  HEIGHT = canvas.height;
-  
-  x = 0;
-  ratio = HEIGHT / 128  // todo: uint8
-  canvasctx.fillStyle = canvasBgColor;
-  canvasctx.fillRect(0, 0, WIDTH, HEIGHT);
-}
-
-
-//window.addEventListener('resize', initCanvas);
-/*
 document.addEventListener('DOMContentLoaded', () => {
-  const graphdata = new Uint8Array(uint8length);
-  osc.connect(gain)
-     .connect(ana)
-     .connect(audioctx.destination);
-  osc.start();
-  
-  initCanvas();
-  function draw() {
-    if (x < WIDTH) {
-      ana.getByteTimeDomainData(graphdata);
-      let y = 0;
-      for (const setData of new Set(graphdata)) {
-        const data = Math.abs(setData - uint8length);
-        if (Math.abs(data > y)) y = data;
-      }
-      canvasctx.fillStyle = canvasBgColor;
-      canvasctx.fillRect(x, 0, 2, HEIGHT);
-      
-      canvasctx.fillStyle = (isTouch) ? '#ff00ff' : '#00ff00';
-      canvasctx.fillRect(x, HEIGHT - (y * ratio), 1, HEIGHT);
-    } else {
-      x = -1;
-    }
-    x += 2;
-    requestAnimationFrame(draw);
-  }
-  draw();
+  op1.connect(gain1).connect(op2.frequency);
+  op2.connect(gain2).connect(audioctx.destination);
+  audioctx.suspend();
+  op1.start();
+  op2.start();
+  Setup();
+
 });
-*/
+
+
+function Setup() {
+  op1.frequency.value = op1freqval.textContent = op1freq.value;
+  gain1.gain.value = op1levelval.textContent = op1level.value;
+  op2.frequency.value = op2freqval.textContent = op2freq.value;
+  gain2.gain.value = op2levelval.textContent = op2level.value;
+}
 
 
 /* setup document element */
@@ -158,13 +86,30 @@ const controllerObjs = createControllerObjs([
   op1freqObj, op1levelObj, op2freqvalObj, op2levelvalObj
 ]);
 
-const [[op1freq, op1freqval], [op1level, op1levelval], [op2freq, op2freqval], [op2level, op2levelval]] = Object.keys(controllerObjs).map(key => controllerObjs[key]);
+const [
+  [op1freq, op1freqval],
+  [op1level, op1levelval],
+  [op2freq, op2freqval],
+  [op2level, op2levelval]
+] = Object.keys(controllerObjs).map(key => controllerObjs[key]);
 
 const controllerTable = createControllerTable(controllerObjs);
 
 
 const playButton = createButton('play');
+      playButton.addEventListener(touchBegan, () => {
+        audioctx.resume();
+      });
 const stopButton = createButton('stop');
+      stopButton.addEventListener(touchBegan, () => {
+        audioctx.suspend();
+      });
+const buttonDiv = document.createElement('div');
+      buttonDiv.style.width = '100%';
+      buttonDiv.appendChild(playButton);
+      buttonDiv.appendChild(stopButton);
+
+
 
 const mainTitleHeader = document.createElement('h2');
       mainTitleHeader.textContent = 'FM synthesize Test';
@@ -180,8 +125,7 @@ function setAppendChild(childArrays, nodeParent=document.body) {
 const body = document.body;
 
 body.appendChild(mainTitleHeader);
-body.appendChild(playButton);
-body.appendChild(stopButton);
+body.appendChild(buttonDiv);
 body.appendChild(controllerTable);
 
 
@@ -193,6 +137,8 @@ function capitalize(str) {
 
 function createButton(idName, textValue=null) {
   const element = document.createElement('button');
+        element.style.width = '100%';
+        element.style.height = '4rem';
         element.type = 'button';
         element.id = idName;
         element.textContent = (textValue) ? textValue :  capitalize(idName);
@@ -224,13 +170,12 @@ function createControllerObjs(objArray) {
   const controllerObjs = {};
   for (const obj of objArray) {
     const inputElement = createInputRange(obj['inputObj']);
-          inputElement.addEventListener('input', (e) => {
-            tdElement.textContent = zeroPadding(e.target.value);
-          });
+          inputElement.addEventListener('input', Setup);
 
     const tdElement = document.createElement('td');
           tdElement.id = obj['tableId'];
-          tdElement.textContent = zeroPadding(inputElement.value);
+          //tdElement.textContent = zeroPadding(inputElement.value);
+          tdElement.textContent = inputElement.value;
 
     controllerObjs[obj['objName']] = [inputElement, tdElement];
   }
