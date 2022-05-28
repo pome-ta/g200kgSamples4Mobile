@@ -35,7 +35,7 @@ function Setup() {
 }
 
 
-/* setup document element */
+
 /* create controller elements */
 const op1freqObj = {
   inputObj: {
@@ -93,9 +93,13 @@ const [
   [op2level, op2levelval]
 ] = Object.keys(controllerObjs).map(key => controllerObjs[key]);
 
-const controllerTable = createControllerTable(controllerObjs);
 
+/* setup document element */
+const mainTitleHeader = document.createElement('h2');
+      mainTitleHeader.textContent = 'FM synthesize Test';
 
+const buttonDiv = document.createElement('div');
+      buttonDiv.style.width = '100%';
 const playButton = createButton('play');
       playButton.addEventListener(touchBegan, () => {
         audioctx.resume();
@@ -104,25 +108,21 @@ const stopButton = createButton('stop');
       stopButton.addEventListener(touchBegan, () => {
         audioctx.suspend();
       });
-const buttonDiv = document.createElement('div');
-      buttonDiv.style.width = '100%';
-      buttonDiv.appendChild(playButton);
-      buttonDiv.appendChild(stopButton);
 
-
-
-const mainTitleHeader = document.createElement('h2');
-      mainTitleHeader.textContent = 'FM synthesize Test';
-
+const controllerTable = createControllerTable(controllerObjs);
 
 /* appendChild document element */
+const nodeArray = [mainTitleHeader, buttonDiv, [playButton, stopButton], controllerTable];
+setAppendChild(nodeArray);
 
-const body = document.body;
 
-body.appendChild(mainTitleHeader);
-body.appendChild(buttonDiv);
-body.appendChild(controllerTable);
-
+function setAppendChild(nodes, parentNode=document.body) {
+  let preNode = parentNode;
+  nodes.forEach(node => {
+    (Array.isArray(node)) ? setAppendChild(node, preNode) : parentNode.appendChild(node);
+    preNode = node;
+  });
+}
 
 
 function capitalize(str) {
@@ -171,7 +171,6 @@ function createControllerObjs(objArray) {
   }
   return controllerObjs;
 }
-
 
 
 function createControllerTable(controllers) {
