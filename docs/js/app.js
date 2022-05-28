@@ -162,15 +162,42 @@ const [[op1freq, op1freqval], [op1level, op1levelval], [op2freq, op2freqval], [o
 
 const controllerTable = createControllerTable(controllerObjs);
 
+
+const playButton = createButton('play');
+const stopButton = createButton('stop');
+
 const mainTitleHeader = document.createElement('h2');
       mainTitleHeader.textContent = 'FM synthesize Test';
 
 
 /* appendChild document element */
+/*  // xxx: あとで考える
+function setAppendChild(childArrays, nodeParent=document.body) {
+  
+  Array.isArray(childArrays) ? childArrays.map(child => setAppendChild(child), childArrays) : nodeParent.appendChild(childArrays);
+}*/
+
 const body = document.body;
+
 body.appendChild(mainTitleHeader);
+body.appendChild(playButton);
+body.appendChild(stopButton);
 body.appendChild(controllerTable);
-//body.appendChild(cnvsDiv);
+
+
+
+function capitalize(str) {
+  if (typeof str !== 'string' || !str) return str;
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+};
+
+function createButton(idName, textValue=null) {
+  const element = document.createElement('button');
+        element.type = 'button';
+        element.id = idName;
+        element.textContent = (textValue) ? textValue :  capitalize(idName);
+  return element;
+}
 
 
 /* create document element funcs */
@@ -190,10 +217,8 @@ function createInputRange(rangeObj) {
 
 function zeroPadding(targetValue) {
   const regex = new RegExp('\\d\\.\\d');
-  
   return regex.test(targetValue) ? parseFloat(targetValue).toFixed(2) : parseInt(targetValue);
 }
-
 
 function createControllerObjs(objArray) {
   const controllerObjs = {};
@@ -201,38 +226,17 @@ function createControllerObjs(objArray) {
     const inputElement = createInputRange(obj['inputObj']);
           inputElement.addEventListener('input', (e) => {
             tdElement.textContent = zeroPadding(e.target.value);
-            //tdElement.textContent = parseFloat(e.target.value).toFixed(2);
           });
 
     const tdElement = document.createElement('td');
           tdElement.id = obj['tableId'];
           tdElement.textContent = zeroPadding(inputElement.value);
-          //tdElement.textContent = inputElement.value;
 
     controllerObjs[obj['objName']] = [inputElement, tdElement];
   }
   return controllerObjs;
 }
 
-/*
-
-function createControllerObjs(objArray) {
-  const controllerObjs = {};
-  for (const obj of objArray) {
-    const inputElement = createInputRange(obj['inputObj']);
-          inputElement.addEventListener('input', (e) => {
-            tdElement.textContent = parseFloat(e.target.value).toFixed(2);
-          });
-
-    const tdElement = document.createElement('td');
-          tdElement.id = obj['tableId'];
-          tdElement.textContent = parseFloat(inputElement.value).toFixed(2);
-
-    controllerObjs[obj['objName']] = [inputElement, tdElement];
-  }
-  return controllerObjs;
-}
-*/
 
 
 function createControllerTable(controllers) {
