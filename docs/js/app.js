@@ -34,7 +34,17 @@ function Setup() {
   gain2.gain.value = op2levelval.textContent = op2level.value;
 }
 
-
+/* type */
+const waveSelect = document.createElement('select');
+waveSelect.id = 'type';
+const waveTypes = ['sine', 'square', 'sawtooth', 'triangle'];
+for (const wType of waveTypes) {
+  const option = document.createElement('option');
+  option.value = wType.toLowerCase();
+  option.text = capitalize(wType);
+  waveSelect.appendChild(option);
+}
+waveSelect.addEventListener('change', Setup);
 
 /* create controller elements */
 const op1freqObj = {
@@ -130,6 +140,8 @@ function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 };
 
+
+/* create document element funcs */
 function createButton(idName, textValue=null) {
   const element = document.createElement('button');
         element.style.width = '100%';
@@ -141,7 +153,6 @@ function createButton(idName, textValue=null) {
 }
 
 
-/* create document element funcs */
 function createInputRange(rangeObj) {
   const { id, min, max, value, step = '' } = rangeObj;
   const element = document.createElement('input');
