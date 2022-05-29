@@ -9,104 +9,76 @@ const { touchBegan, touchMoved, touchEnded } = {
 
 
 /* audio */
-//let play = 0;
 const audioctx = new AudioContext();
-const op1 = new OscillatorNode(audioctx);
-const gain1 = new GainNode(audioctx);
-const op2 = new OscillatorNode(audioctx);
-const gain2 = new GainNode(audioctx);
+const osc1 = new OscillatorNode(audioctx);
+const osc2 = new OscillatorNode(audioctx);
+const gain = new GainNode(audioctx, {gain:0});
+
+const typestr = ['sine', 'square', 'sawtooth', 'triangle'];
 
 document.addEventListener('DOMContentLoaded', () => {
-  op1.connect(gain1).connect(op2.frequency);
-  op2.connect(gain2).connect(audioctx.destination);
+  osc1.connect(gain.gain);
+  osc2.connect(gain).connect(audioctx.destination);
   audioctx.suspend();
-  op1.start();
-  op2.start();
+  osc1.start();
+  osc2.start();
   Setup();
-
 });
 
 
 function Setup() {
-  op1.frequency.value = op1freqval.textContent = op1freq.value;
-  gain1.gain.value = op1levelval.textContent = op1level.value;
-  op2.frequency.value = op2freqval.textContent = op2freq.value;
-  gain2.gain.value = op2levelval.textContent = op2level.value;
+  osc1.type = typestr[osc1type.selectedIndex];
+  const f1 = osc1.frequency.value = 20 * Math.pow(250, osc1freq.value);
+  osc1freqval.textContent = f1.toFixed(2);
+
+  osc2.type = typestr[osc1type.selectedIndex];
+  const f2 = osc2.frequency.value = 20 * Math.pow(250, osc2freq.value);
+  osc2freqval.textContent = f2.toFixed(2);
 }
 
-/* type */
-const waveSelect = document.createElement('select');
-waveSelect.id = 'type';
-const waveTypes = ['sine', 'square', 'sawtooth', 'triangle'];
-for (const wType of waveTypes) {
-  const option = document.createElement('option');
-  option.value = wType.toLowerCase();
-  option.text = capitalize(wType);
-  waveSelect.appendChild(option);
-}
-waveSelect.addEventListener('change', Setup);
+
 
 /* create controller elements */
-const op1freqObj = {
-  inputObj: {
-    id: 'op1freq',
-    min: 10,
-    max: 999,
-    value: 220
+const osc1freqvalObj = {
+  selectObj: {
+    id: 'osc1type'
   },
-  tableId: 'op1freqval',
-  objName: 'OP1 Freq'
-};
-
-const op1levelObj = {
   inputObj: {
-    id: 'op1level',
-    min: 0,
-    max: 999,
-    value: 300
-  },
-  tableId: 'op1levelval',
-  objName: 'OP1 Level'
-};
-
-const op2freqvalObj = {
-  inputObj: {
-    id: 'op2freq',
-    min: 10,
-    max: 999,
-    value: 440
-  },
-  tableId: 'op2freqval',
-  objName: 'OP2 Freq'
-};
-
-const op2levelvalObj = {
-  inputObj: {
-    id: 'op2level',
+    id: 'osc1freq',
     min: 0,
     max: 1,
-    step: 0.01,
+    step: 0.001,
     value: 0.5
   },
-  tableId: 'op2levelval',
-  objName: 'OP2 Level'
+  tableId: 'osc1freqval',
+  objName: 'Osc-1'
 };
 
-const controllerObjs = createControllerObjs([
-  op1freqObj, op1levelObj, op2freqvalObj, op2levelvalObj
-]);
+const  osc2freqvalObj = {
+  selectObj: {
+    id: 'osc2type'
+  },
+  inputObj: {
+    id: 'osc2freq',
+    min: 0,
+    max: 1,
+    step: 0.001,
+    value: 0.3
+  },
+  tableId: 'osc2freqval',
+  objName: 'Osc-2'
+};
+
+const controllerObjs = createControllerObjs([osc1freqvalObj, osc2freqvalObj]);
 
 const [
-  [op1freq, op1freqval],
-  [op1level, op1levelval],
-  [op2freq, op2freqval],
-  [op2level, op2levelval]
-] = Object.keys(controllerObjs).map(key => controllerObjs[key]);
+  [osc1type, osc1freq, osc1freqval], [osc2type, osc2freq,osc2freqval]
+]= Object.keys(controllerObjs).map(key => controllerObjs[key]);
 
 
 /* setup document element */
 const mainTitleHeader = document.createElement('h2');
-      mainTitleHeader.textContent = 'FM synthesize Test';
+      mainTitleHeader.textContent = 'Ring Modulation Test';
 
 const buttonDiv = document.createElement('div');
       buttonDiv.style.width = '100%';
@@ -123,6 +95,7 @@ const controllerTable = createControllerTable(controllerObjs);
 
 /* appendChild document element */
 const nodeArray = [mainTitleHeader, buttonDiv, [playButton, stopButton], controllerTable];
+
 setAppendChild(nodeArray);
 
 
@@ -167,18 +140,31 @@ function createInputRange(rangeObj) {
 }
 
 
+function createSelectOpiton(selectObj) {
+  const {id} = selectObj;
+  const element = document.createElement('select');
+        element.id = id;
+        element.addEventListener('change', Setup);
+  for (const wave of typestr) {
+    const option = document.createElement('option');
+          option.value = wave.toLowerCase();
+          option.text = capitalize(wave);
+    element.appendChild(option);
+  }
+  return element;
+}
+
 
 function createControllerObjs(objArray) {
   const controllerObjs = {};
   for (const obj of objArray) {
+    const selectElement = createSelectOpiton(obj['selectObj']);
     const inputElement = createInputRange(obj['inputObj']);
           inputElement.addEventListener('input', Setup);
-
     const tdElement = document.createElement('td');
           tdElement.id = obj['tableId'];
           tdElement.textContent = inputElement.value;
-
-    controllerObjs[obj['objName']] = [inputElement, tdElement];
+    controllerObjs[obj['objName']] = [selectElement, inputElement, tdElement];
   }
   return controllerObjs;
 }
@@ -197,7 +183,7 @@ function createControllerTable(controllers) {
         tr.appendChild(value);
       } else {
         const td = document.createElement('td');
-              td.style.width = '100%';
+              td.style.width = (value.nodeName === 'SELECT') ? '0%' : '100%';
               td.appendChild(value);
         tr.appendChild(td);
       }
