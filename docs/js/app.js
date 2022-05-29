@@ -8,6 +8,15 @@ const { touchBegan, touchMoved, touchEnded } = {
 };
 
 
+class MyWorkletNode extends AudioWorkletNode {
+  constructor(context) {
+    super(context, 'my-worklet-processor');
+  }
+}
+
+
+
+
 /* audio */
 const bufsize = 1024;
 const audioctx = new AudioContext();

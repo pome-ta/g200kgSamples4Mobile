@@ -11,6 +11,23 @@ js で全て書き切ろうとしている
 変数と、処理する場所が遠かったり、あまり書き方的にもよろしくないかも
 
 
+## `ScriptProcessor` と`AudioWorklet`
+
+[AudioWorkletの導入|@ryoyakawai](https://qiita.com/ryoyakawai/items/1160586653330ccbf4a4)
+
+
+イベントが非同期でメインスレッドで動作することが問題だった
+
+
+AudioWorklet は、Audioスレッドで動作させる。音声処理をメインスレッドで処理しなくて済む(`AudioWorkletGloabalScope`)
+
+
+
+
+
+
+
+
 
 # 📝 2022/05/26
 
