@@ -91,7 +91,10 @@ const stopButton = createButton('stop');
         audioctx.suspend();
       });
 
-const controllerTable = createControllerTable(controllerObjs);
+
+
+const addHeader = ['', 'Type', 'Freq', ''];
+const controllerTable = createControllerTable(controllerObjs, addHeader);
 
 /* appendChild document element */
 const nodeArray = [mainTitleHeader, buttonDiv, [playButton, stopButton], controllerTable];
@@ -169,17 +172,30 @@ function createControllerObjs(objArray) {
   return controllerObjs;
 }
 
+function createTableHeader(values) {
+  const tr = document.createElement('tr');
+  for (const value of values) {
+    const th = document.createElement('th');
+          th.textContent = value
+          th.style.whiteSpace = 'nowrap';
+    tr.appendChild(th);
+  }
+  return tr;
+}
 
-function createControllerTable(controllers) {
+function createControllerTable(controllers, customHeader=null) {
   const tblBody = document.createElement('tbody');
   for (const key of Object.keys(controllers)) {
     const th = document.createElement('th');
           th.textContent = key;
+          th.style.whiteSpace = 'nowrap';
           th.style.width = '0%';
     const tr = document.createElement('tr');
           tr.appendChild(th);
     for (const value of controllers[key]) {
       if (value.nodeName === 'TD') {
+        value.style.minWidth = '4.8rem';
+        value.style.textAlign= "right";
         tr.appendChild(value);
       } else {
         const td = document.createElement('td');
@@ -190,9 +206,9 @@ function createControllerTable(controllers) {
     }
     tblBody.appendChild(tr);
   }
+  (customHeader) ? tblBody.prepend(createTableHeader(customHeader)) : null;
   const tbl = document.createElement('table');
         tbl.style.width = '100%';
         tbl.appendChild(tblBody);
   return tbl;
 }
-
