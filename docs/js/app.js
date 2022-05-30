@@ -8,15 +8,6 @@ const { touchBegan, touchMoved, touchEnded } = {
 };
 
 
-class MyWorkletNode extends AudioWorkletNode {
-  constructor(context) {
-    super(context, 'my-worklet-processor');
-  }
-}
-
-
-
-
 /* audio */
 const bufsize = 1024;
 const audioctx = new AudioContext();
@@ -87,3 +78,4 @@ function createButton(idName, textValue=null) {
         element.textContent = (textValue) ? textValue :  capitalize(idName);
   return element;
 }
+
