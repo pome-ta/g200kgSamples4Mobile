@@ -19,6 +19,13 @@ function createButton(idName, textContent=null) {
 }
 
 
+function createLabel(idName, textContent=null) {
+  const element = document.createElement('p');
+        element.id = idName;
+        element.textContent = (textContent) ? textContent :  capitalize(idName);
+  return element;
+}
+
 function createInputRange(rangeObj) {
   const { id, min, max, value, step = '' } = rangeObj;
   const element = document.createElement('input');
@@ -39,7 +46,7 @@ function createSelectOpiton(selectObj, typestr) {
         //element.addEventListener('change', Setup);
   for (const type of typestr) {
     const option = document.createElement('option');
-          option.value = wave.toLowerCase();
+          option.value = type.toLowerCase();
           option.text = capitalize(type);
     element.appendChild(option);
   }
@@ -49,17 +56,19 @@ function createSelectOpiton(selectObj, typestr) {
 function createControllerObjs(objArray) {
   const selectObj = 'selectObj';
   const inputObj = 'inputObj';
+  const pObj = 'pObj';
   
   const controllerObjs = {};
   for (const obj of objArray) {
-    const selectElement = (Object.keys(obj).some(key => key === selectObj)) ? createInputRange(obj[selectObj]) : null;
+    const selectElement = (Object.keys(obj).some(key => key === selectObj)) ? createSelectOpiton(obj[selectObj], typeStr) : null;
+    
     const inputElement = (Object.keys(obj).some(key => key === inputObj)) ? createInputRange(obj[inputObj]) : null;
-    //createInputRange(Object.keys(obj).find(key => key === 'inputObj'));
-          //inputElement.addEventListener('input', Setup);
-    const tdElement = document.createElement('td');
-          tdElement.id = obj['tableId'];
-          tdElement.textContent = inputElement.value;
-    controllerObjs[obj['objName']] = [selectElement,inputElement, tdElement].filter(ele => ele);
+    
+    const _label = (inputElement) ? inputElement.value : null;
+    const pElement = (Object.keys(obj).some(key => key === pObj)) ? createLabel(obj[pObj], _label) : null;
+    
+    
+    controllerObjs[obj['objName']] = [selectElement,inputElement, pElement].filter(ele => ele);
   }
   return controllerObjs;
 }
@@ -85,16 +94,10 @@ function createControllerTable(controllers, customHeader=null) {
     const tr = document.createElement('tr');
           tr.appendChild(th);
     for (const value of controllers[key]) {
-      if (value.nodeName === 'TD') {
-        value.style.minWidth = '4.8rem';
-        value.style.textAlign= "right";
-        tr.appendChild(value);
-      } else {
-        const td = document.createElement('td');
-              td.style.width = (value.nodeName === 'SELECT') ? '0%' : '100%';
-              td.appendChild(value);
-        tr.appendChild(td);
-      }
+      const td = document.createElement('td');
+            td.style.width = (value.nodeName === 'SELECT') ? '0%' : '100%';
+            td.appendChild(value);
+      tr.appendChild(td);
     }
     tblBody.appendChild(tr);
   }
@@ -114,14 +117,20 @@ function setAppendChild(nodes, parentNode=document.body) {
   });
 }
 
+
 /* setup document node element */
 const mainTitleHeader = document.createElement('h2');
       mainTitleHeader.textContent = 'BiquadFilter Test';
 
-
-
 /* create controller objs */
+const typeStr = ['LPF', 'HPF', 'BPF', 'LowShelf', 'HighShelf', 'Peaking', 'Notch', 'AllPass'];
 
+const selectTypeObj = {
+  selectObj: {
+    id: 'type'
+  },
+  objName: 'Type'
+};
 
 const freqvalObj = {
   inputObj: {
@@ -130,7 +139,10 @@ const freqvalObj = {
     max: 20000,
     value: 5000
   },
-  tableId: 'freqval',
+  pObj: {
+    id: 'freqval',
+    label: ''
+  },
   objName: 'Freq'
 };
 
@@ -142,7 +154,10 @@ const qvalObj = {
     step: 0.5,
     value: 5
   },
-  tableId: 'qval',
+  pObj: {
+    id: 'qval',
+    label: ''
+  },
   objName: 'Q'
 };
 
@@ -153,9 +168,29 @@ const gainvalObj = {
     max: 50,
     value: 0
   },
-  tableId: 'gainval',
+  pObj: {
+    id: 'gainval',
+    label: ''
+  },
   objName: 'Gain'
 };
+
+const buttonDiv = document.createElement('div');
+      buttonDiv.style.width = '100%';
+const playnoiseButton = createButton('playnoise', 'Play Noise');
+const stopButton = createButton('stop');
+
+
+const controllerObjs = createControllerObjs([selectTypeObj, freqvalObj, qvalObj, gainvalObj]);
+const controllerTable = createControllerTable(controllerObjs);
+
+/* appendChild document element */
+const nodeArray = [mainTitleHeader, buttonDiv, [playnoiseButton, stopButton], controllerTable];
+
+setAppendChild(nodeArray);
+
+
+
 
 
 
@@ -190,29 +225,19 @@ function Process(ev) {
 
 
 
-const buttonDiv = document.createElement('div');
-      buttonDiv.style.width = '100%';
-const playnoiseButton = createButton('playnoise', 'Play Noise');
-      playnoiseButton.addEventListener(touchBegan, () => {
-        if(osc === null) {
-          osc = new OscillatorNode(audioctx);
-          osc.start();
-        }
-        play = 1;
-      });
-const stopButton = createButton('stop');
-      stopButton.addEventListener(touchBegan, () => {
-        play = 0;
-      });
 
+playnoiseButton.addEventListener(touchBegan, () => {
+  if(osc === null) {
+    osc = new OscillatorNode(audioctx);
+    osc.start();
+  }
+  play = 1;
+});
 
-const controllerObjs = createControllerObjs([freqvalObj, qvalObj, gainvalObj]);
-const controllerTable = createControllerTable(controllerObjs);
+stopButton.addEventListener(touchBegan, () => {
+  play = 0;
+});
 
-/* appendChild document element */
-const nodeArray = [mainTitleHeader, buttonDiv, [playnoiseButton, stopButton], controllerTable];
-
-setAppendChild(nodeArray);
 
 
 
