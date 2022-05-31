@@ -8,13 +8,13 @@ function capitalize(str) {
 
 
 /* create document node element funcs */
-function createButton(idName, textValue=null) {
+function createButton(idName, textContent=null) {
   const element = document.createElement('button');
         element.style.width = '100%';
         element.style.height = '4rem';
         element.type = 'button';
         element.id = idName;
-        element.textContent = (textValue) ? textValue :  capitalize(idName);
+        element.textContent = (textContent) ? textContent :  capitalize(idName);
   return element;
 }
 
@@ -47,10 +47,13 @@ function createSelectOpiton(selectObj, typestr) {
 }
 
 function createControllerObjs(objArray) {
+  const selectObj = 'selectObj';
+  const inputObj = 'inputObj';
+  
   const controllerObjs = {};
   for (const obj of objArray) {
-    const selectElement = (Object.keys(obj).some(key => key === 'selectObj')) ? createInputRange(obj['selectObj']) : null;
-    const inputElement = (Object.keys(obj).some(key => key === 'inputObj')) ? createInputRange(obj['inputObj']) : null;
+    const selectElement = (Object.keys(obj).some(key => key === selectObj)) ? createInputRange(obj[selectObj]) : null;
+    const inputElement = (Object.keys(obj).some(key => key === inputObj)) ? createInputRange(obj[inputObj]) : null;
     //createInputRange(Object.keys(obj).find(key => key === 'inputObj'));
           //inputElement.addEventListener('input', Setup);
     const tdElement = document.createElement('td');
