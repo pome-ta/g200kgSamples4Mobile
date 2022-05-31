@@ -49,14 +49,14 @@ function createSelectOpiton(selectObj, typestr) {
 function createControllerObjs(objArray) {
   const controllerObjs = {};
   for (const obj of objArray) {
-    const valueArray = [];
-    //const selectElement = createSelectOpiton(obj['selectObj']);
-    const inputElement = createInputRange(obj['inputObj']);
+    const selectElement = (Object.keys(obj).some(key => key === 'selectObj')) ? createInputRange(obj['selectObj']) : null;
+    const inputElement = (Object.keys(obj).some(key => key === 'inputObj')) ? createInputRange(obj['inputObj']) : null;
+    //createInputRange(Object.keys(obj).find(key => key === 'inputObj'));
           //inputElement.addEventListener('input', Setup);
     const tdElement = document.createElement('td');
           tdElement.id = obj['tableId'];
           tdElement.textContent = inputElement.value;
-    controllerObjs[obj['objName']] = [inputElement, tdElement];
+    controllerObjs[obj['objName']] = [selectElement,inputElement, tdElement].filter(ele => ele);
   }
   return controllerObjs;
 }
@@ -116,12 +116,10 @@ const mainTitleHeader = document.createElement('h2');
       mainTitleHeader.textContent = 'BiquadFilter Test';
 
 
-const hoge = [];
-hoge.push(1);
-console.log(hoge);
-
 
 /* create controller objs */
+
+
 const freqvalObj = {
   inputObj: {
     id: 'freq',
