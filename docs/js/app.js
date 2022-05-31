@@ -1,12 +1,13 @@
 'use strict';
 
-/* create document node element funcs */
-
+/* util funcs */
 function capitalize(str) {
   if (typeof str !== 'string' || !str) return str;
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 };
 
+
+/* create document node element funcs */
 function createButton(idName, textValue=null) {
   const element = document.createElement('button');
         element.style.width = '100%';
@@ -31,15 +32,15 @@ function createInputRange(rangeObj) {
   return element;
 }
 
-function createSelectOpiton(selectObj) {
+function createSelectOpiton(selectObj, typestr) {
   const {id} = selectObj;
   const element = document.createElement('select');
         element.id = id;
         //element.addEventListener('change', Setup);
-  for (const wave of typestr) {
+  for (const type of typestr) {
     const option = document.createElement('option');
           option.value = wave.toLowerCase();
-          option.text = capitalize(wave);
+          option.text = capitalize(type);
     element.appendChild(option);
   }
   return element;
@@ -48,6 +49,7 @@ function createSelectOpiton(selectObj) {
 function createControllerObjs(objArray) {
   const controllerObjs = {};
   for (const obj of objArray) {
+    const valueArray = [];
     //const selectElement = createSelectOpiton(obj['selectObj']);
     const inputElement = createInputRange(obj['inputObj']);
           //inputElement.addEventListener('input', Setup);
@@ -109,44 +111,17 @@ function setAppendChild(nodes, parentNode=document.body) {
   });
 }
 
+/* setup document node element */
+const mainTitleHeader = document.createElement('h2');
+      mainTitleHeader.textContent = 'BiquadFilter Test';
 
 
-
-// todo: MouseEvent TouchEvent wrapper
-const { touchBegan, touchMoved, touchEnded } = {
-  touchBegan: typeof document.ontouchstart !== 'undefined' ? 'touchstart' : 'mousedown',
-  touchMoved: typeof document.ontouchmove !== 'undefined' ? 'touchmove' : 'mousemove',
-  touchEnded: typeof document.ontouchend !== 'undefined' ? 'touchend' : 'mouseup',
-};
+const hoge = [];
+hoge.push(1);
+console.log(hoge);
 
 
-
-
-
-
-
-/* audio */
-const bufsize = 1024;
-const audioctx = new AudioContext();
-const scrproc = audioctx.createScriptProcessor(bufsize);
-      scrproc.onaudioprocess = Process;
-      scrproc.connect(audioctx.destination);
-let osc = null;
-let play = 0;
-
-
-function Process(ev) {
-  const buf0 = ev.outputBuffer.getChannelData(0);
-  const buf1 = ev.outputBuffer.getChannelData(1);
-  for (let i = 0; i < bufsize; ++i) {
-    buf0[i] = buf1[i] = (Math.random() - 0.5) * play;
-  }
-}
-
-
-
-/* setup document element */
-/* create controller elements */
+/* create controller objs */
 const freqvalObj = {
   inputObj: {
     id: 'freq',
@@ -183,9 +158,36 @@ const gainvalObj = {
 
 
 
-/* setup document element */
-const mainTitleHeader = document.createElement('h2');
-      mainTitleHeader.textContent = 'BiquadFilter Test';
+// todo: MouseEvent TouchEvent wrapper
+const { touchBegan, touchMoved, touchEnded } = {
+  touchBegan: typeof document.ontouchstart !== 'undefined' ? 'touchstart' : 'mousedown',
+  touchMoved: typeof document.ontouchmove !== 'undefined' ? 'touchmove' : 'mousemove',
+  touchEnded: typeof document.ontouchend !== 'undefined' ? 'touchend' : 'mouseup',
+};
+
+
+/* audio */
+const bufsize = 1024;
+const audioctx = new AudioContext();
+const scrproc = audioctx.createScriptProcessor(bufsize);
+      scrproc.onaudioprocess = Process;
+      scrproc.connect(audioctx.destination);
+let osc = null;
+let play = 0;
+
+
+function Process(ev) {
+  const buf0 = ev.outputBuffer.getChannelData(0);
+  const buf1 = ev.outputBuffer.getChannelData(1);
+  for (let i = 0; i < bufsize; ++i) {
+    buf0[i] = buf1[i] = (Math.random() - 0.5) * play;
+  }
+}
+
+
+
+
+
 
 const buttonDiv = document.createElement('div');
       buttonDiv.style.width = '100%';
