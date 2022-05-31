@@ -10,7 +10,7 @@ function capitalize(str) {
 function createButton(idName, textContent = null) {
   const element = document.createElement('button');
   element.style.width = '100%';
-  element.style.height = '4rem';
+  element.style.height = '3rem';
   element.type = 'button';
   element.id = idName;
   element.textContent = textContent ? textContent : capitalize(idName);
@@ -22,6 +22,7 @@ function createLabel(pObj, textContent = null) {
   const element = document.createElement('p');
   element.id = id;
   element.style.margin = '0';
+  element.style.minWidth = '3rem';
   element.textContent = textContent ? textContent : capitalize(id);
   return element;
 }
@@ -82,19 +83,29 @@ function createControllerObjs(objArray) {
   return controllerObjs;
 }
 
+function createTableHeader(textContent) {
+  const element = document.createElement('th');
+  element.textContent = textContent;
+  element.style.whiteSpace = 'nowrap';
+  element.style.width = '0%';
+  return element;
+}
+
+function createTableData(child) {
+  const element = document.createElement('td');
+  element.style.width = child.nodeName === 'SELECT' ? '0%' : '100%';
+  element.appendChild(child);
+  return element;
+}
+
 function createControllerTable(controllers) {
   const tblBody = document.createElement('tbody');
   for (const key of Object.keys(controllers)) {
-    const th = document.createElement('th');
-    th.textContent = key;
-    th.style.whiteSpace = 'nowrap';
-    th.style.width = '0%';
+    const th = createTableHeader(key);
     const tr = document.createElement('tr');
     tr.appendChild(th);
     for (const value of controllers[key]) {
-      const td = document.createElement('td');
-      td.style.width = value.nodeName === 'SELECT' ? '0%' : '100%';
-      td.appendChild(value);
+      const td = createTableData(value);
       tr.appendChild(td);
     }
     tblBody.appendChild(tr);
@@ -160,10 +171,10 @@ const freqvalObj = {
 const qvalObj = {
   inputObj: {
     id: 'q',
-    min: 0,
-    max: 50,
+    min: 0.0,
+    max: 50.0,
     step: 0.5,
-    value: 5,
+    value: 5.0,
   },
   pObj: {
     id: 'qval',
@@ -195,7 +206,6 @@ const controllerObjs = createControllerObjs([
 
 const [[selectType], [freq, freqval], [q, qval], [gain, gainval]] =
   Object.entries(controllerObjs).map(([key, val]) => val);
-
 
 const controllerTable = createControllerTable(controllerObjs);
 
@@ -233,6 +243,17 @@ function Process(ev) {
     buf0[i] = buf1[i] = (Math.random() - 0.5) * play;
   }
 }
+
+function Setup() {
+  freqval.textContent = freq.value;
+  qval.textContent = q.value;
+  gainval.textContent = gain.value;
+}
+
+
+freq.addEventListener('input', Setup);
+q.addEventListener('input', Setup);
+gain.addEventListener('input', Setup);
 
 playnoiseButton.addEventListener(touchBegan, () => {
   if (osc === null) {
