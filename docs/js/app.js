@@ -17,11 +17,12 @@ function createButton(idName, textContent = null) {
   return element;
 }
 
-function createLabel(idName, textContent = null) {
+function createLabel(pObj, textContent = null) {
+  const { id } = pObj;
   const element = document.createElement('p');
-  element.id = idName;
+  element.id = id;
   element.style.margin = '0';
-  element.textContent = textContent ? textContent : capitalize(idName);
+  element.textContent = textContent ? textContent : capitalize(id);
   return element;
 }
 
@@ -137,7 +138,7 @@ const typeStr = [
 
 const selectTypeObj = {
   selectObj: {
-    id: 'type',
+    id: 'selectType',
   },
   objName: 'Type',
 };
@@ -191,6 +192,11 @@ const controllerObjs = createControllerObjs([
   qvalObj,
   gainvalObj,
 ]);
+
+const [[selectType], [freq, freqval], [q, qval], [gain, gainval]] =
+  Object.entries(controllerObjs).map(([key, val]) => val);
+
+
 const controllerTable = createControllerTable(controllerObjs);
 
 /* appendChild document element */
