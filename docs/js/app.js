@@ -54,7 +54,7 @@ function createSelectOpiton(selectObj, typestr) {
   for (const type of typestr) {
     const option = document.createElement('option');
     option.value = type.toLowerCase();
-    option.text = capitalize(type);
+    option.text = type; //capitalize(type);
     element.appendChild(option);
   }
   return element;
@@ -220,13 +220,42 @@ const [[selectType], [freq, freqval], [q, qval], [gain, gainval]] =
 
 const controllerTable = createControllerTable(controllerObjs);
 
+const cnvsDiv = document.createElement('div');
+cnvsDiv.style.width = '100%';
+
+const canvas = document.createElement('canvas');
+canvas.style.width = '100%';
+const ctx = canvas.getContext('2d');
+
 /* appendChild document element */
 setAppendChild([
   mainTitleHeader,
   buttonDiv,
   [playnoiseButton, stopButton],
   controllerTable,
+  cnvsDiv,
+  [canvas],
 ]);
+
+
+/* canvas */
+let WIDTH, HEIGHT;
+const setting_height = 0.75;  // 4:3
+
+function initCanvas() {
+  canvas.width = cnvsDiv.clientWidth;
+  canvas.height = cnvsDiv.clientWidth * setting_height;
+  WIDTH = canvas.width;
+  HEIGHT = canvas.height;
+}
+
+function DrawGraph() {
+  analyser.getFloatFrequencyData(analysedata);
+  ctx.fillStyle = "#000000";
+  ctx.fillRect(0, 0, 512, 256);
+  ctx.fillStyle = "#009900";
+}
+
 
 // todo: MouseEvent TouchEvent wrapper
 const { touchBegan, touchMoved, touchEnded } = {
@@ -241,6 +270,7 @@ const { touchBegan, touchMoved, touchEnded } = {
 /* audio */
 const audioctx = new AudioContext();
 let src = null;
+const analysedata = new Float32Array(1024);
 const noisebuff = new AudioBuffer({
   channels: 1,
   length: audioctx.sampleRate,
@@ -301,3 +331,10 @@ function Setup() {
   filter.gain.value = gain.value;
   gainval.textContent = parseNum(gain.value, gain.numtype);
 }
+
+window.addEventListener('resize', initCanvas);
+document.addEventListener('DOMContentLoaded', () => {
+  initCanvas();
+  DrawGraph();
+});
+
