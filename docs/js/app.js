@@ -254,6 +254,24 @@ function DrawGraph() {
   ctx.fillStyle = "#000000";
   ctx.fillRect(0, 0, 512, 256);
   ctx.fillStyle = "#009900";
+  for(let i = 0; i < 512; i++) {
+    const f = audioctx.sampleRate * i / 1024;
+    const y = 128 + (analysedata[i] + 48.16) * 2.56;
+    ctx.fillRect(i, 256 - y, 1, y);
+  }
+  ctx.fillStyle = "#ff8844";
+  for(let d = -50; d < 50; d += 10) {
+    const y = 128 - (d * 256 / 100) | 0;
+    ctx.fillRect(20, y, 512, 1);
+    ctx.fillText(d + "dB", 5, y);
+  }
+  ctx.fillRect(20, 128, 512, 1);
+  for(let f = 2000; f < audioctx.sampleRate / 2; f += 2000) {
+    const x = (f * 1024 / audioctx.sampleRate) | 0;
+    ctx.fillRect(x, 0, 1, 245);
+    ctx.fillText(f + "Hz", x - 10, 255);
+  }
+  requestAnimationFrame(DrawGraph);
 }
 
 
