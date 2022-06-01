@@ -167,7 +167,7 @@ const freqvalObj = {
     id: 'freq',
     min: 100,
     max: 20000,
-    value: 5000,
+    value: 4000,
     numtype: 'int',
   },
   pObj: {
@@ -183,7 +183,7 @@ const qvalObj = {
     min: 0.0,
     max: 50.0,
     step: 0.5,
-    value: 5.0,
+    value: 50.0,
     numtype: 'float',
   },
   pObj: {
@@ -297,7 +297,7 @@ const noisebuff = new AudioBuffer({
   length: audioctx.sampleRate,
   sampleRate: audioctx.sampleRate,
 });
-const filter = new BiquadFilterNode(audioctx, { frequency: 5000, q: 5 });
+const filter = new BiquadFilterNode(audioctx, { frequency: 4000, q: 50.0 });
 const analyser = new AnalyserNode(audioctx, {
   smoothingTimeConstant: 0.7,
   fftSize: 1024,
