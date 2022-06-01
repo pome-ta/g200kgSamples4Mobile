@@ -167,7 +167,7 @@ const freqvalObj = {
     id: 'freq',
     min: 100,
     max: 20000,
-    value: 4000, // 5000
+    value: 5000,
     numtype: 'int',
   },
   pObj: {
@@ -183,7 +183,7 @@ const qvalObj = {
     min: 0.0,
     max: 50.0,
     step: 0.5,
-    value: 50.0, // 5.0
+    value: 5.0,
     numtype: 'float',
   },
   pObj: {
@@ -267,14 +267,13 @@ function DrawGraph() {
   for (let d = -50; d < 50; d += 10) {
     const y = (128 - (d * 256) / 100) | 0;
     ctx.fillRect(20, y, 512, 1);
-
-    ctx.fillText(d + 'dB', 5, y);
+    ctx.fillText(`${d}db`, 5, y);
   }
   ctx.fillRect(20, 128, 512, 1);
   for (let f = 2000; f < audioctx.sampleRate / 2; f += 2000) {
     const x = ((f * 1024) / audioctx.sampleRate) | 0;
     ctx.fillRect(x, 0, 1, 245);
-    ctx.fillText(f + 'Hz', x - 10, 255);
+    ctx.fillText(`${f}Hz`, x - 10, 255);
   }
   requestAnimationFrame(DrawGraph);
 }
