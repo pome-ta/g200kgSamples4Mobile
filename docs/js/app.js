@@ -51,7 +51,6 @@ function createSelectOpiton(selectObj, typestr) {
   const { id } = selectObj;
   const element = document.createElement('select');
   element.id = id;
-  //element.addEventListener('change', Setup);
   for (const type of typestr) {
     const option = document.createElement('option');
     option.value = type.toLowerCase();
@@ -247,7 +246,7 @@ const noisebuff = new AudioBuffer({
   length: audioctx.sampleRate,
   sampleRate: audioctx.sampleRate,
 });
-const filter = new BiquadFilterNode(audioctx,{frequency:5000, q:5});
+const filter = new BiquadFilterNode(audioctx, { frequency: 5000, q: 5 });
 const analyser = new AnalyserNode(audioctx, {
   smoothingTimeConstant: 0.7,
   fftSize: 1024,
@@ -255,15 +254,18 @@ const analyser = new AnalyserNode(audioctx, {
 filter.connect(analyser).connect(audioctx.destination);
 
 const noisebuffdata = noisebuff.getChannelData(0);
-for(let i = 0; i < audioctx.sampleRate; i++) {
+for (let i = 0; i < audioctx.sampleRate; i++) {
   noisebuffdata[i] = (Math.random() - 0.5) * 0.5;
 }
 
-
 playnoiseButton.addEventListener(touchBegan, () => {
-  (audioctx.state === "suspended") ? audioctx.resume():null;
-  (src) ? src.stop():null;
-  src = new AudioBufferSourceNode(audioctx, {buffer: noisebuff, loop:true});
+  if (audioctx.state === 'suspended') {
+    audioctx.resume();
+  }
+  if (src) {
+    src.stop();
+  }
+  src = new AudioBufferSourceNode(audioctx, { buffer: noisebuff, loop: true });
   src.connect(filter);
   src.start();
 });
@@ -274,14 +276,28 @@ stopButton.addEventListener(touchBegan, () => {
     src = null;
   }
 });
-        
-function Setup() {
-  freqval.textContent = parseNum(freq.value, freq.numtype);
-  qval.textContent = parseNum(q.value, q.numtype);
-  gainval.textContent = parseNum(gain.value, gain.numtype);
-}
 
+selectType.addEventListener('change', Setup);
 freq.addEventListener('input', Setup);
 q.addEventListener('input', Setup);
 gain.addEventListener('input', Setup);
 
+function Setup() {
+  filter.type = [
+    'lowpass',
+    'highpass',
+    'bandpass',
+    'lowshelf',
+    'highshelf',
+    'peaking',
+    'notch',
+    'allpass',
+  ][selectType.selectedIndex];
+
+  filter.frequency.value = freq.value;
+  freqval.textContent = parseNum(freq.value, freq.numtype);
+  filter.Q.value = q.value;
+  qval.textContent = parseNum(q.value, q.numtype);
+  filter.gain.value = gain.value;
+  gainval.textContent = parseNum(gain.value, gain.numtype);
+}
