@@ -15,6 +15,11 @@
 記事で使われている[loop.wav](https://www.g200kg.com/jp/docs/webaudio/samples/loop.wav) へアクセスすることにした
 
 
+#### OCRS
+
+多分だめ
+
+
 ### 裏側で
 
 [pome-ta/soundShader4twigl](https://github.com/pome-ta/soundShader4twigl) この出ている音を何かして取得したいのでゴニョゴニョ中
