@@ -141,6 +141,7 @@ mainTitleHeader.textContent = 'BiquadFilter Test';
 const buttonDiv = document.createElement('div');
 buttonDiv.style.width = '100%';
 const playnoiseButton = createButton('playnoise', 'Play Noise');
+const playmusicButton = createButton('playmusic', 'Play Music');
 const stopButton = createButton('stop');
 
 /* create controller objs */
@@ -231,7 +232,7 @@ const ctx = canvas.getContext('2d');
 setAppendChild([
   mainTitleHeader,
   buttonDiv,
-  [playnoiseButton, stopButton],
+  [playnoiseButton, playmusicButton, stopButton],
   controllerTable,
   cnvsDiv,
   [canvas],
@@ -289,6 +290,9 @@ const { touchBegan, touchMoved, touchEnded } = {
 };
 
 /* audio */
+
+const soundURL = 'https://www.g200kg.com/jp/docs/webaudio/samples/loop.wav';
+
 const audioctx = new AudioContext();
 let src = null;
 const analysedata = new Float32Array(1024);
@@ -297,6 +301,8 @@ const noisebuff = new AudioBuffer({
   length: audioctx.sampleRate,
   sampleRate: audioctx.sampleRate,
 });
+//const musicbuff = await LoadSample(audioctx, soundURL);
+let musicbuff = null;
 const filter = new BiquadFilterNode(audioctx, { frequency: 4000, q: 50.0 });
 const analyser = new AnalyserNode(audioctx, {
   smoothingTimeConstant: 0.7,
@@ -320,6 +326,19 @@ playnoiseButton.addEventListener(touchBegan, () => {
   src.connect(filter);
   src.start();
 });
+
+playmusicButton.addEventListener(touchBegan, () => {
+  if (audioctx.state === 'suspended') {
+    audioctx.resume();
+  }
+  if (src) {
+    src.stop();
+  }
+  src = new AudioBufferSourceNode(audioctx, { buffer: musicbuff, loop: true });
+  src.connect(filter);
+  src.start();
+});
+
 
 stopButton.addEventListener(touchBegan, () => {
   if (src) {
@@ -359,3 +378,16 @@ document.addEventListener('DOMContentLoaded', () => {
   initCanvas();
   DrawGraph();
 });
+
+window.addEventListener('load', async () => {
+  console.log(soundURL);
+  musicbuff = await LoadSample(audioctx, soundURL);
+});
+
+async function LoadSample(actx, url) {
+  console.log('fetch');
+  const res = await fetch(url);
+  console.log(res);
+  const arraybuf = await res.arrayBuffer();
+  return actx.decodeAudioData(arraybuf);
+}
