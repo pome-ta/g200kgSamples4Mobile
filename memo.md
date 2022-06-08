@@ -1,3 +1,30 @@
+# 📝 2022/06/08
+
+
+## 進捗
+
+ここのmemo に書いてなかったから、何を良しとして何を実装したいのか忘れてる
+
+
+## 再生音源
+
+### 確認用音源
+
+[BiquadFilter Test](https://www.g200kg.com/jp/docs/webaudio/samples/test-filter.html)
+
+記事で使われている[loop.wav](https://www.g200kg.com/jp/docs/webaudio/samples/loop.wav) へアクセスすることにした
+
+
+### 裏側で
+
+[pome-ta/soundShader4twigl](https://github.com/pome-ta/soundShader4twigl) この出ている音を何かして取得したいのでゴニョゴニョ中
+
+[pome-ta/pystaWavSound](https://github.com/pome-ta/pystaWavSound)
+
+`.png` から、呼び出せないか？とかやってるけど頓挫中
+
+
+
 # 📝 2022/05/31
 
 
