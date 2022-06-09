@@ -141,6 +141,7 @@ mainTitleHeader.textContent = 'BiquadFilter Test';
 const buttonDiv = document.createElement('div');
 buttonDiv.style.width = '100%';
 const playnoiseButton = createButton('playnoise', 'Play Noise');
+const playmusicButton = createButton('playmusic', 'Play Music');
 const stopButton = createButton('stop');
 
 /* create controller objs */
@@ -231,7 +232,7 @@ const ctx = canvas.getContext('2d');
 setAppendChild([
   mainTitleHeader,
   buttonDiv,
-  [playnoiseButton, stopButton],
+  [playnoiseButton, playmusicButton, stopButton],
   controllerTable,
   cnvsDiv,
   [canvas],
@@ -289,6 +290,9 @@ const { touchBegan, touchMoved, touchEnded } = {
 };
 
 /* audio */
+
+const soundPath = './sounds/loop.wav';
+
 const audioctx = new AudioContext();
 let src = null;
 const analysedata = new Float32Array(1024);
@@ -297,6 +301,9 @@ const noisebuff = new AudioBuffer({
   length: audioctx.sampleRate,
   sampleRate: audioctx.sampleRate,
 });
+
+let musicbuff = null;
+
 const filter = new BiquadFilterNode(audioctx, { frequency: 4000, q: 50.0 });
 const analyser = new AnalyserNode(audioctx, {
   smoothingTimeConstant: 0.7,
@@ -317,6 +324,18 @@ playnoiseButton.addEventListener(touchBegan, () => {
     src.stop();
   }
   src = new AudioBufferSourceNode(audioctx, { buffer: noisebuff, loop: true });
+  src.connect(filter);
+  src.start();
+});
+
+playmusicButton.addEventListener(touchBegan, () => {
+  if (audioctx.state === 'suspended') {
+    audioctx.resume();
+  }
+  if (src) {
+    src.stop();
+  }
+  src = new AudioBufferSourceNode(audioctx, { buffer: musicbuff, loop: true });
   src.connect(filter);
   src.start();
 });
@@ -353,9 +372,19 @@ function Setup() {
   gainval.textContent = parseNum(gain.value, gain.numtype);
 }
 
+async function LoadSample(actx, url) {
+  const res = await fetch(url);
+  const arraybuf = await res.arrayBuffer();
+  return actx.decodeAudioData(arraybuf);
+}
+
 window.addEventListener('resize', initCanvas);
 document.addEventListener('DOMContentLoaded', () => {
   Setup();
   initCanvas();
   DrawGraph();
+});
+
+window.addEventListener('load', async () => {
+  musicbuff = await LoadSample(audioctx, soundPath);
 });
