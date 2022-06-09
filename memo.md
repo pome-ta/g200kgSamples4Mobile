@@ -7,7 +7,17 @@ OCRS でだめなので`loop.wav` を用意
 
 いつもどきどきするのでメモ
 
+- fooブランチ
+- barブランチ
 
+### `foo` で開発中、`bar` を`foo` と揃えたいとき
+
+
+1. ブランチを`bar` へ
+1. [Repository] -> [Branch]
+1. [Merge] -> [allow fast-forward(選択したら[no fast-forward])]
+
+古いブランチ状態にして、進んでるブランチを選ぶ
 
 
 
