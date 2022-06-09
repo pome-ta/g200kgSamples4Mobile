@@ -242,6 +242,7 @@ setAppendChild([
 /* canvas */
 let WIDTH, HEIGHT;
 const setting_height = 0.75; // 4:3
+//const setting_height = 0.5;
 const colorBG = '#000000';
 const colorWave = '#009900';
 const colorLine = '#ff8844';
@@ -260,23 +261,21 @@ function DrawGraph() {
   ctx.fillStyle = colorBG;
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
   ctx.fillStyle = colorWave;
-  for (let i = 0; i < HEIGHT; i++) {
-    const f = (audioctx.sampleRate * i) / 1024;
-    //const y = 128 + (analysedata[i] + 48.16) * 2.56;
-    const y = HEIGHT / 2 + (analysedata[i] + 48.16) * 2.56;
+  for (let i = 0; i < WIDTH; i++) {
+    const y = HEIGHT / 2 + (analysedata[i] + 50.0) * (HEIGHT / 100);
     ctx.fillRect(i, HEIGHT - y, 1, y);
   }
   ctx.fillStyle = colorLine;
   for (let d = -50; d < 50; d += 10) {
     const y = (HEIGHT / 2 - (d * HEIGHT) / 100) | 0;
-    ctx.fillRect(20, y, WIDTH, 1);
-    ctx.fillText(`${d}db`, 5, y);
+    ctx.fillRect(0, y, WIDTH, 0.5);
+    ctx.fillText(`${d}db`, 0, y);
   }
   ctx.fillRect(20, HEIGHT / 2, WIDTH, 1);
   for (let f = 2000; f < audioctx.sampleRate / 2; f += 2000) {
     const x = ((f * 1024) / audioctx.sampleRate) | 0;
-    ctx.fillRect(x, 0, 1, 245);
-    ctx.fillText(`${f}Hz`, x - 10, 255);
+    ctx.fillRect(x, 0, 0.5, HEIGHT);
+    ctx.fillText(`${f}Hz`, x, HEIGHT);
   }
   requestAnimationFrame(DrawGraph);
 }
@@ -306,7 +305,7 @@ let musicbuff = null;
 
 const filter = new BiquadFilterNode(audioctx, { frequency: 4000, q: 50.0 });
 const analyser = new AnalyserNode(audioctx, {
-  smoothingTimeConstant: 0.7,
+  smoothingTimeConstant: 0.8,
   fftSize: 1024,
 });
 filter.connect(analyser).connect(audioctx.destination);
@@ -358,12 +357,12 @@ function Setup() {
     'notch',
     'allpass',
   ][selectType.selectedIndex];
-
   filter.frequency.value = freq.value;
-  freqval.textContent = parseNum(freq.value, freq.numtype);
   filter.Q.value = q.value;
-  qval.textContent = parseNum(q.value, q.numtype);
   filter.gain.value = gain.value;
+
+  freqval.textContent = parseNum(freq.value, freq.numtype);
+  qval.textContent = parseNum(q.value, q.numtype);
   gainval.textContent = parseNum(gain.value, gain.numtype);
 }
 
