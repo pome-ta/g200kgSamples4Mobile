@@ -145,6 +145,7 @@ const playmusicButton = createButton('playmusic', 'Play Music');
 const stopButton = createButton('stop');
 
 /* create controller objs */
+// xxx: 辞書にする？
 const typeStr = [
   'LPF',
   'HPF',
@@ -168,7 +169,7 @@ const freqvalObj = {
     id: 'freq',
     min: 100,
     max: 20000,
-    value: 4000,
+    value: 8000,
     numtype: 'int',
   },
   pObj: {
@@ -257,20 +258,21 @@ function initCanvas() {
 function DrawGraph() {
   analyser.getFloatFrequencyData(analysedata);
   ctx.fillStyle = colorBG;
-  ctx.fillRect(0, 0, 512, 256);
+  ctx.fillRect(0, 0, WIDTH, HEIGHT);
   ctx.fillStyle = colorWave;
-  for (let i = 0; i < 512; i++) {
+  for (let i = 0; i < HEIGHT; i++) {
     const f = (audioctx.sampleRate * i) / 1024;
-    const y = 128 + (analysedata[i] + 48.16) * 2.56;
-    ctx.fillRect(i, 256 - y, 1, y);
+    //const y = 128 + (analysedata[i] + 48.16) * 2.56;
+    const y = HEIGHT / 2 + (analysedata[i] + 48.16) * 2.56;
+    ctx.fillRect(i, HEIGHT - y, 1, y);
   }
   ctx.fillStyle = colorLine;
   for (let d = -50; d < 50; d += 10) {
-    const y = (128 - (d * 256) / 100) | 0;
-    ctx.fillRect(20, y, 512, 1);
+    const y = (HEIGHT / 2 - (d * HEIGHT) / 100) | 0;
+    ctx.fillRect(20, y, WIDTH, 1);
     ctx.fillText(`${d}db`, 5, y);
   }
-  ctx.fillRect(20, 128, 512, 1);
+  ctx.fillRect(20, HEIGHT / 2, WIDTH, 1);
   for (let f = 2000; f < audioctx.sampleRate / 2; f += 2000) {
     const x = ((f * 1024) / audioctx.sampleRate) | 0;
     ctx.fillRect(x, 0, 1, 245);
@@ -290,9 +292,6 @@ const { touchBegan, touchMoved, touchEnded } = {
 };
 
 /* audio */
-
-const soundPath = './sounds/loop.wav';
-
 const audioctx = new AudioContext();
 let src = null;
 const analysedata = new Float32Array(1024);
@@ -302,6 +301,7 @@ const noisebuff = new AudioBuffer({
   sampleRate: audioctx.sampleRate,
 });
 
+const soundPath = './sounds/loop.wav';
 let musicbuff = null;
 
 const filter = new BiquadFilterNode(audioctx, { frequency: 4000, q: 50.0 });
@@ -317,24 +317,18 @@ for (let i = 0; i < audioctx.sampleRate; i++) {
 }
 
 playnoiseButton.addEventListener(touchBegan, () => {
-  if (audioctx.state === 'suspended') {
-    audioctx.resume();
-  }
-  if (src) {
-    src.stop();
-  }
+  audioctx.state === 'suspended' ? audioctx.resume() : null;
+  src ? src.stop() : null;
+
   src = new AudioBufferSourceNode(audioctx, { buffer: noisebuff, loop: true });
   src.connect(filter);
   src.start();
 });
 
 playmusicButton.addEventListener(touchBegan, () => {
-  if (audioctx.state === 'suspended') {
-    audioctx.resume();
-  }
-  if (src) {
-    src.stop();
-  }
+  audioctx.state === 'suspended' ? audioctx.resume() : null;
+  src ? src.stop() : null;
+
   src = new AudioBufferSourceNode(audioctx, { buffer: musicbuff, loop: true });
   src.connect(filter);
   src.start();
@@ -353,6 +347,7 @@ q.addEventListener('input', Setup);
 gain.addEventListener('input', Setup);
 
 function Setup() {
+  // xxx: 辞書で呼ぶ？
   filter.type = [
     'lowpass',
     'highpass',
@@ -378,7 +373,6 @@ async function LoadSample(actx, url) {
   return actx.decodeAudioData(arraybuf);
 }
 
-window.addEventListener('resize', initCanvas);
 document.addEventListener('DOMContentLoaded', () => {
   Setup();
   initCanvas();
@@ -388,3 +382,5 @@ document.addEventListener('DOMContentLoaded', () => {
 window.addEventListener('load', async () => {
   musicbuff = await LoadSample(audioctx, soundPath);
 });
+window.addEventListener('resize', initCanvas);
+
