@@ -291,7 +291,7 @@ const { touchBegan, touchMoved, touchEnded } = {
 
 /* audio */
 
-const soundURL = 'https://www.g200kg.com/jp/docs/webaudio/samples/loop.wav';
+const soundPath = './sounds/loop.wav';
 
 const audioctx = new AudioContext();
 let src = null;
@@ -301,8 +301,9 @@ const noisebuff = new AudioBuffer({
   length: audioctx.sampleRate,
   sampleRate: audioctx.sampleRate,
 });
-//const musicbuff = await LoadSample(audioctx, soundURL);
+
 let musicbuff = null;
+
 const filter = new BiquadFilterNode(audioctx, { frequency: 4000, q: 50.0 });
 const analyser = new AnalyserNode(audioctx, {
   smoothingTimeConstant: 0.7,
@@ -339,7 +340,6 @@ playmusicButton.addEventListener(touchBegan, () => {
   src.start();
 });
 
-
 stopButton.addEventListener(touchBegan, () => {
   if (src) {
     src.stop();
@@ -372,6 +372,12 @@ function Setup() {
   gainval.textContent = parseNum(gain.value, gain.numtype);
 }
 
+async function LoadSample(actx, url) {
+  const res = await fetch(url);
+  const arraybuf = await res.arrayBuffer();
+  return actx.decodeAudioData(arraybuf);
+}
+
 window.addEventListener('resize', initCanvas);
 document.addEventListener('DOMContentLoaded', () => {
   Setup();
@@ -380,14 +386,5 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 window.addEventListener('load', async () => {
-  console.log(soundURL);
-  musicbuff = await LoadSample(audioctx, soundURL);
+  musicbuff = await LoadSample(audioctx, soundPath);
 });
-
-async function LoadSample(actx, url) {
-  console.log('fetch');
-  const res = await fetch(url);
-  console.log(res);
-  const arraybuf = await res.arrayBuffer();
-  return actx.decodeAudioData(arraybuf);
-}
