@@ -9,3 +9,4 @@
 
 章ごとに、ブランチを切っていく
 
+[Web Audio API 解説 - 06.バッファソースでワンショットサンプルから音を出す | g200kg Music & Software](https://www.g200kg.com/jp/docs/webaudio/buffersource.html) 非同期処理を`async/await` に
