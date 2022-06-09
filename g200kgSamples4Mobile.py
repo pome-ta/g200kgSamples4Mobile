@@ -42,4 +42,3 @@ if __name__ == '__main__':
   view = View()
   view.present(style='fullscreen', orientations=['portrait'])
 
-
