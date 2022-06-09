@@ -136,15 +136,49 @@ function setAppendChild(nodes, parentNode = document.body) {
 
 /* setup document node element */
 const mainTitleHeader = document.createElement('h2');
-mainTitleHeader.textContent = 'BiquadFilter Test';
+mainTitleHeader.textContent = 'Oscillator Custom waveform';
 
 const buttonDiv = document.createElement('div');
 buttonDiv.style.width = '100%';
-const playnoiseButton = createButton('playnoise', 'Play Noise');
-const playmusicButton = createButton('playmusic', 'Play Music');
+const playButton = createButton('play');
 const stopButton = createButton('stop');
 
 /* create controller objs */
+
+const freqvalObj = {
+  inputObj: {
+    id: 'freq',
+    min: 50,
+    max: 1000,
+    value: 440,
+    numtype: 'int',
+  },
+  pObj: {
+    id: 'freqval',
+    label: '',
+  },
+  objName: 'Freq',
+};
+
+const gainvalObj = {
+  inputObj: {
+    id: 'gain',
+    min: 0.0,
+    max: 1.0,
+    step: 0.01,
+    value: 0.5,
+    numtype: 'float',
+  },
+  pObj: {
+    id: 'gainval',
+    label: '',
+  },
+  objName: 'Gain',
+};
+
+
+
+
 // xxx: 辞書にする？
 const typeStr = [
   'LPF',
@@ -233,7 +267,7 @@ const ctx = canvas.getContext('2d');
 setAppendChild([
   mainTitleHeader,
   buttonDiv,
-  [playnoiseButton, playmusicButton, stopButton],
+  [playButton, stopButton],
   controllerTable,
   cnvsDiv,
   [canvas],
