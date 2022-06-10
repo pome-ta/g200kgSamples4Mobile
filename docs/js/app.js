@@ -67,6 +67,7 @@ function createControllerObjs(objArray) {
 
   const controllerObjs = {};
   for (const obj of objArray) {
+    Array.isArray(obj) ? createControllerObjs(obj) : null;
     const selectElement = Object.keys(obj).some((key) => key === selectObj)
       ? createSelectOpiton(obj[selectObj], typeStr)
       : null;
@@ -144,7 +145,7 @@ const playButton = createButton('play');
 const stopButton = createButton('stop');
 
 /* create controller objs */
-
+// main
 const freqvalObj = {
   inputObj: {
     id: 'freq',
@@ -176,13 +177,52 @@ const gainvalObj = {
   objName: 'Gain',
 };
 
-const controllerObjs = createControllerObjs([freqvalObj, gainvalObj]);
+// drawbar
+const d0Obj = [
+  {
+    inputObj: {
+      id: 'real0',
+      min: 0.0,
+      max: 1.0,
+      step: 0.01,
+      value: 0.0,
+      numtype: 'float',
+    },
+    pObj: {
+      id: 'real0val',
+      label: '',
+    },
+    objName: '0',
+  },
+  {
+    inputObj: {
+      id: 'imag0',
+      min: 0.0,
+      max: 1.0,
+      step: 0.01,
+      value: 0.0,
+      numtype: 'float',
+    },
+    pObj: {
+      id: 'imag0val',
+      label: '',
+    },
+    objName: '',
+  },
+];
 
-const [[freq, freqval], [gain, gainval]] = Object.entries(controllerObjs).map(
-  ([key, val]) => val
-);
+console.log({freqvalObj});
+const mainControllerObjs = createControllerObjs([freqvalObj, gainvalObj]);
 
-const controllerTable = createControllerTable(controllerObjs);
+const drawbarControllerObjs = createControllerObjs([d0Obj]);
+console.log({d0Obj});
+console.log({drawbarControllerObjs});
+
+const [[freq, freqval], [gain, gainval]] = Object.entries(
+  mainControllerObjs
+).map(([key, val]) => val);
+
+const mainControllerTable = createControllerTable(mainControllerObjs);
 
 const cnvsDiv = document.createElement('div');
 cnvsDiv.style.width = '100%';
@@ -196,7 +236,7 @@ setAppendChild([
   mainTitleHeader,
   buttonDiv,
   [playButton, stopButton],
-  controllerTable,
+  mainControllerTable,
   cnvsDiv,
   [canvas],
 ]);
@@ -220,6 +260,8 @@ function initCanvas() {
 
 function DrawGraph() {
   ctx.fillStyle = colorBG;
+  ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
   requestAnimationFrame(DrawGraph);
 }
 
