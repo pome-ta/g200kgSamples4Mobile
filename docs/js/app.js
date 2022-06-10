@@ -40,9 +40,9 @@ function createInputRange(rangeObj) {
   element.id = id;
   element.min = min;
   element.max = max;
+  element.step = step;
   element.value = value;
   element.numtype = numtype;
-  element.step = step;
   element.style.width = '100%';
   return element;
 }
@@ -176,83 +176,11 @@ const gainvalObj = {
   objName: 'Gain',
 };
 
+const controllerObjs = createControllerObjs([freqvalObj, gainvalObj]);
 
-
-
-// xxx: 辞書にする？
-const typeStr = [
-  'LPF',
-  'HPF',
-  'BPF',
-  'LowShelf',
-  'HighShelf',
-  'Peaking',
-  'Notch',
-  'AllPass',
-];
-
-const selectTypeObj = {
-  selectObj: {
-    id: 'selectType',
-  },
-  objName: 'Type',
-};
-
-const freqvalObj = {
-  inputObj: {
-    id: 'freq',
-    min: 100,
-    max: 20000,
-    value: 8000,
-    numtype: 'int',
-  },
-  pObj: {
-    id: 'freqval',
-    label: '',
-  },
-  objName: 'Freq',
-};
-
-const qvalObj = {
-  inputObj: {
-    id: 'q',
-    min: 0.0,
-    max: 50.0,
-    step: 0.5,
-    value: 50.0,
-    numtype: 'float',
-  },
-  pObj: {
-    id: 'qval',
-    label: '',
-  },
-  objName: 'Q',
-};
-
-const gainvalObj = {
-  inputObj: {
-    id: 'gain',
-    min: -50,
-    max: 50,
-    value: 0,
-    numtype: 'int',
-  },
-  pObj: {
-    id: 'gainval',
-    label: '',
-  },
-  objName: 'Gain',
-};
-
-const controllerObjs = createControllerObjs([
-  selectTypeObj,
-  freqvalObj,
-  qvalObj,
-  gainvalObj,
-]);
-
-const [[selectType], [freq, freqval], [q, qval], [gain, gainval]] =
-  Object.entries(controllerObjs).map(([key, val]) => val);
+const [[freq, freqval], [gain, gainval]] = Object.entries(controllerObjs).map(
+  ([key, val]) => val
+);
 
 const controllerTable = createControllerTable(controllerObjs);
 
@@ -291,26 +219,7 @@ function initCanvas() {
 }
 
 function DrawGraph() {
-  analyser.getFloatFrequencyData(analysedata);
   ctx.fillStyle = colorBG;
-  ctx.fillRect(0, 0, WIDTH, HEIGHT);
-  ctx.fillStyle = colorWave;
-  for (let i = 0; i < WIDTH; i++) {
-    const y = HEIGHT / 2 + (analysedata[i] + 50.0) * (HEIGHT / 100);
-    ctx.fillRect(i, HEIGHT - y, 1, y);
-  }
-  ctx.fillStyle = colorLine;
-  for (let d = -50; d < 50; d += 10) {
-    const y = (HEIGHT / 2 - (d * HEIGHT) / 100) | 0;
-    ctx.fillRect(0, y, WIDTH, 0.5);
-    ctx.fillText(`${d}db`, 0, y);
-  }
-  ctx.fillRect(20, HEIGHT / 2, WIDTH, 1);
-  for (let f = 2000; f < audioctx.sampleRate / 2; f += 2000) {
-    const x = ((f * 1024) / audioctx.sampleRate) | 0;
-    ctx.fillRect(x, 0, 0.5, HEIGHT);
-    ctx.fillText(`${f}Hz`, x, HEIGHT);
-  }
   requestAnimationFrame(DrawGraph);
 }
 
@@ -326,45 +235,16 @@ const { touchBegan, touchMoved, touchEnded } = {
 
 /* audio */
 const audioctx = new AudioContext();
-let src = null;
-const analysedata = new Float32Array(1024);
-const noisebuff = new AudioBuffer({
-  channels: 1,
-  length: audioctx.sampleRate,
-  sampleRate: audioctx.sampleRate,
-});
+let src;
 
-const soundPath = './sounds/loop.wav';
-let musicbuff = null;
-
-const filter = new BiquadFilterNode(audioctx, { frequency: 4000, q: 50.0 });
 const analyser = new AnalyserNode(audioctx, {
   smoothingTimeConstant: 0.8,
   fftSize: 1024,
 });
-filter.connect(analyser).connect(audioctx.destination);
 
-const noisebuffdata = noisebuff.getChannelData(0);
-for (let i = 0; i < audioctx.sampleRate; i++) {
-  noisebuffdata[i] = (Math.random() - 0.5) * 0.5;
-}
-
-playnoiseButton.addEventListener(touchBegan, () => {
+playButton.addEventListener(touchBegan, () => {
   audioctx.state === 'suspended' ? audioctx.resume() : null;
   src ? src.stop() : null;
-
-  src = new AudioBufferSourceNode(audioctx, { buffer: noisebuff, loop: true });
-  src.connect(filter);
-  src.start();
-});
-
-playmusicButton.addEventListener(touchBegan, () => {
-  audioctx.state === 'suspended' ? audioctx.resume() : null;
-  src ? src.stop() : null;
-
-  src = new AudioBufferSourceNode(audioctx, { buffer: musicbuff, loop: true });
-  src.connect(filter);
-  src.start();
 });
 
 stopButton.addEventListener(touchBegan, () => {
@@ -374,36 +254,12 @@ stopButton.addEventListener(touchBegan, () => {
   }
 });
 
-selectType.addEventListener('change', Setup);
 freq.addEventListener('input', Setup);
-q.addEventListener('input', Setup);
 gain.addEventListener('input', Setup);
 
 function Setup() {
-  // xxx: 辞書で呼ぶ？
-  filter.type = [
-    'lowpass',
-    'highpass',
-    'bandpass',
-    'lowshelf',
-    'highshelf',
-    'peaking',
-    'notch',
-    'allpass',
-  ][selectType.selectedIndex];
-  filter.frequency.value = freq.value;
-  filter.Q.value = q.value;
-  filter.gain.value = gain.value;
-
   freqval.textContent = parseNum(freq.value, freq.numtype);
-  qval.textContent = parseNum(q.value, q.numtype);
   gainval.textContent = parseNum(gain.value, gain.numtype);
-}
-
-async function LoadSample(actx, url) {
-  const res = await fetch(url);
-  const arraybuf = await res.arrayBuffer();
-  return actx.decodeAudioData(arraybuf);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -412,8 +268,4 @@ document.addEventListener('DOMContentLoaded', () => {
   DrawGraph();
 });
 
-window.addEventListener('load', async () => {
-  musicbuff = await LoadSample(audioctx, soundPath);
-});
 window.addEventListener('resize', initCanvas);
-
