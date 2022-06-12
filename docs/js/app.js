@@ -178,8 +178,10 @@ const gainvalObj = {
   objName: 'Gain',
 };
 
-function creatSetUpElement2Id(controllerObj) {
-  console.log({ controllerObj });
+
+
+function creatControllerElementId({thLabel: label, tdData: data}) {
+  console.log(data);
 }
 
 const _gainvalObj = {
@@ -201,6 +203,9 @@ const _gainvalObj = {
     },
   ],
 };
+
+creatControllerElementId(_gainvalObj);
+
 
 // drawbar
 
@@ -238,7 +243,7 @@ const d1Obj = {
   ],
 };
 
-console.log(d1Obj);
+//console.log(d1Obj);
 
 const d0Obj = [
   {
