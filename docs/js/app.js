@@ -67,7 +67,7 @@ function createControllerObjs(objArray) {
 
   const controllerObjs = {};
   for (const obj of objArray) {
-    Array.isArray(obj) ? createControllerObjs(obj) : null;
+    const cntrllobj = Array.isArray(obj) ? createControllerObjs(obj) : null;
     const selectElement = Object.keys(obj).some((key) => key === selectObj)
       ? createSelectOpiton(obj[selectObj], typeStr)
       : null;
@@ -84,6 +84,7 @@ function createControllerObjs(objArray) {
       : null;
 
     controllerObjs[obj['objName']] = [
+      cntrllobj,
       selectElement,
       inputElement,
       pElement,
@@ -177,7 +178,68 @@ const gainvalObj = {
   objName: 'Gain',
 };
 
+function creatSetUpElement2Id(controllerObj) {
+  console.log({ controllerObj });
+}
+
+const _gainvalObj = {
+  thLabel: 'Gain',
+  tdData: [
+    {
+      inputObj: {
+        id: 'gain',
+        min: 0.0,
+        max: 1.0,
+        step: 0.01,
+        value: 0.5,
+        numtype: 'float',
+      },
+      pObj: {
+        id: 'gainval',
+        label: '',
+      },
+    },
+  ],
+};
+
 // drawbar
+
+const d1Obj = {
+  thLabel: '1',
+  tdData: [
+    {
+      inputObj: {
+        id: 'real1',
+        min: 0.0,
+        max: 1.0,
+        step: 0.01,
+        value: 0.0,
+        numtype: 'float',
+      },
+      pObj: {
+        id: 'real1val',
+        label: '',
+      },
+    },
+    {
+      inputObj: {
+        id: 'imag1',
+        min: 0.0,
+        max: 1.0,
+        step: 0.01,
+        value: 0.0,
+        numtype: 'float',
+      },
+      pObj: {
+        id: 'imag1val',
+        label: '',
+      },
+    },
+  ],
+};
+
+console.log(d1Obj);
+
 const d0Obj = [
   {
     inputObj: {
@@ -211,12 +273,11 @@ const d0Obj = [
   },
 ];
 
-console.log({freqvalObj});
 const mainControllerObjs = createControllerObjs([freqvalObj, gainvalObj]);
 
 const drawbarControllerObjs = createControllerObjs([d0Obj]);
-console.log({d0Obj});
-console.log({drawbarControllerObjs});
+//console.log({ d0Obj });
+//console.log({ drawbarControllerObjs });
 
 const [[freq, freqval], [gain, gainval]] = Object.entries(
   mainControllerObjs
