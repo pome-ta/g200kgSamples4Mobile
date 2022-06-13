@@ -4,7 +4,6 @@
 
 `input` がテーブル内に複数存在用へ書き換える
 
-
 ### `element` 生成
 
 一度オブジェクトを`element` 生成しオブジェクトを書き換える
@@ -17,21 +16,16 @@ label として準備
 
 `input(range)` と、その数値を出す`p`
 
-
 ### `obj` の最初の考え方
-
 
 - 生成したものをなるべく変数で管理したい
 - 要素を一塊で、確認できるようにしたい
 - 御作法として、`id` 付与しとるけど、無駄になる？
   - 宣言で二回書く（左側の変数と、右側の文字列）ことになるけど、ぱっと見の確認となりえる？
 
-
-
 # 📝 2022/06/09
 
 OCRS でだめなので`loop.wav` を用意
-
 
 ## todo
 
@@ -39,20 +33,18 @@ OCRS でだめなので`loop.wav` を用意
 
 分割を検討中
 
-- audio とDOM(？) 操作
+- audio と DOM(？) 操作
 - サンプルコードと揃える
 - `id` と変数どちらで操作するか
-
 
 ## Working Copy でのマージ
 
 いつもどきどきするのでメモ
 
-- fooブランチ
-- barブランチ
+- foo ブランチ
+- bar ブランチ
 
 ### `foo` で開発中、`bar` を`foo` と揃えたいとき
-
 
 1. ブランチを`bar` へ
 1. [Repository] -> [Branch]
@@ -60,15 +52,11 @@ OCRS でだめなので`loop.wav` を用意
 
 古いブランチ状態にして、進んでるブランチを選ぶ
 
-
-
 # 📝 2022/06/08
-
 
 ## 進捗
 
-ここのmemo に書いてなかったから、何を良しとして何を実装したいのか忘れてる
-
+ここの memo に書いてなかったから、何を良しとして何を実装したいのか忘れてる
 
 ## 再生音源
 
@@ -78,11 +66,9 @@ OCRS でだめなので`loop.wav` を用意
 
 記事で使われている[loop.wav](https://www.g200kg.com/jp/docs/webaudio/samples/loop.wav) へアクセスすることにした
 
-
 #### OCRS
 
 多分だめ
-
 
 ### 裏側で
 
@@ -92,37 +78,31 @@ OCRS でだめなので`loop.wav` を用意
 
 `.png` から、呼び出せないか？とかやってるけど頓挫中
 
-
-
 # 📝 2022/05/31
 
-
-web audio よりもjs でのhtml タグ実装になってる
-
+web audio よりも js での html タグ実装になってる
 
 なるべく関数の機能を分ける
 
 作り出す、呼び出すタイミングや、最終の呼び出しをどうするか(現在は、`id` の意味を成してない)
 
-
-
 # 📝 2022/05/29
 
 js で全て書き切ろうとしている
 
-1ファイル内で、audio 設定からイベントハンドリング、Node作成とガチャガチャしちゃってる
+1 ファイル内で、audio 設定からイベントハンドリング、Node 作成とガチャガチャしちゃってる
 
-そもそも、js でhtml 操作ってあまりよろしくないよね
+そもそも、js で html 操作ってあまりよろしくないよね
 
 変数と、処理する場所が遠かったり、あまり書き方的にもよろしくないかも
 
 ## `ScriptProcessor` と`AudioWorklet`
 
-[AudioWorkletの導入|@ryoyakawai](https://qiita.com/ryoyakawai/items/1160586653330ccbf4a4)
+[AudioWorklet の導入|@ryoyakawai](https://qiita.com/ryoyakawai/items/1160586653330ccbf4a4)
 
 イベントが非同期でメインスレッドで動作することが問題だった
 
-AudioWorklet は、Audioスレッドで動作させる。音声処理をメインスレッドで処理しなくて済む(`AudioWorkletGloabalScope`)
+AudioWorklet は、Audio スレッドで動作させる。音声処理をメインスレッドで処理しなくて済む(`AudioWorkletGloabalScope`)
 
 # 📝 2022/05/26
 
@@ -138,17 +118,17 @@ AudioWorklet は、Audioスレッドで動作させる。音声処理をメイ�
 
 表示桁数等のバランスにより
 
-``` .js
+```.js
 parseFloat(inputElement.value).toFixed(2);
 ```
 
-と、文字列から`float` へ0埋めし、文字列化
+と、文字列から`float` へ 0 埋めし、文字列化
 
 ## `#id` の管理
 
-`index.html` ではなく、js 上にてelement 作成
+`index.html` ではなく、js 上にて element 作成
 
-``` .js
+```.js
 .appendChild(element);
 ```
 
@@ -160,7 +140,7 @@ parseFloat(inputElement.value).toFixed(2);
 
 ## `06-2` branch
 
-- Promise をasync に書き換え
+- Promise を async に書き換え
 - クソデカオーディオデータ読む時の挙動確認もしとる？
 
 ## 07.パラメータとオートメーション
@@ -175,7 +155,7 @@ sample が鳴らない [07.パラメータとオートメーション](https://w
 
 `"mousedown"` で呼び出していた
 
-``` .js
+```.js
 const tapStart = typeof document.ontouchstart !== 'undefined' ? 'touchstart' : 'mousedown';
 ```
 
@@ -187,7 +167,7 @@ const tapStart = typeof document.ontouchstart !== 'undefined' ? 'touchstart' : '
 
 これで、ええか
 
-``` .css
+```.css
 html {
   height: 100%;
   /* タップアクション制御 */
@@ -218,11 +198,11 @@ html {
 
 ## 機能仕様
 
-音再生させないでcontroller 関係やるとエラー（←当たり前
+音再生させないで controller 関係やるとエラー（← 当たり前
 
 ## html の方
 
-js でのelement こだわると終わりなさそうだから、効率悪くても、まぁええやろ
+js での element こだわると終わりなさそうだから、効率悪くても、まぁええやろ
 
 # 📝 2022/04/04
 
@@ -236,16 +216,16 @@ js でのelement こだわると終わりなさそうだから、効率悪くて
 
 # 📝 2022/04/04
 
-[02.とりあえず音を出す](https://www.g200kg.com/jp/docs/webaudio/generatesound.html) では、html に処理を書いていたが、今回はjs で、完結させるようにしてる
+[02.とりあえず音を出す](https://www.g200kg.com/jp/docs/webaudio/generatesound.html) では、html に処理を書いていたが、今回は js で、完結させるようにしてる
 
 ## `new AudioContext()` 挙動
 
 以前書いていた、Polyfill は不要っぽい？
 
-``` .js
+```.js
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 ```
 
 ## `button` Element
 
-`input` でtype 指定ではなく`button` でやる
+`input` で type 指定ではなく`button` でやる
