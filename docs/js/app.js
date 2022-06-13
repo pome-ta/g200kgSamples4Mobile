@@ -182,6 +182,7 @@ const gainvalObj = {
 
 function creatControllerElementId({thLabel: label, tdData: data}) {
   console.log(data);
+  const th = document.createElement('th');
 }
 
 const _gainvalObj = {
