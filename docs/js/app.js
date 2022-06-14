@@ -185,6 +185,25 @@ function creatControllerElementId({thLabel: label, tdData: data}) {
   const th = document.createElement('th');
 }
 
+function getInputRange2Label({inputObj: ipt, pObj: plbl}) {
+  const inputElement = createInputRange(ipt);
+  const _label = inputElement
+      ? parseNum(inputElement.value, inputElement.numtype)
+      : null;
+  const pElement = createLabel(plbl, _label)
+}
+
+function getController({thLabel: label, tdData: datas}) {
+  console.log(data);
+  const th = createTableHeader(label);
+  
+  for (const data of datas) {
+    for (const key of Object.keys(data)) {
+    }
+  }
+  
+}
+
 const _gainvalObj = {
   thLabel: 'Gain',
   tdData: [
