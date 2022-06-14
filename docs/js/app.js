@@ -178,10 +178,11 @@ const gainvalObj = {
   objName: 'Gain',
 };
 
-
 function getInputRange2Label({ inputObj: iptObj, pObj: pLbl }) {
   const inputElement = createInputRange(iptObj);
-  const lbl = inputElement ? parseNum(inputElement.value, inputElement.numtype) : null;
+  const lbl = inputElement
+    ? parseNum(inputElement.value, inputElement.numtype)
+    : null;
   const pElement = createLabel(pLbl, lbl);
   return { range: inputElement, p: pElement };
 }
@@ -191,7 +192,7 @@ function getController({ thLabel: label, tdData: datas }) {
   const tdElements = Array.isArray(datas)
     ? datas.map((data) => getInputRange2Label(data))
     : [getInputRange2Label(datas)];
-  return { th:thElement, tds:tdElements };
+  return { th: thElement, tds: tdElements };
 }
 
 const _gainvalObj = {
@@ -213,8 +214,6 @@ const _gainvalObj = {
     },
   ],
 };
-
-
 
 // drawbar
 
@@ -253,8 +252,43 @@ const d1Obj = {
 };
 
 
-let {th: d10th, tds: hoge} = getController(d1Obj);
-console.log(hoge);
+let d10 = getController(d1Obj)
+let {
+  th: d10th,
+  tds: {
+    0: { range: real1, p: real1val },
+    1: { range: imag1, p: imag1val },
+  },
+} = d10;
+//console.log(d10);
+
+
+
+function _createControllerTable(controllers) {
+  const tblBody = document.createElement('tbody');
+  for (const controller of controllers) {
+    const {th, tds} = controller;
+    const tr = document.createElement('tr');
+    tr.appendChild(th);
+    for (const element of tds) {
+      console.log(element);
+      const td = createTableData(element);
+      tr.appendChild(td);
+    }
+    tblBody.appendChild(tr);
+  }
+  const tbl = document.createElement('table');
+  tbl.style.width = '100%';
+  tbl.appendChild(tblBody);
+  return tbl;
+}
+
+
+const tableSet = _createControllerTable([d10]);
+console.log(tableSet);
+
+
+//console.log(d10th);
 
 const d0Obj = [
   {
