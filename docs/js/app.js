@@ -15,7 +15,7 @@ function parseNum(value, numtype = 'float') {
 /* create document node element funcs */
 function createButton(idName, textContent = null) {
   const element = document.createElement('button');
-  element.style.width = '100%';
+  element.style.width = '50%';
   element.style.height = '3rem';
   element.type = 'button';
   element.id = idName;
@@ -28,7 +28,7 @@ function createLabel(pObj, textContent = null) {
   const element = document.createElement('p');
   element.id = id;
   element.style.margin = '0';
-  element.style.minWidth = '3rem';
+  element.style.minWidth = '2.4rem';
   element.textContent = textContent != null ? textContent : capitalize(id);
   return element;
 }
@@ -73,7 +73,7 @@ function createTableData(child, length = 0) {
   return element;
 }
 
-function createControllerTable(controllers) {
+function createControllerTable(controllers, customHeader = null) {
   const tblBody = document.createElement('tbody');
   for (const controller of controllers) {
     const { th, tds } = controller;
@@ -89,6 +89,13 @@ function createControllerTable(controllers) {
 
     tblBody.appendChild(tr);
   }
+  customHeader
+    ? customHeader.reverse().forEach((item) => {
+        const cth = createTableHeader(item);
+        cth.style.fontSize = '0.5rem';
+        tblBody.prepend(cth);
+      })
+    : null;
   const tbl = document.createElement('table');
   tbl.style.width = '100%';
   tbl.appendChild(tblBody);
@@ -148,7 +155,6 @@ const {
   },
 } = freqvalObj;
 
-
 const gainvalObj = getController({
   thLabel: 'Gain',
   tdData: {
@@ -173,7 +179,6 @@ const {
     0: { range: gain, p: gainval },
   },
 } = gainvalObj;
-
 
 // drawbar
 const d1Obj = getController({
@@ -260,7 +265,6 @@ const {
   },
 } = d2Obj;
 
-
 const d3Obj = getController({
   thLabel: '3',
   tdData: [
@@ -303,10 +307,13 @@ const {
   },
 } = d3Obj;
 
-
-
 const mainController = createControllerTable([freqvalObj, gainvalObj]);
-const drawbarController = createControllerTable([d1Obj, d2Obj, d3Obj]);
+
+const addHeader = ['Harmonics', 'real', '', 'imag'];
+const drawbarController = createControllerTable(
+  [d1Obj, d2Obj, d3Obj],
+  addHeader
+);
 
 const cnvsDiv = document.createElement('div');
 cnvsDiv.style.width = '100%';
