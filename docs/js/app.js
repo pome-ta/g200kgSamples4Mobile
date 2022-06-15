@@ -530,16 +530,11 @@ setAppendChild([
 ]);
 
 /* canvas */
-let WIDTH, HEIGHT;
+let WIDTH, HEIGHT, halfHEIGHT;
 const setting_height = 0.75; // 4:3
 //const setting_height = 0.5;
-const colorBG = '#000000';
-const colorWave = '#009900';
-const colorLine = '#ff8844';
 
 const capturebuf = new Float32Array(512);
-
-
 
 function initCanvas() {
   canvas.width = cnvsDiv.clientWidth;
@@ -550,15 +545,14 @@ function initCanvas() {
 
 function DrawGraph() {
   ana.getFloatTimeDomainData(capturebuf);
-  canvasctx.fillStyle = "#222222";
+  canvasctx.fillStyle = '#222222';
   canvasctx.fillRect(0, 0, 512, 512);
-  canvasctx.fillStyle = "#00ff44";
+  canvasctx.fillStyle = '#00ff44';
   canvasctx.fillRect(0, 128, 512, 1);
-  for(let i = 0; i < 512; ++i) {
+  for (let i = 0; i < 512; ++i) {
     const v = 128 - capturebuf[i] * 128;
     canvasctx.fillRect(i, v, 1, 128 - v);
   }
-
   requestAnimationFrame(DrawGraph);
 }
 
@@ -633,3 +627,4 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 window.addEventListener('resize', initCanvas);
+
