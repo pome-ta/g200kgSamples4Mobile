@@ -84,7 +84,6 @@ function createControllerTable(controllers, customHeader = null) {
         tr.appendChild(td);
       })
     );
-
     tblBody.appendChild(tr);
   }
   customHeader
@@ -177,6 +176,7 @@ const {
 } = gainvalObj;
 
 // drawbar
+// xxx: all 0 だとならないので、初期配置で微調整
 const d0Obj = getController({
   thLabel: '0',
   tdData: [
@@ -218,7 +218,6 @@ const {
   },
 } = d0Obj;
 
-
 const d1Obj = getController({
   thLabel: '1',
   tdData: [
@@ -242,7 +241,7 @@ const d1Obj = getController({
         min: 0.0,
         max: 1.0,
         step: 0.01,
-        value: 0.0,
+        value: 1.0,
         numtype: 'float',
       },
       pObj: {
@@ -283,7 +282,7 @@ const d2Obj = getController({
         min: 0.0,
         max: 1.0,
         step: 0.01,
-        value: 0.0,
+        value: 0.5,
         numtype: 'float',
       },
       pObj: {
@@ -509,10 +508,8 @@ const {
 const mainController = createControllerTable([freqvalObj, gainvalObj]);
 
 const addHeader = ['Harmonics', 'real', '', 'imag', ''];
-const drawbarController = createControllerTable(
-  [d0Obj, d1Obj, d2Obj, d3Obj, d4Obj, d5Obj, d6Obj, d7Obj],
-  addHeader
-);
+const drawbarArray = [d0Obj, d1Obj, d2Obj, d3Obj, d4Obj, d5Obj, d6Obj, d7Obj];
+const drawbarController = createControllerTable(drawbarArray, addHeader);
 
 const cnvsDiv = document.createElement('div');
 cnvsDiv.style.width = '100%';
@@ -568,35 +565,60 @@ const { touchBegan, touchMoved, touchEnded } = {
 
 /* audio */
 const audioctx = new AudioContext();
-let src;
+const osc = new OscillatorNode(audioctx);
+const gainNode = new GainNode(audioctx);
+const ana = new AnalyserNode(audioctx);
 
-const analyser = new AnalyserNode(audioctx, {
-  smoothingTimeConstant: 0.8,
-  fftSize: 1024,
+osc.connect(gainNode).connect(ana).connect(audioctx.destination);
+audioctx.suspend();
+osc.start();
+
+const tablen = drawbarArray.length;
+const real = new Float32Array(tablen);
+const imag = new Float32Array(tablen);
+
+stopButton.addEventListener(touchBegan, () => {
+  audioctx.suspend();
 });
 
 playButton.addEventListener(touchBegan, () => {
-  audioctx.state === 'suspended' ? audioctx.resume() : null;
-  src ? src.stop() : null;
-});
-
-stopButton.addEventListener(touchBegan, () => {
-  if (src) {
-    src.stop();
-    src = null;
-  }
+  audioctx.resume();
 });
 
 freq.addEventListener('input', Setup);
 gain.addEventListener('input', Setup);
 
+for (let i = 0; i < tablen; i++) {
+  document.querySelector(`#real${i}`).addEventListener('input', SetupWave);
+  document.querySelector(`#imag${i}`).addEventListener('input', SetupWave);
+}
+
 function Setup() {
+  osc.frequency.value = freq.value;
   freqval.textContent = parseNum(freq.value, freq.numtype);
+
+  gainNode.gain.value = gain.value;
   gainval.textContent = parseNum(gain.value, gain.numtype);
+}
+
+function SetupWave() {
+  for (let i = 0; i < tablen; i++) {
+    // make Harmonics
+    const realValue = parseFloat(document.querySelector(`#real${i}`).value);
+    document.querySelector(`#real${i}val`).textContent = realValue;
+    real[i] = realValue;
+
+    const imagValue = parseFloat(document.querySelector(`#imag${i}`).value);
+    document.querySelector(`#imag${i}val`).textContent = imagValue;
+    imag[i] = imagValue;
+  }
+  const waveTable = audioctx.createPeriodicWave(real, imag); //create periodicWave
+  osc.setPeriodicWave(waveTable); //set to Oscillator
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   Setup();
+  SetupWave();
   initCanvas();
   DrawGraph();
 });
