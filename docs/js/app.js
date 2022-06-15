@@ -68,7 +68,6 @@ function createTableData(child, length = 0) {
   const element = document.createElement('td');
   element.style.width =
     child.nodeName === 'SELECT' ? '0%' : length > 1 ? 'auto' : '100%';
-
   element.appendChild(child);
   return element;
 }
@@ -81,7 +80,6 @@ function createControllerTable(controllers, customHeader = null) {
     tr.appendChild(th);
     tds.forEach((element, _, array) =>
       Object.keys(element).forEach((key) => {
-        console.log(array);
         const td = createTableData(element[key], array.length);
         tr.appendChild(td);
       })
@@ -149,7 +147,6 @@ const freqvalObj = getController({
 });
 
 const {
-  th: freqth,
   tds: {
     0: { range: freq, p: freqval },
   },
@@ -174,13 +171,54 @@ const gainvalObj = getController({
 });
 
 const {
-  th: gainth,
   tds: {
     0: { range: gain, p: gainval },
   },
 } = gainvalObj;
 
 // drawbar
+const d0Obj = getController({
+  thLabel: '0',
+  tdData: [
+    {
+      inputObj: {
+        id: 'real0',
+        min: 0.0,
+        max: 1.0,
+        step: 0.01,
+        value: 0.0,
+        numtype: 'float',
+      },
+      pObj: {
+        id: 'real0val',
+        label: '',
+      },
+    },
+    {
+      inputObj: {
+        id: 'imag0',
+        min: 0.0,
+        max: 1.0,
+        step: 0.01,
+        value: 0.0,
+        numtype: 'float',
+      },
+      pObj: {
+        id: 'imag0val',
+        label: '',
+      },
+    },
+  ],
+});
+
+const {
+  tds: {
+    0: { range: real0, p: real0val },
+    1: { range: imag0, p: imag0val },
+  },
+} = d0Obj;
+
+
 const d1Obj = getController({
   thLabel: '1',
   tdData: [
@@ -216,7 +254,6 @@ const d1Obj = getController({
 });
 
 const {
-  th: d10th,
   tds: {
     0: { range: real1, p: real1val },
     1: { range: imag1, p: imag1val },
@@ -258,7 +295,6 @@ const d2Obj = getController({
 });
 
 const {
-  th: d20th,
   tds: {
     0: { range: real2, p: real2val },
     1: { range: imag2, p: imag2val },
@@ -300,18 +336,181 @@ const d3Obj = getController({
 });
 
 const {
-  th: d30th,
   tds: {
     0: { range: real3, p: real3val },
     1: { range: imag3, p: imag3val },
   },
 } = d3Obj;
 
+const d4Obj = getController({
+  thLabel: '4',
+  tdData: [
+    {
+      inputObj: {
+        id: 'real4',
+        min: 0.0,
+        max: 1.0,
+        step: 0.01,
+        value: 0.0,
+        numtype: 'float',
+      },
+      pObj: {
+        id: 'real4val',
+        label: '',
+      },
+    },
+    {
+      inputObj: {
+        id: 'imag4',
+        min: 0.0,
+        max: 1.0,
+        step: 0.01,
+        value: 0.0,
+        numtype: 'float',
+      },
+      pObj: {
+        id: 'imag4val',
+        label: '',
+      },
+    },
+  ],
+});
+
+const {
+  tds: {
+    0: { range: real4, p: real4val },
+    1: { range: imag4, p: imag4val },
+  },
+} = d4Obj;
+
+const d5Obj = getController({
+  thLabel: '5',
+  tdData: [
+    {
+      inputObj: {
+        id: 'real5',
+        min: 0.0,
+        max: 1.0,
+        step: 0.01,
+        value: 0.0,
+        numtype: 'float',
+      },
+      pObj: {
+        id: 'real5val',
+        label: '',
+      },
+    },
+    {
+      inputObj: {
+        id: 'imag5',
+        min: 0.0,
+        max: 1.0,
+        step: 0.01,
+        value: 0.0,
+        numtype: 'float',
+      },
+      pObj: {
+        id: 'imag5val',
+        label: '',
+      },
+    },
+  ],
+});
+
+const {
+  tds: {
+    0: { range: real5, p: real5val },
+    1: { range: imag5, p: imag5val },
+  },
+} = d5Obj;
+
+const d6Obj = getController({
+  thLabel: '6',
+  tdData: [
+    {
+      inputObj: {
+        id: 'real6',
+        min: 0.0,
+        max: 1.0,
+        step: 0.01,
+        value: 0.0,
+        numtype: 'float',
+      },
+      pObj: {
+        id: 'real6val',
+        label: '',
+      },
+    },
+    {
+      inputObj: {
+        id: 'imag6',
+        min: 0.0,
+        max: 1.0,
+        step: 0.01,
+        value: 0.0,
+        numtype: 'float',
+      },
+      pObj: {
+        id: 'imag6val',
+        label: '',
+      },
+    },
+  ],
+});
+
+const {
+  tds: {
+    0: { range: real6, p: real6val },
+    1: { range: imag6, p: imag6val },
+  },
+} = d6Obj;
+
+const d7Obj = getController({
+  thLabel: '7',
+  tdData: [
+    {
+      inputObj: {
+        id: 'real7',
+        min: 0.0,
+        max: 1.0,
+        step: 0.01,
+        value: 0.0,
+        numtype: 'float',
+      },
+      pObj: {
+        id: 'real7val',
+        label: '',
+      },
+    },
+    {
+      inputObj: {
+        id: 'imag7',
+        min: 0.0,
+        max: 1.0,
+        step: 0.01,
+        value: 0.0,
+        numtype: 'float',
+      },
+      pObj: {
+        id: 'imag7val',
+        label: '',
+      },
+    },
+  ],
+});
+
+const {
+  tds: {
+    0: { range: real7, p: real7val },
+    1: { range: imag7, p: imag7val },
+  },
+} = d7Obj;
+
 const mainController = createControllerTable([freqvalObj, gainvalObj]);
 
-const addHeader = ['Harmonics', 'real', '', 'imag'];
+const addHeader = ['Harmonics', 'real', '', 'imag', ''];
 const drawbarController = createControllerTable(
-  [d1Obj, d2Obj, d3Obj],
+  [d0Obj, d1Obj, d2Obj, d3Obj, d4Obj, d5Obj, d6Obj, d7Obj],
   addHeader
 );
 
