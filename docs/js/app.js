@@ -101,9 +101,10 @@ function createTableHeader(textContent) {
   return element;
 }
 
-function createTableData(child) {
+function createTableData(child, length=0) {
   const element = document.createElement('td');
-  element.style.width = child.nodeName === 'SELECT' ? '0%' : '100%';
+  element.style.width = child.nodeName === 'SELECT' ? '0%' : (length > 1) ? 'auto': '100%';
+  
   element.appendChild(child);
   return element;
 }
@@ -215,6 +216,20 @@ const _gainvalObj = {
   ],
 };
 
+let ggin = getController(_gainvalObj);
+/*
+
+let ggin = getController(_gainvalObj);
+console.log(ggin);
+let {
+  th: gaith,
+  tds: {
+    0: { range: gain, p: gainval },
+    
+  },
+} = ggin;
+*/
+
 // drawbar
 
 const d1Obj = {
@@ -270,11 +285,12 @@ function _createControllerTable(controllers) {
     const {th, tds} = controller;
     const tr = document.createElement('tr');
     tr.appendChild(th);
-    for (const element of tds) {
-      console.log(element);
-      const td = createTableData(element);
+    tds.forEach((element, _, array) => Object.keys(element).forEach(key => {
+      console.log(array);
+      const td = createTableData(element[key], array.length);
       tr.appendChild(td);
-    }
+    }));
+    
     tblBody.appendChild(tr);
   }
   const tbl = document.createElement('table');
@@ -283,7 +299,7 @@ function _createControllerTable(controllers) {
   return tbl;
 }
 
-
+const topp = _createControllerTable([ggin]);
 const tableSet = _createControllerTable([d10]);
 console.log(tableSet);
 
@@ -347,7 +363,7 @@ setAppendChild([
   mainTitleHeader,
   buttonDiv,
   [playButton, stopButton],
-  mainControllerTable,
+  mainControllerTable, tableSet, topp,
   cnvsDiv,
   [canvas],
 ]);
