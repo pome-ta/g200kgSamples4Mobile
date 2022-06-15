@@ -516,7 +516,7 @@ cnvsDiv.style.width = '100%';
 
 const canvas = document.createElement('canvas');
 canvas.style.width = '100%';
-const ctx = canvas.getContext('2d');
+const canvasctx = canvas.getContext('2d');
 
 /* appendChild document element */
 setAppendChild([
@@ -537,18 +537,27 @@ const colorBG = '#000000';
 const colorWave = '#009900';
 const colorLine = '#ff8844';
 
+const capturebuf = new Float32Array(512);
+
+
+
 function initCanvas() {
   canvas.width = cnvsDiv.clientWidth;
   canvas.height = cnvsDiv.clientWidth * setting_height;
   WIDTH = canvas.width;
   HEIGHT = canvas.height;
-  ctx.font = '0.8rem monospace'; // serif
-  //ctx.textAlign = 'center';
 }
 
 function DrawGraph() {
-  ctx.fillStyle = colorBG;
-  ctx.fillRect(0, 0, WIDTH, HEIGHT);
+  ana.getFloatTimeDomainData(capturebuf);
+  canvasctx.fillStyle = "#222222";
+  canvasctx.fillRect(0, 0, 512, 512);
+  canvasctx.fillStyle = "#00ff44";
+  canvasctx.fillRect(0, 128, 512, 1);
+  for(let i = 0; i < 512; ++i) {
+    const v = 128 - capturebuf[i] * 128;
+    canvasctx.fillRect(i, v, 1, 128 - v);
+  }
 
   requestAnimationFrame(DrawGraph);
 }
