@@ -43,7 +43,19 @@ function createInputRange(rangeObj) {
   element.step = step;
   element.value = value;
   element.numtype = numtype;
+
   element.style.width = '100%';
+  /*
+  element.style.height = '1.28rem';
+
+  element.style.appearance = 'none';
+  element.style.cursor = 'pointer';
+  element.style.outline = 'none';
+
+  // element.style.background = '#8acdff';
+  element.style.borderRadius = '1rem';
+  element.style.border = 'solid 1px #dff1ff';
+  */
   return element;
 }
 
@@ -66,10 +78,28 @@ function createTableHeader(textContent) {
 
 function createTableData(child, length = 0) {
   const element = document.createElement('td');
+  // console.log(child.nodeName);
+  // xxx: ここひどいな
   element.style.width =
-    child.nodeName === 'SELECT' ? '0%' : length > 1 ? 'auto' : '100%';
+    child.nodeName === 'SELECT'
+      ? '0%'
+      : length > 1
+      ? child.nodeName === 'INPUT'
+        ? '50%'
+        : 'auto'
+      : '100%';
   element.appendChild(child);
   return element;
+}
+
+function appendCustomHeader(customHeader) {
+  const tr = document.createElement('tr');
+  customHeader.forEach((element) => {
+    const th = createTableHeader(element);
+    th.style.fontSize = '0.5rem';
+    tr.append(th);
+  });
+  return tr;
 }
 
 function createControllerTable(controllers, customHeader = null) {
@@ -86,13 +116,7 @@ function createControllerTable(controllers, customHeader = null) {
     );
     tblBody.appendChild(tr);
   }
-  customHeader
-    ? customHeader.reverse().forEach((item) => {
-        const cth = createTableHeader(item);
-        cth.style.fontSize = '0.5rem';
-        tblBody.prepend(cth);
-      })
-    : null;
+  customHeader ? tblBody.prepend(appendCustomHeader(customHeader)) : null;
   const tbl = document.createElement('table');
   tbl.style.width = '100%';
   tbl.appendChild(tblBody);
@@ -133,8 +157,8 @@ const freqvalObj = getController({
   tdData: {
     inputObj: {
       id: 'freq',
-      min: 50,
-      max: 1000,
+      min: 55,
+      max: 1760,
       value: 440,
       numtype: 'int',
     },
@@ -531,27 +555,45 @@ setAppendChild([
 
 /* canvas */
 let WIDTH, HEIGHT, halfHEIGHT;
+let lineMargin = 1;
 const setting_height = 0.75; // 4:3
-//const setting_height = 0.5;
+// const setting_height = 0.5;
+const colorBG = '#222222';
+const colorWave = '#00ff44';
 
 const capturebuf = new Float32Array(512);
+
+const FPS = 24;
+const frameTime = 1 / FPS;
+
+let prevTimestamp = 0;
 
 function initCanvas() {
   canvas.width = cnvsDiv.clientWidth;
   canvas.height = cnvsDiv.clientWidth * setting_height;
   WIDTH = canvas.width;
   HEIGHT = canvas.height;
+  halfHEIGHT = HEIGHT / 2;
+  lineMargin = WIDTH / 512;
 }
 
-function DrawGraph() {
+function DrawGraph(timestamp) {
+  const elapsed = (timestamp - prevTimestamp) / 1000;
+  if (elapsed <= frameTime) {
+    requestAnimationFrame(DrawGraph);
+    return;
+  }
+  prevTimestamp = timestamp;
+
   ana.getFloatTimeDomainData(capturebuf);
-  canvasctx.fillStyle = '#222222';
-  canvasctx.fillRect(0, 0, 512, 512);
-  canvasctx.fillStyle = '#00ff44';
-  canvasctx.fillRect(0, 128, 512, 1);
-  for (let i = 0; i < 512; ++i) {
-    const v = 128 - capturebuf[i] * 128;
-    canvasctx.fillRect(i, v, 1, 128 - v);
+  canvasctx.fillStyle = colorBG;
+  canvasctx.fillRect(0, 0, WIDTH, HEIGHT);
+  canvasctx.fillStyle = colorWave;
+  canvasctx.fillRect(0, halfHEIGHT, WIDTH, 1);
+  for (let i = 0; i < 512; i++) {
+    const x = i * lineMargin;
+    const v = halfHEIGHT - capturebuf[i] * halfHEIGHT;
+    canvasctx.fillRect(x, v, lineMargin, halfHEIGHT - v);
   }
   requestAnimationFrame(DrawGraph);
 }
@@ -627,4 +669,3 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 window.addEventListener('resize', initCanvas);
-
