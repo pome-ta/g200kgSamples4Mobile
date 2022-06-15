@@ -47,50 +47,13 @@ function createInputRange(rangeObj) {
   return element;
 }
 
-function createSelectOpiton(selectObj, typestr) {
-  const { id } = selectObj;
-  const element = document.createElement('select');
-  element.id = id;
-  for (const type of typestr) {
-    const option = document.createElement('option');
-    option.value = type.toLowerCase();
-    option.text = type; //capitalize(type);
-    element.appendChild(option);
-  }
-  return element;
-}
-
-function createControllerObjs(objArray) {
-  const selectObj = 'selectObj';
-  const inputObj = 'inputObj';
-  const pObj = 'pObj';
-
-  const controllerObjs = {};
-  for (const obj of objArray) {
-    const cntrllobj = Array.isArray(obj) ? createControllerObjs(obj) : null;
-    const selectElement = Object.keys(obj).some((key) => key === selectObj)
-      ? createSelectOpiton(obj[selectObj], typeStr)
-      : null;
-
-    const inputElement = Object.keys(obj).some((key) => key === inputObj)
-      ? createInputRange(obj[inputObj])
-      : null;
-
-    const _label = inputElement
-      ? parseNum(inputElement.value, inputElement.numtype)
-      : null;
-    const pElement = Object.keys(obj).some((key) => key === pObj)
-      ? createLabel(obj[pObj], _label)
-      : null;
-
-    controllerObjs[obj['objName']] = [
-      cntrllobj,
-      selectElement,
-      inputElement,
-      pElement,
-    ].filter((ele) => ele);
-  }
-  return controllerObjs;
+function getInputRange2Label({ inputObj: iptObj, pObj: pLbl }) {
+  const inputElement = createInputRange(iptObj);
+  const lbl = inputElement
+    ? parseNum(inputElement.value, inputElement.numtype)
+    : null;
+  const pElement = createLabel(pLbl, lbl);
+  return { range: inputElement, p: pElement };
 }
 
 function createTableHeader(textContent) {
@@ -101,30 +64,43 @@ function createTableHeader(textContent) {
   return element;
 }
 
-function createTableData(child, length=0) {
+function createTableData(child, length = 0) {
   const element = document.createElement('td');
-  element.style.width = child.nodeName === 'SELECT' ? '0%' : (length > 1) ? 'auto': '100%';
-  
+  element.style.width =
+    child.nodeName === 'SELECT' ? '0%' : length > 1 ? 'auto' : '100%';
+
   element.appendChild(child);
   return element;
 }
 
 function createControllerTable(controllers) {
   const tblBody = document.createElement('tbody');
-  for (const key of Object.keys(controllers)) {
-    const th = createTableHeader(key);
+  for (const controller of controllers) {
+    const { th, tds } = controller;
     const tr = document.createElement('tr');
     tr.appendChild(th);
-    for (const value of controllers[key]) {
-      const td = createTableData(value);
-      tr.appendChild(td);
-    }
+    tds.forEach((element, _, array) =>
+      Object.keys(element).forEach((key) => {
+        console.log(array);
+        const td = createTableData(element[key], array.length);
+        tr.appendChild(td);
+      })
+    );
+
     tblBody.appendChild(tr);
   }
   const tbl = document.createElement('table');
   tbl.style.width = '100%';
   tbl.appendChild(tblBody);
   return tbl;
+}
+
+function getController({ thLabel: label, tdData: datas }) {
+  const thElement = createTableHeader(label);
+  const tdElements = Array.isArray(datas)
+    ? datas.map((data) => getInputRange2Label(data))
+    : [getInputRange2Label(datas)];
+  return { th: thElement, tds: tdElements };
 }
 
 function setAppendChild(nodes, parentNode = document.body) {
@@ -148,91 +124,59 @@ const stopButton = createButton('stop');
 
 /* create controller objs */
 // main
-const freqvalObj = {
-  inputObj: {
-    id: 'freq',
-    min: 50,
-    max: 1000,
-    value: 440,
-    numtype: 'int',
-  },
-  pObj: {
-    id: 'freqval',
-    label: '',
-  },
-  objName: 'Freq',
-};
-
-const gainvalObj = {
-  inputObj: {
-    id: 'gain',
-    min: 0.0,
-    max: 1.0,
-    step: 0.01,
-    value: 0.5,
-    numtype: 'float',
-  },
-  pObj: {
-    id: 'gainval',
-    label: '',
-  },
-  objName: 'Gain',
-};
-
-function getInputRange2Label({ inputObj: iptObj, pObj: pLbl }) {
-  const inputElement = createInputRange(iptObj);
-  const lbl = inputElement
-    ? parseNum(inputElement.value, inputElement.numtype)
-    : null;
-  const pElement = createLabel(pLbl, lbl);
-  return { range: inputElement, p: pElement };
-}
-
-function getController({ thLabel: label, tdData: datas }) {
-  const thElement = createTableHeader(label);
-  const tdElements = Array.isArray(datas)
-    ? datas.map((data) => getInputRange2Label(data))
-    : [getInputRange2Label(datas)];
-  return { th: thElement, tds: tdElements };
-}
-
-const _gainvalObj = {
-  thLabel: 'Gain',
-  tdData: [
-    {
-      inputObj: {
-        id: 'gain',
-        min: 0.0,
-        max: 1.0,
-        step: 0.01,
-        value: 0.5,
-        numtype: 'float',
-      },
-      pObj: {
-        id: 'gainval',
-        label: '',
-      },
+const freqvalObj = getController({
+  thLabel: 'Freq',
+  tdData: {
+    inputObj: {
+      id: 'freq',
+      min: 50,
+      max: 1000,
+      value: 440,
+      numtype: 'int',
     },
-  ],
-};
+    pObj: {
+      id: 'freqval',
+      label: '',
+    },
+  },
+});
 
-let ggin = getController(_gainvalObj);
-/*
+const {
+  th: freqth,
+  tds: {
+    0: { range: freq, p: freqval },
+  },
+} = freqvalObj;
 
-let ggin = getController(_gainvalObj);
-console.log(ggin);
-let {
-  th: gaith,
+
+const gainvalObj = getController({
+  thLabel: 'Gain',
+  tdData: {
+    inputObj: {
+      id: 'gain',
+      min: 0.0,
+      max: 1.0,
+      step: 0.01,
+      value: 0.5,
+      numtype: 'float',
+    },
+    pObj: {
+      id: 'gainval',
+      label: '',
+    },
+  },
+});
+
+const {
+  th: gainth,
   tds: {
     0: { range: gain, p: gainval },
-    
   },
-} = ggin;
-*/
+} = gainvalObj;
+
 
 // drawbar
-
-const d1Obj = {
+const d1Obj = getController({
   thLabel: '1',
   tdData: [
     {
@@ -264,92 +208,105 @@ const d1Obj = {
       },
     },
   ],
-};
+});
 
-
-let d10 = getController(d1Obj)
-let {
+const {
   th: d10th,
   tds: {
     0: { range: real1, p: real1val },
     1: { range: imag1, p: imag1val },
   },
-} = d10;
-//console.log(d10);
+} = d1Obj;
 
-
-
-function _createControllerTable(controllers) {
-  const tblBody = document.createElement('tbody');
-  for (const controller of controllers) {
-    const {th, tds} = controller;
-    const tr = document.createElement('tr');
-    tr.appendChild(th);
-    tds.forEach((element, _, array) => Object.keys(element).forEach(key => {
-      console.log(array);
-      const td = createTableData(element[key], array.length);
-      tr.appendChild(td);
-    }));
-    
-    tblBody.appendChild(tr);
-  }
-  const tbl = document.createElement('table');
-  tbl.style.width = '100%';
-  tbl.appendChild(tblBody);
-  return tbl;
-}
-
-const topp = _createControllerTable([ggin]);
-const tableSet = _createControllerTable([d10]);
-console.log(tableSet);
-
-
-//console.log(d10th);
-
-const d0Obj = [
-  {
-    inputObj: {
-      id: 'real0',
-      min: 0.0,
-      max: 1.0,
-      step: 0.01,
-      value: 0.0,
-      numtype: 'float',
+const d2Obj = getController({
+  thLabel: '2',
+  tdData: [
+    {
+      inputObj: {
+        id: 'real2',
+        min: 0.0,
+        max: 1.0,
+        step: 0.01,
+        value: 0.0,
+        numtype: 'float',
+      },
+      pObj: {
+        id: 'real2val',
+        label: '',
+      },
     },
-    pObj: {
-      id: 'real0val',
-      label: '',
+    {
+      inputObj: {
+        id: 'imag2',
+        min: 0.0,
+        max: 1.0,
+        step: 0.01,
+        value: 0.0,
+        numtype: 'float',
+      },
+      pObj: {
+        id: 'imag2val',
+        label: '',
+      },
     },
-    objName: '0',
+  ],
+});
+
+const {
+  th: d20th,
+  tds: {
+    0: { range: real2, p: real2val },
+    1: { range: imag2, p: imag2val },
   },
-  {
-    inputObj: {
-      id: 'imag0',
-      min: 0.0,
-      max: 1.0,
-      step: 0.01,
-      value: 0.0,
-      numtype: 'float',
+} = d2Obj;
+
+
+const d3Obj = getController({
+  thLabel: '3',
+  tdData: [
+    {
+      inputObj: {
+        id: 'real3',
+        min: 0.0,
+        max: 1.0,
+        step: 0.01,
+        value: 0.0,
+        numtype: 'float',
+      },
+      pObj: {
+        id: 'real3val',
+        label: '',
+      },
     },
-    pObj: {
-      id: 'imag0val',
-      label: '',
+    {
+      inputObj: {
+        id: 'imag3',
+        min: 0.0,
+        max: 1.0,
+        step: 0.01,
+        value: 0.0,
+        numtype: 'float',
+      },
+      pObj: {
+        id: 'imag3val',
+        label: '',
+      },
     },
-    objName: '',
+  ],
+});
+
+const {
+  th: d30th,
+  tds: {
+    0: { range: real3, p: real3val },
+    1: { range: imag3, p: imag3val },
   },
-];
+} = d3Obj;
 
-const mainControllerObjs = createControllerObjs([freqvalObj, gainvalObj]);
-console.log(mainControllerObjs);
-const drawbarControllerObjs = createControllerObjs([d0Obj]);
-//console.log({ d0Obj });
-//console.log({ drawbarControllerObjs });
 
-const [[freq, freqval], [gain, gainval]] = Object.entries(
-  mainControllerObjs
-).map(([key, val]) => val);
 
-const mainControllerTable = createControllerTable(mainControllerObjs);
+const mainController = createControllerTable([freqvalObj, gainvalObj]);
+const drawbarController = createControllerTable([d1Obj, d2Obj, d3Obj]);
 
 const cnvsDiv = document.createElement('div');
 cnvsDiv.style.width = '100%';
@@ -363,7 +320,8 @@ setAppendChild([
   mainTitleHeader,
   buttonDiv,
   [playButton, stopButton],
-  mainControllerTable, tableSet, topp,
+  mainController,
+  drawbarController,
   cnvsDiv,
   [canvas],
 ]);
