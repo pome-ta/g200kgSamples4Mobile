@@ -199,7 +199,7 @@ let WIDTH, HEIGHT;
 const setting_height = 0.75; // 4:3
 //const setting_height = 0.5;
 const canvasctx = canvas.getContext('2d');
-const gradbase = canvasctx.createLinearGradient(0, 0, 0, 256);
+const gradbase = canvasctx.createLinearGradient(0, 0, 0, 18);
 
 gradbase.addColorStop(0, 'rgb(20,22,20)');
 gradbase.addColorStop(1, 'rgb(20,20,200)');
@@ -219,9 +219,21 @@ function initCanvas() {
   HEIGHT = canvas.height;
 }
 
-function DrawGraph() {
+
+const FPS = 24;
+const frameTime = 1 / FPS;
+let prevTimestamp = 0;
+
+function DrawGraph(timestamp) {
+  const elapsed = (timestamp - prevTimestamp) / 1000;
+  if (elapsed <= frameTime) {
+    requestAnimationFrame(DrawGraph);
+    return;
+  }
+  prevTimestamp = timestamp;
+  
   canvasctx.fillStyle = gradbase;
-  canvasctx.fillRect(0, 0, 256, 256);
+  canvasctx.fillRect(0, 0, WIDTH, HEIGHT);
   const data = new Uint8Array(256);
 
   mode === 0
