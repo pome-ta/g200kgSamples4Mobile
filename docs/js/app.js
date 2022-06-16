@@ -16,7 +16,7 @@ function parseNum(value, numtype = 'float') {
 function createButton(idName, textContent = null) {
   const element = document.createElement('button');
   element.style.width = '50%';
-  element.style.height = '3rem';
+  element.style.height = '2.4rem';
   element.type = 'button';
   element.id = idName;
   element.textContent = textContent ? textContent : capitalize(idName);
@@ -33,17 +33,21 @@ function createLabel(pObj, textContent = null) {
   return element;
 }
 
-function createInputRange(rangeObj) {
-  const { id, min, max, value, numtype, step = '' } = rangeObj;
+//function createInputRange(rangeObj) {
+//  const { id, min, max, value, numtype, step = '' } = rangeObj;
+function createInputRange({ id, min, max, value, numtype, step }) {
   const element = document.createElement('input');
   element.type = 'range';
   element.id = id;
+  element.value = value;
   element.min = min;
   element.max = max;
-  element.value = value;
+  
   element.numtype = numtype;
   element.step = step;
   element.style.width = '100%';
+  console.log(value);
+  console.log(element.value);
   return element;
 }
 
@@ -158,10 +162,10 @@ const modeTypeObj = {
 const smoothingObj = {
   inputObj: {
     id: 'smoothing',
-    min: 0,
-    max: 1,
+    min: 0.0,
+    max: 1.0,
     step: 0.01,
-    value: 0.9,
+    value: '0.5',
     numtype: 'float',
   },
   pObj: {
@@ -196,15 +200,23 @@ setAppendChild([
 ]);
 
 /* canvas */
-const canvasctx = canvas.getContext('2d');
-const gradbase = canvasctx.createLinearGradient(0, 0, 0, 256);
-
 let WIDTH, HEIGHT;
 const setting_height = 0.75; // 4:3
 //const setting_height = 0.5;
-const colorBG = '#000000';
-const colorWave = '#009900';
-const colorLine = '#ff8844';
+const canvasctx = canvas.getContext('2d');
+const gradbase = canvasctx.createLinearGradient(0, 0, 0, 256);
+
+gradbase.addColorStop(0, 'rgb(20,22,20)');
+gradbase.addColorStop(1, 'rgb(20,20,200)');
+const gradline = [];
+
+for (let i = 0; i < 256; i++) {
+  gradline[i] = canvasctx.createLinearGradient(0, 256 - i, 0, 256);
+  const n = (i & 64) * 2;
+  gradline[i].addColorStop(0, 'rgb(255,0,0)');
+  gradline[i].addColorStop(1, `rgb(255, ${i}, 0)`);
+}
+
 
 function initCanvas() {
   canvas.width = cnvsDiv.clientWidth;
@@ -212,31 +224,22 @@ function initCanvas() {
   WIDTH = canvas.width;
   HEIGHT = canvas.height;
 }
-/*
+
 function DrawGraph() {
-  analyser.getFloatFrequencyData(analysedata);
-  ctx.fillStyle = colorBG;
-  ctx.fillRect(0, 0, WIDTH, HEIGHT);
-  ctx.fillStyle = colorWave;
-  for (let i = 0; i < WIDTH; i++) {
-    const y = HEIGHT / 2 + (analysedata[i] + 50.0) * (HEIGHT / 100);
-    ctx.fillRect(i, HEIGHT - y, 1, y);
-  }
-  ctx.fillStyle = colorLine;
-  for (let d = -50; d < 50; d += 10) {
-    const y = (HEIGHT / 2 - (d * HEIGHT) / 100) | 0;
-    ctx.fillRect(0, y, WIDTH, 0.5);
-    ctx.fillText(`${d}db`, 0, y);
-  }
-  ctx.fillRect(20, HEIGHT / 2, WIDTH, 1);
-  for (let f = 2000; f < audioctx.sampleRate / 2; f += 2000) {
-    const x = ((f * 1024) / audioctx.sampleRate) | 0;
-    ctx.fillRect(x, 0, 0.5, HEIGHT);
-    ctx.fillText(`${f}Hz`, x, HEIGHT);
+  canvasctx.fillStyle = gradbase;
+  canvasctx.fillRect(0, 0, 256, 256);
+  const data = new Uint8Array(256);
+  
+  (mode === 0)
+    ? analyser.getByteFrequencyData(data) // Spectrum Data
+    : analyser.getByteTimeDomainData(data); //Waveform Data
+  for(let i = 0; i < 256; i++) {
+    canvasctx.fillStyle = gradline[data[i]];
+    canvasctx.fillRect(i, 256 - data[i], 1, data[i]);
   }
   requestAnimationFrame(DrawGraph);
 }
-*/
+
 // todo: MouseEvent TouchEvent wrapper
 const { touchBegan, touchMoved, touchEnded } = {
   touchBegan:
@@ -258,7 +261,7 @@ const analyser = new AnalyserNode(audioctx, { smoothingTimeConstant: 0.9 });
 
 playButton.addEventListener(touchBegan, () => {
   audioctx.state === 'suspended' ? audioctx.resume() : null;
-  if (src) {
+  if (!src) {
     src = new AudioBufferSourceNode(audioctx, { buffer: soundbuf, loop: true });
     src.connect(analyser).connect(audioctx.destination);
     src.start();
@@ -270,11 +273,11 @@ stopButton.addEventListener(touchBegan, () => {
   src = null;
 });
 
-modeType.addEventListener('change', ({target: {selectedIndex}}) => {
+modeType.addEventListener('change', ({ target: { selectedIndex } }) => {
   mode = selectedIndex;
 });
 
-smoothing.addEventListener('input', ({target: {value, numtype}}) => {
+smoothing.addEventListener('input', ({ target: { value, numtype } }) => {
   smoothingval.textContent = parseNum(value, numtype);
   analyser.smoothingTimeConstant = value;
 });
@@ -287,7 +290,7 @@ async function LoadSample(actx, url) {
 
 document.addEventListener('DOMContentLoaded', () => {
   initCanvas();
-  //DrawGraph();
+  DrawGraph();
 });
 
 window.addEventListener('load', async () => {
@@ -295,4 +298,3 @@ window.addEventListener('load', async () => {
 });
 
 window.addEventListener('resize', initCanvas);
-
