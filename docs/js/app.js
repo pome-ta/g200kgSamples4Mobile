@@ -9,7 +9,7 @@ function capitalize(str) {
 function parseNum(value, numtype = 'float') {
   return numtype === 'int'
     ? Number.parseInt(value)
-    : Number.parseFloat(value).toFixed(1);
+    : Number.parseFloat(value).toFixed(2);
 }
 
 /* create document node element funcs */
@@ -33,21 +33,16 @@ function createLabel(pObj, textContent = null) {
   return element;
 }
 
-//function createInputRange(rangeObj) {
-//  const { id, min, max, value, numtype, step = '' } = rangeObj;
-function createInputRange({ id, min, max, value, numtype, step }) {
+function createInputRange({ id, min, max, value, numtype, step = 1 }) {
   const element = document.createElement('input');
   element.type = 'range';
   element.id = id;
-  element.value = value;
   element.min = min;
   element.max = max;
-  
-  element.numtype = numtype;
   element.step = step;
+  element.value = value;
+  element.numtype = numtype;
   element.style.width = '100%';
-  console.log(value);
-  console.log(element.value);
   return element;
 }
 
@@ -165,7 +160,7 @@ const smoothingObj = {
     min: 0.0,
     max: 1.0,
     step: 0.01,
-    value: '0.5',
+    value: 0.9,
     numtype: 'float',
   },
   pObj: {
@@ -217,7 +212,6 @@ for (let i = 0; i < 256; i++) {
   gradline[i].addColorStop(1, `rgb(255, ${i}, 0)`);
 }
 
-
 function initCanvas() {
   canvas.width = cnvsDiv.clientWidth;
   canvas.height = cnvsDiv.clientWidth * setting_height;
@@ -229,11 +223,11 @@ function DrawGraph() {
   canvasctx.fillStyle = gradbase;
   canvasctx.fillRect(0, 0, 256, 256);
   const data = new Uint8Array(256);
-  
-  (mode === 0)
+
+  mode === 0
     ? analyser.getByteFrequencyData(data) // Spectrum Data
     : analyser.getByteTimeDomainData(data); //Waveform Data
-  for(let i = 0; i < 256; i++) {
+  for (let i = 0; i < 256; i++) {
     canvasctx.fillStyle = gradline[data[i]];
     canvasctx.fillRect(i, 256 - data[i], 1, data[i]);
   }
