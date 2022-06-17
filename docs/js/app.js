@@ -290,12 +290,12 @@ document.addEventListener('DOMContentLoaded', () => {
   gradbase = canvasctx.createLinearGradient(0, 0, 0, HEIGHT);
   gradbase.addColorStop(0, 'rgb(20,22,20)');
   gradbase.addColorStop(1, 'rgb(20,20,200)');
-
-  for (let i = 0; i < 256; i++) {
-    gradline[i] = canvasctx.createLinearGradient(0, 256 - i, 0, 256);
-    const n = (i & 64) * 2;
+  
+  for (let i = 0; i < WIDTH; i++) {
+    gradline[i] = canvasctx.createLinearGradient(0, WIDTH - (i/WIDTH), 0, HEIGHT);
+    console.log(i/WIDTH*255);
     gradline[i].addColorStop(0, 'rgb(255,0,0)');
-    gradline[i].addColorStop(1, `rgb(255, ${i}, 0)`);
+    gradline[i].addColorStop(1, `rgb(255, ${i/WIDTH*255}, 0)`);
   }
 
   DrawGraph();
