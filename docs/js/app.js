@@ -210,7 +210,6 @@ function initCanvas() {
   HEIGHT = canvas.height;
 }
 
-
 const FPS = 24;
 const frameTime = 1 / FPS;
 let prevTimestamp = 0;
@@ -222,7 +221,7 @@ function DrawGraph(timestamp) {
     return;
   }
   prevTimestamp = timestamp;
-  
+
   canvasctx.fillStyle = gradbase;
   canvasctx.fillRect(0, 0, WIDTH, HEIGHT);
   const data = new Uint8Array(256);
@@ -230,9 +229,10 @@ function DrawGraph(timestamp) {
   mode === 0
     ? analyser.getByteFrequencyData(data) // Spectrum Data
     : analyser.getByteTimeDomainData(data); //Waveform Data
-  for (let i = 0; i < 256; i++) {
-    canvasctx.fillStyle = gradline[data[i]];
-    canvasctx.fillRect(i, 256 - data[i], 1, data[i]);
+  for (let i = 0; i < WIDTH; i++) {
+    const int = parseInt((i * 256) / WIDTH);
+    canvasctx.fillStyle = gradline[data[int]];
+    canvasctx.fillRect(i, WIDTH - data[i], 1, data[i]);
   }
   requestAnimationFrame(DrawGraph);
 }
@@ -290,12 +290,12 @@ document.addEventListener('DOMContentLoaded', () => {
   gradbase = canvasctx.createLinearGradient(0, 0, 0, HEIGHT);
   gradbase.addColorStop(0, 'rgb(20,22,20)');
   gradbase.addColorStop(1, 'rgb(20,20,200)');
-  
+
   for (let i = 0; i < WIDTH; i++) {
-    gradline[i] = canvasctx.createLinearGradient(0, WIDTH - (i/WIDTH), 0, HEIGHT);
-    console.log(i/WIDTH*255);
+    gradline[i] = canvasctx.createLinearGradient(0, WIDTH - i, 0, HEIGHT);
+    console.log(i / WIDTH);
     gradline[i].addColorStop(0, 'rgb(255,0,0)');
-    gradline[i].addColorStop(1, `rgb(255, ${i/WIDTH*255}, 0)`);
+    gradline[i].addColorStop(1, `rgb(255, ${(i / WIDTH) * 255}, 0)`);
   }
 
   DrawGraph();
