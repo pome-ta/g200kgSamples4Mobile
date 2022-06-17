@@ -9,3 +9,6 @@
 
 章ごとに、ブランチを切っていく
 
+
+[Web Audio API 解説 - 12.アナライザーの使い方 | g200kg Music & Software](https://www.g200kg.com/jp/docs/webaudio/analyser.html)
+
