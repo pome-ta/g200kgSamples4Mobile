@@ -232,7 +232,7 @@ function DrawGraph(timestamp) {
   for (let i = 0; i < WIDTH; i++) {
     const int = parseInt((i * 256) / WIDTH);
     canvasctx.fillStyle = gradline[data[int]];
-    canvasctx.fillRect(i, WIDTH - data[i], 1, data[i]);
+    canvasctx.fillRect(i, HEIGHT - data[int], 1, data[int]);
   }
   requestAnimationFrame(DrawGraph);
 }
