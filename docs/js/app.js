@@ -198,19 +198,10 @@ setAppendChild([
 let WIDTH, HEIGHT;
 const setting_height = 0.75; // 4:3
 //const setting_height = 0.5;
+
 const canvasctx = canvas.getContext('2d');
-const gradbase = canvasctx.createLinearGradient(0, 0, 0, 18);
-
-gradbase.addColorStop(0, 'rgb(20,22,20)');
-gradbase.addColorStop(1, 'rgb(20,20,200)');
+let gradbase;
 const gradline = [];
-
-for (let i = 0; i < 256; i++) {
-  gradline[i] = canvasctx.createLinearGradient(0, 256 - i, 0, 256);
-  const n = (i & 64) * 2;
-  gradline[i].addColorStop(0, 'rgb(255,0,0)');
-  gradline[i].addColorStop(1, `rgb(255, ${i}, 0)`);
-}
 
 function initCanvas() {
   canvas.width = cnvsDiv.clientWidth;
@@ -296,6 +287,17 @@ async function LoadSample(actx, url) {
 
 document.addEventListener('DOMContentLoaded', () => {
   initCanvas();
+  gradbase = canvasctx.createLinearGradient(0, 0, 0, HEIGHT);
+  gradbase.addColorStop(0, 'rgb(20,22,20)');
+  gradbase.addColorStop(1, 'rgb(20,20,200)');
+
+  for (let i = 0; i < 256; i++) {
+    gradline[i] = canvasctx.createLinearGradient(0, 256 - i, 0, 256);
+    const n = (i & 64) * 2;
+    gradline[i].addColorStop(0, 'rgb(255,0,0)');
+    gradline[i].addColorStop(1, `rgb(255, ${i}, 0)`);
+  }
+
   DrawGraph();
 });
 
