@@ -46,6 +46,14 @@ function createInputRange({ id, min, max, value, numtype, step = 1 }) {
   return element;
 }
 
+function createCheckbox(checkboxObj) {
+  const { id } = checkboxObj;
+  const element = document.createElement('input');
+  element.type = 'checkbox';
+  element.id = id;
+  return element;
+}
+
 function createSelectOpiton(selectObj, typestr) {
   const { id } = selectObj;
   const element = document.createElement('select');
@@ -61,6 +69,7 @@ function createSelectOpiton(selectObj, typestr) {
 
 function createControllerObjs(objArray) {
   const selectObj = 'selectObj';
+  const checkboxObj = 'checkboxObj';
   const inputObj = 'inputObj';
   const pObj = 'pObj';
 
@@ -68,6 +77,10 @@ function createControllerObjs(objArray) {
   for (const obj of objArray) {
     const selectElement = Object.keys(obj).some((key) => key === selectObj)
       ? createSelectOpiton(obj[selectObj], typeStr)
+      : null;
+
+    const checkboxElement = Object.keys(obj).some((key) => key === checkboxObj)
+      ? createCheckbox(obj[checkboxObj])
       : null;
 
     const inputElement = Object.keys(obj).some((key) => key === inputObj)
@@ -83,6 +96,7 @@ function createControllerObjs(objArray) {
 
     controllerObjs[obj['objName']] = [
       selectElement,
+      checkboxElement,
       inputElement,
       pElement,
     ].filter((ele) => ele);
@@ -144,45 +158,77 @@ const playButton = createButton('play');
 const stopButton = createButton('stop');
 
 /* create controller objs */
-// xxx: 辞書にする？
-const typeStr = ['Frequency', 'TimeDomain'];
 
-const modeTypeObj = {
-  selectObj: {
-    id: 'mode',
+const bypassObj = {
+  checkboxObj: {
+    id: 'bypassBool',
   },
-  objName: 'Frequency/TimeDomain',
+  objName: 'Bypass',
 };
 
-const smoothingObj = {
+const timeObj = {
   inputObj: {
-    id: 'smoothing',
+    id: 'timeRange',
     min: 0.0,
     max: 1.0,
     step: 0.01,
-    value: 0.9,
+    value: 0.25,
     numtype: 'float',
   },
   pObj: {
-    id: 'smoothingval',
+    id: 'timeval',
     label: '',
   },
-  objName: 'SmoothingTimeConstant',
+  objName: 'Time',
 };
 
-const controllerObjs = createControllerObjs([modeTypeObj, smoothingObj]);
+const feedbackObj = {
+  inputObj: {
+    id: 'feedbackRange',
+    min: 0.0,
+    max: 1.0,
+    step: 0.01,
+    value: 0.4,
+    numtype: 'float',
+  },
+  pObj: {
+    id: 'feedbackval',
+    label: '',
+  },
+  objName: 'Feedback',
+};
 
-const [[modeType], [smoothing, smoothingval]] = Object.entries(
-  controllerObjs
-).map(([key, val]) => val);
+const mixObj = {
+  inputObj: {
+    id: 'mixRange',
+    min: 0.0,
+    max: 1.0,
+    step: 0.01,
+    value: 0.4,
+    numtype: 'float',
+  },
+  pObj: {
+    id: 'mixval',
+    label: '',
+  },
+  objName: 'Mix',
+};
+
+const controllerObjs = createControllerObjs([
+  bypassObj,
+  timeObj,
+  feedbackObj,
+  mixObj,
+]);
+
+const [
+  [bypassBool],
+  [timeRange, timeval],
+  [feedbackRange, feedbackval],
+  [mixRange, mixval],
+] = Object.entries(controllerObjs).map(([key, val]) => val);
 
 const controllerTable = createControllerTable(controllerObjs);
-
-const cnvsDiv = document.createElement('div');
-cnvsDiv.style.width = '100%';
-
-const canvas = document.createElement('canvas');
-canvas.style.width = '100%';
 
 /* appendChild document element */
 setAppendChild([
@@ -190,52 +236,7 @@ setAppendChild([
   buttonDiv,
   [playButton, stopButton],
   controllerTable,
-  cnvsDiv,
-  [canvas],
 ]);
-
-/* canvas */
-let WIDTH, HEIGHT;
-const setting_height = 0.75; // 4:3
-//const setting_height = 0.5;
-
-const canvasctx = canvas.getContext('2d');
-let gradbase;
-const gradline = [];
-
-function initCanvas() {
-  canvas.width = cnvsDiv.clientWidth;
-  canvas.height = cnvsDiv.clientWidth * setting_height;
-  WIDTH = canvas.width;
-  HEIGHT = canvas.height;
-}
-
-const FPS = 24;
-const frameTime = 1 / FPS;
-let prevTimestamp = 0;
-
-function DrawGraph(timestamp) {
-  const elapsed = (timestamp - prevTimestamp) / 1000;
-  if (elapsed <= frameTime) {
-    requestAnimationFrame(DrawGraph);
-    return;
-  }
-  prevTimestamp = timestamp;
-
-  canvasctx.fillStyle = gradbase;
-  canvasctx.fillRect(0, 0, WIDTH, HEIGHT);
-  const data = new Uint8Array(256);
-
-  mode === 0
-    ? analyser.getByteFrequencyData(data) // Spectrum Data
-    : analyser.getByteTimeDomainData(data); //Waveform Data
-  for (let i = 0; i < WIDTH; i++) {
-    const int = parseInt((i * 256) / WIDTH);
-    canvasctx.fillStyle = gradline[data[int]];
-    canvasctx.fillRect(i, HEIGHT - data[int], 1, data[int]);
-  }
-  requestAnimationFrame(DrawGraph);
-}
 
 // todo: MouseEvent TouchEvent wrapper
 const { touchBegan, touchMoved, touchEnded } = {
@@ -250,17 +251,23 @@ const { touchBegan, touchMoved, touchEnded } = {
 /* audio */
 const audioctx = new AudioContext();
 const soundPath = './sounds/loop.wav';
-let soundbuf = null;
-let mode = 0;
+let buffer = null;
 let src = null;
+const input = new GainNode(audioctx);
+const delay = new DelayNode(audioctx);
+const wetlevel = new GainNode(audioctx);
+const drylevel = new GainNode(audioctx);
+const feedback = new GainNode(audioctx);
 
-const analyser = new AnalyserNode(audioctx, { smoothingTimeConstant: 0.9 });
+input.connect(delay).connect(wetlevel).connect(audioctx.destination);
+delay.connect(feedback).connect(delay);
+input.connect(drylevel).connect(audioctx.destination);
 
 playButton.addEventListener(touchBegan, () => {
   audioctx.state === 'suspended' ? audioctx.resume() : null;
   if (!src) {
-    src = new AudioBufferSourceNode(audioctx, { buffer: soundbuf, loop: true });
-    src.connect(analyser).connect(audioctx.destination);
+    src = new AudioBufferSourceNode(audioctx, { buffer: buffer, loop: true });
+    src.connect(input);
     src.start();
   }
 });
@@ -270,14 +277,10 @@ stopButton.addEventListener(touchBegan, () => {
   src = null;
 });
 
-modeType.addEventListener('change', ({ target: { selectedIndex } }) => {
-  mode = selectedIndex;
-});
-
-smoothing.addEventListener('input', ({ target: { value, numtype } }) => {
-  smoothingval.textContent = parseNum(value, numtype);
-  analyser.smoothingTimeConstant = value;
-});
+bypassBool.addEventListener('change', Setup);
+timeRange.addEventListener('input', Setup);
+feedbackRange.addEventListener('input', Setup);
+mixRange.addEventListener('input', Setup);
 
 async function LoadSample(actx, url) {
   const res = await fetch(url);
@@ -285,24 +288,27 @@ async function LoadSample(actx, url) {
   return actx.decodeAudioData(arraybuf);
 }
 
+function Setup() {
+  const bypass = bypassBool.checked;
+  delay.delayTime.value = timeRange.value;
+  feedback.gain.value = feedbackRange.value;
+  let mix = mixRange.value;
+  mix = bypass ? 0 : mix;
+  wetlevel.gain.value = mix;
+  drylevel.gain.value = 1 - mix;
+
+  timeval.textContent = parseNum(timeRange.value, timeRange.numtype);
+  feedbackval.textContent = parseNum(
+    feedbackRange.value,
+    feedbackRange.numtype
+  );
+  mixval.textContent = parseNum(mixRange.value, mixRange.numtype);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-  initCanvas();
-  gradbase = canvasctx.createLinearGradient(0, 0, 0, HEIGHT);
-  gradbase.addColorStop(0, 'rgb(20,22,20)');
-  gradbase.addColorStop(1, 'rgb(20,20,200)');
-
-  for (let i = 0; i < WIDTH; i++) {
-    gradline[i] = canvasctx.createLinearGradient(0, WIDTH - i, 0, HEIGHT);
-    console.log(i / WIDTH);
-    gradline[i].addColorStop(0, 'rgb(255,0,0)');
-    gradline[i].addColorStop(1, `rgb(255, ${(i / WIDTH) * 255}, 0)`);
-  }
-
-  DrawGraph();
+  Setup();
 });
 
 window.addEventListener('load', async () => {
-  soundbuf = await LoadSample(audioctx, soundPath);
+  buffer = await LoadSample(audioctx, soundPath);
 });
-
-window.addEventListener('resize', initCanvas);
