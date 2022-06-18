@@ -28,7 +28,7 @@ function createLabel(pObj, textContent = null) {
   const element = document.createElement('p');
   element.id = id;
   element.style.margin = '0';
-  element.style.minWidth = '3rem';
+  element.style.minWidth = '2.4rem';
   element.textContent = textContent != null ? textContent : capitalize(id);
   return element;
 }
