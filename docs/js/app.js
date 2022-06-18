@@ -292,8 +292,7 @@ function Setup() {
   const bypass = bypassBool.checked;
   delay.delayTime.value = timeRange.value;
   feedback.gain.value = feedbackRange.value;
-  let mix = mixRange.value;
-  mix = bypass ? 0 : mix;
+  const mix = bypass ? 0 : mixRange.value;
   wetlevel.gain.value = mix;
   drylevel.gain.value = 1 - mix;
 
