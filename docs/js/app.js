@@ -136,7 +136,7 @@ function setAppendChild(nodes, parentNode = document.body) {
 
 /* setup document node element */
 const mainTitleHeader = document.createElement('h2');
-mainTitleHeader.textContent = 'Analyser';
+mainTitleHeader.textContent = 'Delay Test';
 
 const buttonDiv = document.createElement('div');
 buttonDiv.style.width = '100%';
