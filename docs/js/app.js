@@ -46,8 +46,9 @@ function createInputRange({ id, min, max, value, numtype, step = 1 }) {
   return element;
 }
 
-function createCheckbox(checkboxObj) {
-  const { id } = checkboxObj;
+//function createCheckbox(checkboxObj) {
+function createCheckbox({ id }) {
+  //const { id } = checkboxObj;
   const element = document.createElement('input');
   element.type = 'checkbox';
   element.id = id;
