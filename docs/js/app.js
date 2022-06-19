@@ -15,7 +15,7 @@ function parseNum(value, numtype = 'float') {
 /* create document node element funcs */
 function createButton(idName, textContent = null) {
   const element = document.createElement('button');
-  element.style.width = '50%';
+  element.style.width = '100%';
   element.style.height = '2.4rem';
   element.type = 'button';
   element.id = idName;
@@ -151,12 +151,11 @@ function setAppendChild(nodes, parentNode = document.body) {
 
 /* setup document node element */
 const mainTitleHeader = document.createElement('h2');
-mainTitleHeader.textContent = 'Delay Test';
+mainTitleHeader.textContent = 'Delay (PingPong) Test';
 
 const buttonDiv = document.createElement('div');
 buttonDiv.style.width = '100%';
 const playButton = createButton('play');
-const stopButton = createButton('stop');
 
 /* create controller objs */
 
@@ -189,7 +188,7 @@ const feedbackObj = {
     min: 0.0,
     max: 1.0,
     step: 0.01,
-    value: 0.4,
+    value: 0.5,
     numtype: 'float',
   },
   pObj: {
@@ -205,7 +204,7 @@ const mixObj = {
     min: 0.0,
     max: 1.0,
     step: 0.01,
-    value: 0.4,
+    value: 0.5,
     numtype: 'float',
   },
   pObj: {
@@ -232,12 +231,7 @@ const [
 const controllerTable = createControllerTable(controllerObjs);
 
 /* appendChild document element */
-setAppendChild([
-  mainTitleHeader,
-  buttonDiv,
-  [playButton, stopButton],
-  controllerTable,
-]);
+setAppendChild([mainTitleHeader, buttonDiv, [playButton], controllerTable]);
 
 // todo: MouseEvent TouchEvent wrapper
 const { touchBegan, touchMoved, touchEnded } = {
@@ -251,31 +245,29 @@ const { touchBegan, touchMoved, touchEnded } = {
 
 /* audio */
 const audioctx = new AudioContext();
-const soundPath = './sounds/loop.wav';
+const soundPath = './sounds/oneShot.wav';
 let buffer = null;
 let src = null;
 const input = new GainNode(audioctx);
-const delay = new DelayNode(audioctx);
+const merger = new ChannelMergerNode(audioctx);
+const delay1 = new DelayNode(audioctx);
+const delay2 = new DelayNode(audioctx);
+const feedback = new GainNode(audioctx);
 const wetlevel = new GainNode(audioctx);
 const drylevel = new GainNode(audioctx);
-const feedback = new GainNode(audioctx);
 
-input.connect(delay).connect(wetlevel).connect(audioctx.destination);
-delay.connect(feedback).connect(delay);
+input.connect(delay1).connect(delay2).connect(feedback).connect(delay1);
+delay1.connect(merger, 0, 0);
+delay2.connect(merger, 0, 1);
+merger.connect(wetlevel).connect(audioctx.destination);
 input.connect(drylevel).connect(audioctx.destination);
 
 playButton.addEventListener(touchBegan, () => {
   audioctx.state === 'suspended' ? audioctx.resume() : null;
-  if (!src) {
-    src = new AudioBufferSourceNode(audioctx, { buffer: buffer, loop: true });
-    src.connect(input);
-    src.start();
-  }
-});
 
-stopButton.addEventListener(touchBegan, () => {
-  src ? src.stop() : null;
-  src = null;
+  src = new AudioBufferSourceNode(audioctx, { buffer: buffer });
+  src.connect(input);
+  src.start();
 });
 
 bypassBool.addEventListener('change', Setup);
@@ -291,18 +283,20 @@ async function LoadSample(actx, url) {
 
 function Setup() {
   const bypass = bypassBool.checked;
-  delay.delayTime.value = timeRange.value;
-  feedback.gain.value = feedbackRange.value;
   const mix = bypass ? 0 : mixRange.value;
   wetlevel.gain.value = mix;
   drylevel.gain.value = 1 - mix;
 
+  delay1.delayTime.value = timeRange.value;
+  delay2.delayTime.value = timeRange.value;
+  feedback.gain.value = feedbackRange.value;
+
+  mixval.textContent = parseNum(mixRange.value, mixRange.numtype);
   timeval.textContent = parseNum(timeRange.value, timeRange.numtype);
   feedbackval.textContent = parseNum(
     feedbackRange.value,
     feedbackRange.numtype
   );
-  mixval.textContent = parseNum(mixRange.value, mixRange.numtype);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
