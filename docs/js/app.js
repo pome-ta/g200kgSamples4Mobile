@@ -9,14 +9,14 @@ function capitalize(str) {
 function parseNum(value, numtype = 'float') {
   return numtype === 'int'
     ? Number.parseInt(value)
-    : Number.parseFloat(value).toFixed(4);
+    : Number.parseFloat(value).toFixed(2);
 }
 
 /* create document node element funcs */
 function createButton(idName, textContent = null) {
   const element = document.createElement('button');
-  element.style.width = '100%';
-  element.style.height = '2.4rem';
+  element.style.width = '50%';
+  element.style.height = '4rem';
   element.type = 'button';
   element.id = idName;
   element.textContent = textContent ? textContent : capitalize(idName);
@@ -28,7 +28,7 @@ function createLabel(pObj, textContent = null) {
   const element = document.createElement('p');
   element.id = id;
   element.style.margin = '0';
-  element.style.minWidth = '2.4rem';
+  element.style.minWidth = '2rem';
   element.textContent = textContent != null ? textContent : capitalize(id);
   return element;
 }
@@ -149,7 +149,7 @@ function setAppendChild(nodes, parentNode = document.body) {
 
 /* setup document node element */
 const mainTitleHeader = document.createElement('h2');
-mainTitleHeader.textContent = 'Chorus Test';
+mainTitleHeader.textContent = 'WaveShaper Test';
 
 const buttonDiv = document.createElement('div');
 buttonDiv.style.width = '100%';
@@ -158,94 +158,33 @@ const stopButton = createButton('stop');
 
 /* create controller objs */
 
-const bypassObj = {
-  checkboxObj: {
-    id: 'bypassBool',
-  },
-  objName: 'Bypass',
-};
-
-const speedObj = {
-  objName: 'Speed',
+const stepsObj = {
+  objName: 'Steps',
   inputObj: {
-    id: 'speedRange',
-    min: 0.1,
-    max: 10.0,
-    step: 0.1,
-    value: 4.0,
-    numtype: 'float',
+    id: 'stepsRange',
+    min: 2,
+    max: 32,
+    value: 4,
+    numtype: 'int',
   },
   pObj: {
-    id: 'speedval',
+    id: 'stepsval',
     label: '',
   },
 };
 
-const depthObj = {
-  objName: 'Depth',
-  inputObj: {
-    id: 'depthRange',
-    min: 0.0,
-    max: 0.005,
-    step: 0.0001,
-    value: 0.001,
-    numtype: 'float',
-  },
-  pObj: {
-    id: 'depthval',
-    label: '',
-  },
-};
+const controllerObjs = createControllerObjs([stepsObj]);
 
-const mixObj = {
-  objName: 'Mix',
-  inputObj: {
-    id: 'mixRange',
-    min: 0.0,
-    max: 1.0,
-    step: 0.01,
-    value: 0.6,
-    numtype: 'float',
-  },
-  pObj: {
-    id: 'mixval',
-    label: '',
-  },
-};
-
-const outputObj = {
-  objName: 'Output',
-  inputObj: {
-    id: 'outputRange',
-    min: 0.0,
-    max: 1.0,
-    step: 0.01,
-    value: 0.8,
-    numtype: 'float',
-  },
-  pObj: {
-    id: 'outputval',
-    label: '',
-  },
-};
-
-const controllerObjs = createControllerObjs([
-  bypassObj,
-  speedObj,
-  depthObj,
-  mixObj,
-  outputObj,
-]);
-
-const [
-  [bypassBool],
-  [speedRange, speedval],
-  [depthRange, depthval],
-  [mixRange, mixval],
-  [outputRange, outputval],
-] = Object.entries(controllerObjs).map(([key, val]) => val);
+const [[stepsRange, stepsval]] = Object.entries(controllerObjs).map(
+  ([key, val]) => val
+);
 
 const controllerTable = createControllerTable(controllerObjs);
+
+const cnvsDiv = document.createElement('div');
+cnvsDiv.style.width = '100%';
+const canvas = document.createElement('canvas');
+canvas.style.width = '100%';
 
 /* appendChild document element */
 setAppendChild([
@@ -253,7 +192,53 @@ setAppendChild([
   buttonDiv,
   [playButton, stopButton],
   controllerTable,
+  cnvsDiv,
+  [canvas],
 ]);
+
+/* canvas */
+let WIDTH, HEIGHT;
+const setting_height = 0.75; // 4:3
+//const setting_height = 0.5;
+
+const canvasctx = canvas.getContext('2d');
+
+function initCanvas() {
+  canvas.width = cnvsDiv.clientWidth;
+  canvas.height = cnvsDiv.clientWidth * setting_height;
+  WIDTH = canvas.width;
+  HEIGHT = canvas.height;
+}
+
+const FPS = 24;
+const frameTime = 1 / FPS;
+let prevTimestamp = 0;
+
+// For graph display
+const wavdata = new Uint8Array(256);
+
+function DrawGraph(timestamp) {
+  const elapsed = (timestamp - prevTimestamp) / 1000;
+  if (elapsed <= frameTime) {
+    requestAnimationFrame(DrawGraph);
+    return;
+  }
+  prevTimestamp = timestamp;
+
+  analyser.getByteTimeDomainData(wavdata);
+  canvasctx.fillStyle = '#000000';
+  canvasctx.fillRect(0, 0, 256, 256);
+  canvasctx.fillStyle = '#008022';
+
+  for (let i = 0; i < 256; i++) {
+    let d = wavdata[i] - 128;
+    if (d === 0) {
+      d = 1;
+    }
+    canvasctx.fillRect(i, 128, 1, d);
+  }
+  requestAnimationFrame(DrawGraph);
+}
 
 // todo: MouseEvent TouchEvent wrapper
 const { touchBegan, touchMoved, touchEnded } = {
@@ -269,42 +254,28 @@ const { touchBegan, touchMoved, touchEnded } = {
 const audioctx = new AudioContext();
 const soundPath = './sounds/loop.wav';
 let buffer = null;
+
+const shaper = new WaveShaperNode(audioctx);
+const analyser = new AnalyserNode(audioctx);
 let src = null;
 
-const lfo = new OscillatorNode(audioctx);
-const depth = new GainNode(audioctx);
-const input = new GainNode(audioctx);
-const delay = new DelayNode(audioctx, { delayTIme: 0.02 });
-const mix = new GainNode(audioctx);
-const output = new GainNode(audioctx);
-
-lfo.start();
-
-input.connect(output).connect(audioctx.destination);
-input.connect(delay).connect(mix).connect(output);
-lfo.connect(depth).connect(delay.delayTime);
-
-playButton.addEventListener(touchBegan, () => {
-  audioctx.state === 'suspended' ? audioctx.resume() : null;
-  if (!src) {
-    src = audioctx.createBufferSource();
-    src.buffer = buffer;
-    src.loop = true;
-    src.connect(input);
-    src.start();
-  }
-});
+shaper.connect(analyser).connect(audioctx.destination);
 
 stopButton.addEventListener(touchBegan, () => {
   src ? src.stop() : null;
   src = null;
 });
 
-bypassBool.addEventListener('change', Setup);
-speedRange.addEventListener('input', Setup);
-depthRange.addEventListener('input', Setup);
-mixRange.addEventListener('input', Setup);
-outputRange.addEventListener('input', Setup);
+playButton.addEventListener(touchBegan, () => {
+  audioctx.state === 'suspended' ? audioctx.resume() : null;
+  if (!src) {
+    src = new AudioBufferSourceNode(audioctx, { buffer: buffer, loop: true });
+    src.connect(shaper);
+    src.start();
+  }
+});
+
+stepsRange.addEventListener('input', Setup);
 
 async function LoadSample(actx, url) {
   const res = await fetch(url);
@@ -313,24 +284,22 @@ async function LoadSample(actx, url) {
 }
 
 function Setup() {
-  const bypass = bypassBool.checked;
+  const steps = stepsRange.value;
+  stepsval.textContent = parseNum(stepsRange.value, stepsRange.numtype);
 
-  lfo.frequency.value = speedRange.value;
-  depth.gain.value = depthRange.value;
-  output.gain.value = outputRange.value;
-  mix.gain.value = bypass ? 0 : mixRange.value;
-
-  speedval.textContent = parseNum(speedRange.value, speedRange.numtype);
-  depthval.textContent = parseNum(depthRange.value, depthRange.numtype);
-  mixval.textContent = parseNum(mixRange.value, mixRange.numtype);
-  outputval.textContent = parseNum(outputRange.value, outputRange.numtype);
+  const curve = new Float32Array(4096); // Make Curve (length = steps)
+  for (let i = 0; i < 4096; i++) {
+    curve[i] = ((((i / 4096) * steps) | 0) / (steps - 1)) * 2 - 1;
+  }
+  shaper.curve = curve; // set curve to WaveShaper
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   Setup();
+  initCanvas();
+  DrawGraph();
 });
 
 document.addEventListener('DOMContentLoaded', async () => {
   buffer = await LoadSample(audioctx, soundPath);
 });
-
