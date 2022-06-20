@@ -278,6 +278,12 @@ const delay = new DelayNode(audioctx, { delayTIme: 0.02 });
 const mix = new GainNode(audioctx);
 const output = new GainNode(audioctx);
 
+lfo.start();
+
+input.connect(output).connect(audioctx.destination);
+input.connect(delay).connect(mix).connect(output);
+lfo.connect(depth).connect(delay.delayTime);
+
 playButton.addEventListener(touchBegan, () => {
   audioctx.state === 'suspended' ? audioctx.resume() : null;
   if (!src) {
@@ -322,13 +328,9 @@ function Setup() {
 
 document.addEventListener('DOMContentLoaded', () => {
   Setup();
-  lfo.start();
-
-  input.connect(output).connect(audioctx.destination);
-  input.connect(delay).connect(mix).connect(output);
-  lfo.connect(depth).connect(delay.delayTime);
 });
 
 document.addEventListener('DOMContentLoaded', async () => {
   buffer = await LoadSample(audioctx, soundPath);
 });
+
