@@ -211,7 +211,7 @@ function initCanvas() {
   halfHEIGHT = HEIGHT / 2;
 }
 
-const FPS = 8;
+const FPS = 24;
 const frameTime = 1 / FPS;
 let prevTimestamp = 0;
 
@@ -230,12 +230,12 @@ function DrawGraph(timestamp) {
   canvasctx.fillStyle = '#000000';
   canvasctx.fillRect(0, 0, WIDTH, HEIGHT);
   canvasctx.fillStyle = '#008022';
+  const w = WIDTH / 256;
 
   for (let i = 0; i < 256; i++) {
     const x = WIDTH * i / 256;
-    const _d = (HEIGHT * wavdata[i] / 256) - halfHEIGHT;
-    const d = _d === 0 ? 1: _d;
-    canvasctx.fillRect(x, halfHEIGHT, 1, d);
+    const d = wavdata[i] === 128 ? 1 : (HEIGHT * wavdata[i] / 256) - halfHEIGHT;
+    canvasctx.fillRect(x, halfHEIGHT, w, d);
   }
   requestAnimationFrame(DrawGraph);
 }
