@@ -246,14 +246,9 @@ const { touchBegan, touchMoved, touchEnded } = {
 /* audio */
 const audioctx = new AudioContext();
 const soundPath = './sounds/oneShot.wav';
-const buffer =  document.addEventListener('DOMContentLoaded', async() => {
-//window.addEventListener('load', async () => {
-  return await LoadSample(audioctx, soundPath);
-});
-
-console.log(buffer);
-//let buffer = null;
+let buffer = null;
 let src = null;
+
 const input = new GainNode(audioctx);
 const merger = new ChannelMergerNode(audioctx);
 const delay1 = new DelayNode(audioctx);
@@ -307,5 +302,9 @@ function Setup() {
 
 document.addEventListener('DOMContentLoaded', () => {
   Setup();
+});
+
+document.addEventListener('DOMContentLoaded', async () => {
+  buffer = await LoadSample(audioctx, soundPath);
 });
 
