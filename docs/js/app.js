@@ -15,7 +15,7 @@ function parseNum(value, numtype = 'float') {
 /* create document node element funcs */
 function createButton(idName, textContent = null) {
   const element = document.createElement('button');
-  element.style.width = '50%';
+  element.style.width = '100%';
   element.style.height = '4rem';
   element.type = 'button';
   element.id = idName;
@@ -149,26 +149,93 @@ function setAppendChild(nodes, parentNode = document.body) {
 
 /* setup document node element */
 const mainTitleHeader = document.createElement('h2');
-mainTitleHeader.textContent = 'WaveShaper Test';
+mainTitleHeader.textContent = 'DynamicsCompressor Test';
 
 const buttonDiv = document.createElement('div');
 buttonDiv.style.width = '100%';
 const playButton = createButton('play');
-const stopButton = createButton('stop');
+
 
 /* create controller objs */
 
-const stepsObj = {
-  objName: 'Steps',
+const threshObj = {
+  objName: 'Threshold',
   inputObj: {
-    id: 'stepsRange',
-    min: 2,
-    max: 32,
-    value: 4,
-    numtype: 'int',
+    id: 'threshRange',
+    min: -100,
+    max: 0.0,
+    step: 0.1,
+    value: -24.0,
+    numtype: 'float',
   },
   pObj: {
-    id: 'stepsval',
+    id: 'threshval',
+    label: '',
+  },
+};
+
+const kneeObj = {
+  objName: 'Knee',
+  inputObj: {
+    id: 'kneeRange',
+    min: 0.0,
+    max: 40.0,
+    step: 0.1,
+    value: 30.0,
+    numtype: 'float',
+  },
+  pObj: {
+    id: 'kneeval',
+    label: '',
+  },
+};
+
+const ratioObj = {
+  objName: 'Ratio',
+  inputObj: {
+    id: 'ratioRange',
+    min: 1.0,
+    max: 20.0,
+    step: 0.1,
+    value: 12.0,
+    numtype: 'float',
+  },
+  pObj: {
+    id: 'ratioval',
+    label: '',
+  },
+};
+
+
+const atkObj = {
+  objName: 'Attack',
+  inputObj: {
+    id: 'atkRange',
+    min: 0.0,
+    max: 0.1,
+    step: 0.001,
+    value: 0.003,
+    numtype: 'float',
+  },
+  pObj: {
+    id: 'atkval',
+    label: '',
+  },
+};
+
+
+const relObj = {
+  objName: 'Release',
+  inputObj: {
+    id: 'relRange',
+    min: 0.0,
+    max: 1.0,
+    step: 0.01,
+    value: 0.25,
+    numtype: 'float',
+  },
+  pObj: {
+    id: 'relval',
     label: '',
   },
 };
@@ -190,7 +257,7 @@ canvas.style.width = '100%';
 setAppendChild([
   mainTitleHeader,
   buttonDiv,
-  [playButton, stopButton],
+  [playButton],
   controllerTable,
   cnvsDiv,
   [canvas],
@@ -252,6 +319,27 @@ const { touchBegan, touchMoved, touchEnded } = {
 
 /* audio */
 const audioctx = new AudioContext();
+
+const gaintable = new Array(100);
+for(let i = 0; i < 100; i++){
+  gaintable[i] = 0;
+}
+
+const sig = new OscillatorNode(audioctx);
+const gain = new GainNode(audioctx, {gain:0});
+const comp = new DynamicsCompressorNode(audioctx);
+const ana = new AnalyserNode(audioctx);
+const wavdata = new Float32Array(512);
+
+let timer;
+let testcount = 0;
+let currentOutLevel = 0;
+let testing = 0;
+let maxlev = 0;
+sig.connect(gain).connect(comp).connect(ana).connect(audioctx.destination);
+sig.start();
+
+
 const soundPath = './sounds/loop.wav';
 let buffer = null;
 
@@ -260,11 +348,6 @@ const analyser = new AnalyserNode(audioctx);
 let src = null;
 
 shaper.connect(analyser).connect(audioctx.destination);
-
-stopButton.addEventListener(touchBegan, () => {
-  src ? src.stop() : null;
-  src = null;
-});
 
 playButton.addEventListener(touchBegan, () => {
   audioctx.state === 'suspended' ? audioctx.resume() : null;
