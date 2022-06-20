@@ -197,7 +197,7 @@ setAppendChild([
 ]);
 
 /* canvas */
-let WIDTH, HEIGHT;
+let WIDTH, HEIGHT, halfHEIGHT;
 const setting_height = 0.75; // 4:3
 //const setting_height = 0.5;
 
@@ -208,9 +208,10 @@ function initCanvas() {
   canvas.height = cnvsDiv.clientWidth * setting_height;
   WIDTH = canvas.width;
   HEIGHT = canvas.height;
+  halfHEIGHT = HEIGHT / 2;
 }
 
-const FPS = 24;
+const FPS = 8;
 const frameTime = 1 / FPS;
 let prevTimestamp = 0;
 
@@ -227,15 +228,14 @@ function DrawGraph(timestamp) {
 
   analyser.getByteTimeDomainData(wavdata);
   canvasctx.fillStyle = '#000000';
-  canvasctx.fillRect(0, 0, 256, 256);
+  canvasctx.fillRect(0, 0, WIDTH, HEIGHT);
   canvasctx.fillStyle = '#008022';
 
   for (let i = 0; i < 256; i++) {
-    let d = wavdata[i] - 128;
-    if (d === 0) {
-      d = 1;
-    }
-    canvasctx.fillRect(i, 128, 1, d);
+    const x = WIDTH * i / 256;
+    const _d = (HEIGHT * wavdata[i] / 256) - halfHEIGHT;
+    const d = _d === 0 ? 1: _d;
+    canvasctx.fillRect(x, halfHEIGHT, 1, d);
   }
   requestAnimationFrame(DrawGraph);
 }
