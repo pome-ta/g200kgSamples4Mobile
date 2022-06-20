@@ -9,7 +9,7 @@ function capitalize(str) {
 function parseNum(value, numtype = 'float') {
   return numtype === 'int'
     ? Number.parseInt(value)
-    : Number.parseFloat(value).toFixed(2);
+    : Number.parseFloat(value).toFixed(4);
 }
 
 /* create document node element funcs */
@@ -46,9 +46,7 @@ function createInputRange({ id, min, max, value, numtype, step = 1 }) {
   return element;
 }
 
-//function createCheckbox(checkboxObj) {
 function createCheckbox({ id }) {
-  //const { id } = checkboxObj;
   const element = document.createElement('input');
   element.type = 'checkbox';
   element.id = id;
@@ -151,11 +149,12 @@ function setAppendChild(nodes, parentNode = document.body) {
 
 /* setup document node element */
 const mainTitleHeader = document.createElement('h2');
-mainTitleHeader.textContent = 'Delay (PingPong) Test';
+mainTitleHeader.textContent = 'Chorus Test';
 
 const buttonDiv = document.createElement('div');
 buttonDiv.style.width = '100%';
 const playButton = createButton('play');
+const stopButton = createButton('stop');
 
 /* create controller objs */
 
@@ -166,72 +165,95 @@ const bypassObj = {
   objName: 'Bypass',
 };
 
-const timeObj = {
+const speedObj = {
+  objName: 'Speed',
   inputObj: {
-    id: 'timeRange',
-    min: 0.0,
-    max: 1.0,
-    step: 0.01,
-    value: 0.25,
+    id: 'speedRange',
+    min: 0.1,
+    max: 10.0,
+    step: 0.1,
+    value: 4.0,
     numtype: 'float',
   },
   pObj: {
-    id: 'timeval',
+    id: 'speedval',
     label: '',
   },
-  objName: 'Time',
 };
 
-const feedbackObj = {
+const depthObj = {
+  objName: 'Depth',
   inputObj: {
-    id: 'feedbackRange',
+    id: 'depthRange',
     min: 0.0,
-    max: 1.0,
-    step: 0.01,
-    value: 0.5,
+    max: 0.005,
+    step: 0.0001,
+    value: 0.001,
     numtype: 'float',
   },
   pObj: {
-    id: 'feedbackval',
+    id: 'depthval',
     label: '',
   },
-  objName: 'Feedback',
 };
 
 const mixObj = {
+  objName: 'Mix',
   inputObj: {
     id: 'mixRange',
     min: 0.0,
     max: 1.0,
     step: 0.01,
-    value: 0.5,
+    value: 0.6,
     numtype: 'float',
   },
   pObj: {
     id: 'mixval',
     label: '',
   },
-  objName: 'Mix',
+};
+
+const outputObj = {
+  objName: 'Output',
+  inputObj: {
+    id: 'outputRange',
+    min: 0.0,
+    max: 1.0,
+    step: 0.01,
+    value: 0.8,
+    numtype: 'float',
+  },
+  pObj: {
+    id: 'outputval',
+    label: '',
+  },
 };
 
 const controllerObjs = createControllerObjs([
   bypassObj,
-  timeObj,
-  feedbackObj,
+  speedObj,
+  depthObj,
   mixObj,
+  outputObj,
 ]);
 
 const [
   [bypassBool],
-  [timeRange, timeval],
-  [feedbackRange, feedbackval],
+  [speedRange, speedval],
+  [depthRange, depthval],
   [mixRange, mixval],
+  [outputRange, outputval],
 ] = Object.entries(controllerObjs).map(([key, val]) => val);
 
 const controllerTable = createControllerTable(controllerObjs);
 
 /* appendChild document element */
-setAppendChild([mainTitleHeader, buttonDiv, [playButton], controllerTable]);
+setAppendChild([
+  mainTitleHeader,
+  buttonDiv,
+  [playButton, stopButton],
+  controllerTable,
+]);
 
 // todo: MouseEvent TouchEvent wrapper
 const { touchBegan, touchMoved, touchEnded } = {
@@ -245,36 +267,38 @@ const { touchBegan, touchMoved, touchEnded } = {
 
 /* audio */
 const audioctx = new AudioContext();
-const soundPath = './sounds/oneShot.wav';
+const soundPath = './sounds/loop.wav';
 let buffer = null;
 let src = null;
 
+const lfo = new OscillatorNode(audioctx);
+const depth = new GainNode(audioctx);
 const input = new GainNode(audioctx);
-const merger = new ChannelMergerNode(audioctx);
-const delay1 = new DelayNode(audioctx);
-const delay2 = new DelayNode(audioctx);
-const feedback = new GainNode(audioctx);
-const wetlevel = new GainNode(audioctx);
-const drylevel = new GainNode(audioctx);
-
-input.connect(delay1).connect(delay2).connect(feedback).connect(delay1);
-delay1.connect(merger, 0, 0);
-delay2.connect(merger, 0, 1);
-merger.connect(wetlevel).connect(audioctx.destination);
-input.connect(drylevel).connect(audioctx.destination);
+const delay = new DelayNode(audioctx, { delayTIme: 0.02 });
+const mix = new GainNode(audioctx);
+const output = new GainNode(audioctx);
 
 playButton.addEventListener(touchBegan, () => {
   audioctx.state === 'suspended' ? audioctx.resume() : null;
+  if (!src) {
+    src = audioctx.createBufferSource();
+    src.buffer = buffer;
+    src.loop = true;
+    src.connect(input);
+    src.start();
+  }
+});
 
-  src = new AudioBufferSourceNode(audioctx, { buffer: buffer });
-  src.connect(input);
-  src.start();
+stopButton.addEventListener(touchBegan, () => {
+  src ? src.stop() : null;
+  src = null;
 });
 
 bypassBool.addEventListener('change', Setup);
-timeRange.addEventListener('input', Setup);
-feedbackRange.addEventListener('input', Setup);
+speedRange.addEventListener('input', Setup);
+depthRange.addEventListener('input', Setup);
 mixRange.addEventListener('input', Setup);
+outputRange.addEventListener('input', Setup);
 
 async function LoadSample(actx, url) {
   const res = await fetch(url);
@@ -284,27 +308,27 @@ async function LoadSample(actx, url) {
 
 function Setup() {
   const bypass = bypassBool.checked;
-  const mix = bypass ? 0 : mixRange.value;
-  wetlevel.gain.value = mix;
-  drylevel.gain.value = 1 - mix;
 
-  delay1.delayTime.value = timeRange.value;
-  delay2.delayTime.value = timeRange.value;
-  feedback.gain.value = feedbackRange.value;
+  lfo.frequency.value = speedRange.value;
+  depth.gain.value = depthRange.value;
+  output.gain.value = outputRange.value;
+  mix.gain.value = bypass ? 0 : mixRange.value;
 
+  speedval.textContent = parseNum(speedRange.value, speedRange.numtype);
+  depthval.textContent = parseNum(depthRange.value, depthRange.numtype);
   mixval.textContent = parseNum(mixRange.value, mixRange.numtype);
-  timeval.textContent = parseNum(timeRange.value, timeRange.numtype);
-  feedbackval.textContent = parseNum(
-    feedbackRange.value,
-    feedbackRange.numtype
-  );
+  outputval.textContent = parseNum(outputRange.value, outputRange.numtype);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   Setup();
+  lfo.start();
+
+  input.connect(output).connect(audioctx.destination);
+  input.connect(delay).connect(mix).connect(output);
+  lfo.connect(depth).connect(delay.delayTime);
 });
 
 document.addEventListener('DOMContentLoaded', async () => {
   buffer = await LoadSample(audioctx, soundPath);
 });
-
