@@ -7,9 +7,14 @@ function capitalize(str) {
 }
 
 function parseNum(value, numtype = 'float') {
+  const getDecimalPointLength = (num) => {
+    const numbers = String(num).split('.');
+    return numbers[1] ? numbers[1].length : 0;
+  }
+  const n = getDecimalPointLength(value);
   return numtype === 'int'
     ? Number.parseInt(value)
-    : Number.parseFloat(value).toFixed(2);
+    : Number.parseFloat(value).toFixed(n ? n : 1);
 }
 
 /* create document node element funcs */
@@ -28,7 +33,7 @@ function createLabel(pObj, textContent = null) {
   const element = document.createElement('p');
   element.id = id;
   element.style.margin = '0';
-  element.style.minWidth = '4rem';
+  element.style.minWidth = '3.2rem';
   //element.style.width = '3.2rem';
   element.textContent = textContent != null ? textContent : capitalize(id);
   return element;
