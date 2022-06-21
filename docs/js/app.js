@@ -28,7 +28,8 @@ function createLabel(pObj, textContent = null) {
   const element = document.createElement('p');
   element.id = id;
   element.style.margin = '0';
-  element.style.minWidth = '2rem';
+  element.style.minWidth = '4rem';
+  //element.style.width = '3.2rem';
   element.textContent = textContent != null ? textContent : capitalize(id);
   return element;
 }
@@ -108,7 +109,7 @@ function createTableHeader(textContent) {
   element.textContent = textContent;
   element.style.whiteSpace = 'nowrap';
   element.style.width = '0%';
-  element.style.fontSize = '0.5rem';
+  element.style.fontSize = '0.64rem';
   return element;
 }
 
@@ -285,8 +286,6 @@ function initCanvas() {
   halfHEIGHT = HEIGHT / 2;
 }
 
-
-
 // todo: MouseEvent TouchEvent wrapper
 const { touchBegan, touchMoved, touchEnded } = {
   touchBegan:
@@ -319,15 +318,6 @@ let maxlev = 0;
 sig.connect(gain).connect(comp).connect(ana).connect(audioctx.destination);
 sig.start();
 
-const soundPath = './sounds/loop.wav';
-let buffer = null;
-
-const shaper = new WaveShaperNode(audioctx);
-const analyser = new AnalyserNode(audioctx);
-let src = null;
-
-shaper.connect(analyser).connect(audioctx.destination);
-
 playButton.addEventListener(touchBegan, () => {
   audioctx.state === 'suspended' ? audioctx.resume() : null;
   if (!src) {
@@ -337,31 +327,28 @@ playButton.addEventListener(touchBegan, () => {
   }
 });
 
-stepsRange.addEventListener('input', Setup);
-
-async function LoadSample(actx, url) {
-  const res = await fetch(url);
-  const arraybuf = await res.arrayBuffer();
-  return actx.decodeAudioData(arraybuf);
-}
+threshRange.addEventListener('input', Setup);
+kneeRange.addEventListener('input', Setup);
+ratioRange.addEventListener('input', Setup);
+atkRange.addEventListener('input', Setup);
+relRange.addEventListener('input', Setup);
 
 function Setup() {
-  const steps = stepsRange.value;
-  stepsval.textContent = parseNum(stepsRange.value, stepsRange.numtype);
+  comp.threshold.value = threshRange.value;
+  comp.knee.value = kneeRange.value;
+  comp.ratio.value = ratioRange.value;
+  comp.attack.value = atkRange.value;
+  comp.release.value = relRange.value;
 
-  const curve = new Float32Array(4096); // Make Curve (length = steps)
-  for (let i = 0; i < 4096; i++) {
-    curve[i] = ((((i / 4096) * steps) | 0) / (steps - 1)) * 2 - 1;
-  }
-  shaper.curve = curve; // set curve to WaveShaper
+  threshval.textContent = parseNum(threshRange.value, threshRange.numtype);
+  kneeval.textContent = parseNum(kneeRange.value, kneeRange.numtype);
+  ratioval.textContent = parseNum(ratioRange.value, ratioRange.numtype);
+  atkval.textContent = parseNum(atkRange.value, atkRange.numtype);
+  relval.textContent = parseNum(relRange.value, relRange.numtype);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   Setup();
   initCanvas();
   //DrawGraph();
-});
-
-document.addEventListener('DOMContentLoaded', async () => {
-  buffer = await LoadSample(audioctx, soundPath);
 });
