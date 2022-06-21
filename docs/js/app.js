@@ -6,15 +6,17 @@ function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
 
+function getDecimalPointLength(valueStr) {
+  const numbers = valueStr.split('.');
+  const pointLen = numbers[1] ? numbers[1].length : 0;
+  // xxx: 0 で、返したものを1 で返してる
+  return pointLen ? pointLen : 1;
+}
+
 function parseNum(value, numtype = 'float') {
-  const getDecimalPointLength = (num) => {
-    const numbers = String(num).split('.');
-    return numbers[1] ? numbers[1].length : 0;
-  }
-  const n = getDecimalPointLength(value);
   return numtype === 'int'
     ? Number.parseInt(value)
-    : Number.parseFloat(value).toFixed(n ? n : 1);
+    : Number.parseFloat(value).toFixed(getDecimalPointLength(value));
 }
 
 /* create document node element funcs */
@@ -281,11 +283,13 @@ let WIDTH, HEIGHT, halfHEIGHT;
 const setting_height = 0.75; // 4:3
 //const setting_height = 0.5;
 
-const canvasctx = canvas.getContext('2d');
+const ctx = canvas.getContext('2d');
 
 function initCanvas() {
-  canvas.width = cnvsDiv.clientWidth;
-  canvas.height = cnvsDiv.clientWidth * setting_height;
+  //canvas.width = cnvsDiv.clientWidth;
+  //canvas.height = cnvsDiv.clientWidth * setting_height;
+  canvas.width = cnvsDiv.width = 364;
+  canvas.height = cnvsDiv.height = 364;
   WIDTH = canvas.width;
   HEIGHT = canvas.height;
   halfHEIGHT = HEIGHT / 2;
@@ -325,11 +329,11 @@ sig.start();
 
 playButton.addEventListener(touchBegan, () => {
   audioctx.state === 'suspended' ? audioctx.resume() : null;
-  if (!src) {
-    src = new AudioBufferSourceNode(audioctx, { buffer: buffer, loop: true });
-    src.connect(shaper);
-    src.start();
-  }
+  testing = 1;
+  gain.gain.value = 0;
+  testcount = -2;
+  maxlev = 0;
+  timer = setInterval(TestInterval, 50);
 });
 
 threshRange.addEventListener('input', Setup);
@@ -352,8 +356,52 @@ function Setup() {
   relval.textContent = parseNum(relRange.value, relRange.numtype);
 }
 
+function TestInterval() {
+  if (testcount > 0) {
+    ana.getFloatTimeDomainData(wavdata);
+    for (let i = 0; i < wavdata.length; ++i) {
+      const d = Math.abs(wavdata[i]);
+      if (d > maxlev) maxlev = d;
+    }
+    gaintable[testcount - 1] = maxlev;
+  }
+  maxlev = 0;
+  Draw(testcount - 1);
+  gain.gain.value = Math.pow(10, (testcount - 80) / 20);
+  if (++testcount > 100) {
+    gain.gain.value = 0;
+    clearInterval(timer);
+    testing = 0;
+  }
+}
+
+function Draw(n) {
+  ctx.fillStyle = '#404040';
+  ctx.fillRect(0, 0, 364, 364);
+  ctx.fillStyle = '#20c040';
+  
+  for (let i = 0; i < 100; ++i) {
+    let v = gaintable[i];
+    if (v < 1e-128) v = 1e-128;
+    v = Math.max(-80, Math.LOG10E * 20 * Math.log(v));
+    v = (20 - v) * 3;
+    ctx.fillRect(i * 3 + 32, v + 32, 3, 300 - v);
+  }
+  ctx.fillStyle = '#c06060';
+  for (let i = 0; i <= 100; i += 10) {
+    ctx.fillRect(32, 32 + i * 3, 300, 1);
+    ctx.fillRect(32 + i * 3, 32, 1, 300);
+    ctx.fillText(20 - i + 'dB', 5, i * 3 + 35);
+    ctx.fillText(20 - i + 'dB', 320 - i * 3, 345);
+  }
+  ctx.fillStyle = '#f0e480';
+  ctx.fillRect(34 + n * 3, 32, 1, 300);
+}
+
+window.addEventListener('resize', initCanvas);
 document.addEventListener('DOMContentLoaded', () => {
-  Setup();
   initCanvas();
   //DrawGraph();
+  Draw();
+  Setup();
 });
