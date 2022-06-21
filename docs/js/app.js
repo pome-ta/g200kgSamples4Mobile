@@ -398,10 +398,12 @@ function Draw(n) {
   ctx.fillRect(34 + n * 3, 32, 1, 300);
 }
 
-window.addEventListener('resize', initCanvas);
+// xxx: resize 呼ぶと描画しない
+//window.addEventListener('resize', initCanvas);
 document.addEventListener('DOMContentLoaded', () => {
   initCanvas();
   //DrawGraph();
   Draw();
   Setup();
 });
+
