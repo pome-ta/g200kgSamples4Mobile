@@ -155,7 +155,6 @@ const buttonDiv = document.createElement('div');
 buttonDiv.style.width = '100%';
 const playButton = createButton('play');
 
-
 /* create controller objs */
 
 const threshObj = {
@@ -206,7 +205,6 @@ const ratioObj = {
   },
 };
 
-
 const atkObj = {
   objName: 'Attack',
   inputObj: {
@@ -222,7 +220,6 @@ const atkObj = {
     label: '',
   },
 };
-
 
 const relObj = {
   objName: 'Release',
@@ -240,11 +237,21 @@ const relObj = {
   },
 };
 
-const controllerObjs = createControllerObjs([stepsObj]);
+const controllerObjs = createControllerObjs([
+  threshObj,
+  kneeObj,
+  ratioObj,
+  atkObj,
+  relObj,
+]);
 
-const [[stepsRange, stepsval]] = Object.entries(controllerObjs).map(
-  ([key, val]) => val
-);
+const [
+  [threshRange, threshval],
+  [kneeRange, kneeval],
+  [ratioRange, ratioval],
+  [atkRange, atkval],
+  [relRange, relval],
+] = Object.entries(controllerObjs).map(([key, val]) => val);
 
 const controllerTable = createControllerTable(controllerObjs);
 
@@ -278,34 +285,7 @@ function initCanvas() {
   halfHEIGHT = HEIGHT / 2;
 }
 
-const FPS = 24;
-const frameTime = 1 / FPS;
-let prevTimestamp = 0;
 
-// For graph display
-const wavdata = new Uint8Array(256);
-
-function DrawGraph(timestamp) {
-  const elapsed = (timestamp - prevTimestamp) / 1000;
-  if (elapsed <= frameTime) {
-    requestAnimationFrame(DrawGraph);
-    return;
-  }
-  prevTimestamp = timestamp;
-
-  analyser.getByteTimeDomainData(wavdata);
-  canvasctx.fillStyle = '#000000';
-  canvasctx.fillRect(0, 0, WIDTH, HEIGHT);
-  canvasctx.fillStyle = '#008022';
-  const w = WIDTH / 256;
-
-  for (let i = 0; i < 256; i++) {
-    const x = WIDTH * i / 256;
-    const d = wavdata[i] === 128 ? 1 : (HEIGHT * wavdata[i] / 256) - halfHEIGHT;
-    canvasctx.fillRect(x, halfHEIGHT, w, d);
-  }
-  requestAnimationFrame(DrawGraph);
-}
 
 // todo: MouseEvent TouchEvent wrapper
 const { touchBegan, touchMoved, touchEnded } = {
@@ -321,12 +301,12 @@ const { touchBegan, touchMoved, touchEnded } = {
 const audioctx = new AudioContext();
 
 const gaintable = new Array(100);
-for(let i = 0; i < 100; i++){
+for (let i = 0; i < 100; i++) {
   gaintable[i] = 0;
 }
 
 const sig = new OscillatorNode(audioctx);
-const gain = new GainNode(audioctx, {gain:0});
+const gain = new GainNode(audioctx, { gain: 0 });
 const comp = new DynamicsCompressorNode(audioctx);
 const ana = new AnalyserNode(audioctx);
 const wavdata = new Float32Array(512);
@@ -338,7 +318,6 @@ let testing = 0;
 let maxlev = 0;
 sig.connect(gain).connect(comp).connect(ana).connect(audioctx.destination);
 sig.start();
-
 
 const soundPath = './sounds/loop.wav';
 let buffer = null;
@@ -380,7 +359,7 @@ function Setup() {
 document.addEventListener('DOMContentLoaded', () => {
   Setup();
   initCanvas();
-  DrawGraph();
+  //DrawGraph();
 });
 
 document.addEventListener('DOMContentLoaded', async () => {
