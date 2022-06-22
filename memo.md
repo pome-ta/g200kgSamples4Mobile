@@ -1,3 +1,25 @@
+# 📝 2022/06/21
+
+
+## 時間経過の取り扱い
+
+`canvas` 描画を`requestAnimationFrame` で処理してた（14 まで）
+
+15 から、時間で累積（& クリア）をするので、どうするか、、、
+
+### `requestAnimationFrame`
+
+FrameRate 処理なので、こと、描画ならOK
+
+fps もそれなりに調整は可能
+
+けれど、時間には依存しないか、、、
+
+### `setInterval`
+
+別に悪い子じゃない。`canvas` 内のみで処理する時だけ、ちょっとclassic 
+
+
 # 📝 2022/06/19
 
 ## `async / await` 処理
