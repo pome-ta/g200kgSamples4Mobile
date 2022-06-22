@@ -306,6 +306,7 @@ function initCanvas() {
   WIDTH = canvas.width;
   HEIGHT = canvas.height;
   halfHEIGHT = HEIGHT / 2;
+  ctx.font = '0.6rem monospace';
   Draw();
 }
 
@@ -401,13 +402,17 @@ function Draw(n) {
     v = (20 - v) * 3;
     ctx.fillRect(i * 3 + 32, v + 32, 3, 300 - v);
   }
+  // grid
   ctx.fillStyle = '#c06060';
   for (let i = 0; i <= 100; i += 10) {
+    // x
     ctx.fillRect(32, 32 + i * 3, 300, 1);
+    // y
     ctx.fillRect(32 + i * 3, 32, 1, 300);
     ctx.fillText(20 - i + 'dB', 5, i * 3 + 35);
     ctx.fillText(20 - i + 'dB', 320 - i * 3, 345);
   }
+  // bar
   ctx.fillStyle = '#f0e480';
   ctx.fillRect(34 + n * 3, 32, 1, 300);
 }
