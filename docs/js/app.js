@@ -306,6 +306,7 @@ function initCanvas() {
   WIDTH = canvas.width;
   HEIGHT = canvas.height;
   halfHEIGHT = HEIGHT / 2;
+  Draw();
 }
 
 // todo: MouseEvent TouchEvent wrapper
@@ -411,12 +412,11 @@ function Draw(n) {
   ctx.fillRect(34 + n * 3, 32, 1, 300);
 }
 
-// xxx: resize 呼ぶと描画しない
-//window.addEventListener('resize', initCanvas);
+window.addEventListener('resize', initCanvas);
 document.addEventListener('DOMContentLoaded', () => {
   initCanvas();
   //DrawGraph();
-  Draw();
+  //Draw();
   Setup();
 });
 
