@@ -155,6 +155,16 @@ function setAppendChild(nodes, parentNode = document.body) {
   });
 }
 
+function setCanvasStyles(...args) {
+  args.forEach(canvasElement => {
+    canvasElement.style.width = '100%';
+    canvasElement.style.position = 'absolute';
+    canvasElement.style.top = 0;
+    canvasElement.style.left = 0;
+  });
+  
+}
+
 /* setup document node element */
 const mainTitleHeader = document.createElement('h2');
 mainTitleHeader.textContent = 'DynamicsCompressor Test';
@@ -265,8 +275,11 @@ const controllerTable = createControllerTable(controllerObjs);
 
 const cnvsDiv = document.createElement('div');
 cnvsDiv.style.width = '100%';
+cnvsDiv.style.position = 'relative'
+
+const baseCanvas = document.createElement('canvas');
 const canvas = document.createElement('canvas');
-canvas.style.width = '100%';
+setCanvasStyles(baseCanvas, canvas);
 
 /* appendChild document element */
 setAppendChild([
@@ -275,7 +288,7 @@ setAppendChild([
   [playButton],
   controllerTable,
   cnvsDiv,
-  [canvas],
+  [baseCanvas, canvas],
 ]);
 
 /* canvas */
