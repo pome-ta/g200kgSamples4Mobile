@@ -156,13 +156,12 @@ function setAppendChild(nodes, parentNode = document.body) {
 }
 
 function setCanvasStyles(...args) {
-  args.forEach(canvasElement => {
+  args.forEach((canvasElement) => {
     canvasElement.style.width = '100%';
     canvasElement.style.position = 'absolute';
     canvasElement.style.top = 0;
     canvasElement.style.left = 0;
   });
-  
 }
 
 /* setup document node element */
@@ -275,7 +274,7 @@ const controllerTable = createControllerTable(controllerObjs);
 
 const cnvsDiv = document.createElement('div');
 cnvsDiv.style.width = '100%';
-cnvsDiv.style.position = 'relative'
+cnvsDiv.style.position = 'relative';
 
 const baseCanvas = document.createElement('canvas');
 const canvas = document.createElement('canvas');
@@ -402,24 +401,26 @@ function Draw(n) {
     v = (20 - v) * 3;
     ctx.fillRect(i * 3 + 32, v + 32, 3, 300 - v);
   }*/
+
   // grid
-  const xEnd = WIDTH / 11.375;
-  const yEnd = HEIGHT / 11.375;
-  const xWIDTH = WIDTH - (xEnd * 2);
-  const yHEIGHT = HEIGHT - (xEnd * 2);
-  const xMargin = xWIDTH / 100;
-  const yMargin = yHEIGHT / 100;
-  //const xEnd = HEIGHT / 11.375;
-  //const yEnd = WIDTH / 11.375;
-  ctx.fillStyle = '#c06060';
-  for (let i = 0; i <= 100; i += 10) {
+  const rowE = WIDTH / 11.375;
+  const colE = HEIGHT / 11.375;
+
+  const rowW = WIDTH - rowE * 2;
+  const colH = HEIGHT - colE * 2;
+
+  const rowY = colH / 10;
+  const colX = rowW / 10;
+
+  //ctx.fillStyle = '#c06060';
+  ctx.fillStyle = '#00ffff';
+  for (let i = 0; i <= 10; i++) {
     // todo: baseSize ->364, marhin ->32
-    
-    // x
-    ctx.fillRect(xEnd, xEnd + i * yMargin, xWIDTH, 1);
+    // row
+    ctx.fillRect(rowE, rowY * i + colE, rowW, 1);
     // y
-    ctx.fillRect(yEnd + i * xMargin, yEnd, 1, yHEIGHT);
-    //ctx.fillText(20 - i + 'dB', 5, i * 3 + 35);
+    ctx.fillRect(colX * i + rowE, colE, 1, colH);
+    ctx.fillText(20 - i + 'dB', 5, i * 30 + 35);
     //ctx.fillText(20 - i + 'dB', 320 - i * 3, 345);
   }
   // bar
@@ -434,4 +435,3 @@ document.addEventListener('DOMContentLoaded', () => {
   //Draw();
   Setup();
 });
-
