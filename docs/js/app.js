@@ -299,10 +299,10 @@ const setting_height = 0.75; // 4:3
 const ctx = canvas.getContext('2d');
 
 function initCanvas() {
-  //canvas.width = cnvsDiv.clientWidth;
-  //canvas.height = cnvsDiv.clientWidth * setting_height;
-  canvas.width = cnvsDiv.width = 364;
-  canvas.height = cnvsDiv.height = 364;
+  canvas.width = cnvsDiv.clientWidth;
+  canvas.height = cnvsDiv.clientWidth * setting_height;
+  //canvas.width = cnvsDiv.width = 364;
+  //canvas.height = cnvsDiv.height = 364;
   WIDTH = canvas.width;
   HEIGHT = canvas.height;
   halfHEIGHT = HEIGHT / 2;
@@ -392,25 +392,35 @@ function TestInterval() {
 
 function Draw(n) {
   ctx.fillStyle = '#404040';
-  ctx.fillRect(0, 0, 364, 364);
+  ctx.fillRect(0, 0, WIDTH, HEIGHT);
   ctx.fillStyle = '#20c040';
-  
+  /*
   for (let i = 0; i < 100; ++i) {
     let v = gaintable[i];
     if (v < 1e-128) v = 1e-128;
     v = Math.max(-80, Math.LOG10E * 20 * Math.log(v));
     v = (20 - v) * 3;
     ctx.fillRect(i * 3 + 32, v + 32, 3, 300 - v);
-  }
+  }*/
   // grid
+  const xEnd = WIDTH / 11.375;
+  const yEnd = HEIGHT / 11.375;
+  const xWIDTH = WIDTH - (xEnd * 2);
+  const yHEIGHT = HEIGHT - (xEnd * 2);
+  const xMargin = xWIDTH / 100;
+  const yMargin = yHEIGHT / 100;
+  //const xEnd = HEIGHT / 11.375;
+  //const yEnd = WIDTH / 11.375;
   ctx.fillStyle = '#c06060';
   for (let i = 0; i <= 100; i += 10) {
+    // todo: baseSize ->364, marhin ->32
+    
     // x
-    ctx.fillRect(32, 32 + i * 3, 300, 1);
+    ctx.fillRect(xEnd, xEnd + i * yMargin, xWIDTH, 1);
     // y
-    ctx.fillRect(32 + i * 3, 32, 1, 300);
-    ctx.fillText(20 - i + 'dB', 5, i * 3 + 35);
-    ctx.fillText(20 - i + 'dB', 320 - i * 3, 345);
+    ctx.fillRect(yEnd + i * xMargin, yEnd, 1, yHEIGHT);
+    //ctx.fillText(20 - i + 'dB', 5, i * 3 + 35);
+    //ctx.fillText(20 - i + 'dB', 320 - i * 3, 345);
   }
   // bar
   ctx.fillStyle = '#f0e480';
