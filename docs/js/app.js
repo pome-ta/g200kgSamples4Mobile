@@ -173,7 +173,6 @@ buttonDiv.style.width = '100%';
 const playButton = createButton('play');
 
 /* create controller objs */
-
 const threshObj = {
   objName: 'Threshold',
   inputObj: {
@@ -292,9 +291,9 @@ setAppendChild([
 
 /* canvas */
 let WIDTH, HEIGHT, halfHEIGHT;
-//const setting_height = 0.75; // 4:3
+const setting_height = 0.75; // 4:3
 //const setting_height = 0.5;
-const setting_height = 1.0;
+//const setting_height = 1.0;
 
 const ctx = canvas.getContext('2d');
 
@@ -304,7 +303,7 @@ function initCanvas() {
   WIDTH = canvas.width;
   HEIGHT = canvas.height;
   halfHEIGHT = HEIGHT / 2;
-  //ctx.font = '0.6rem monospace';
+  ctx.font = '0.6rem monospace';
   ctx.textAlign = 'end';
   Draw();
 }
@@ -356,6 +355,7 @@ ratioRange.addEventListener('input', Setup);
 atkRange.addEventListener('input', Setup);
 relRange.addEventListener('input', Setup);
 
+
 function Setup() {
   comp.threshold.value = threshRange.value;
   comp.knee.value = kneeRange.value;
@@ -393,16 +393,7 @@ function Draw(n) {
   ctx.fillStyle = '#404040';
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
   ctx.fillStyle = '#20c040';
-  /*
-  for (let i = 0; i < 100; ++i) {
-    let v = gaintable[i];
-    if (v < 1e-128) v = 1e-128;
-    v = Math.max(-80, Math.LOG10E * 20 * Math.log(v));
-    v = (20 - v) * 3;
-    ctx.fillRect(i * 3 + 32, v + 32, 3, 300 - v);
-  }*/
 
-  // grid
   const rowEnd = WIDTH / 11.375;
   const colEnd = HEIGHT / 11.375;
 
@@ -411,28 +402,35 @@ function Draw(n) {
 
   const rowY = colHEIGHT / 10;
   const colX = rowWIDTH / 10;
-  
 
-  //ctx.fillStyle = '#c06060';
-  ctx.fillStyle = '#00ffff';
+  for (let i = 0; i < 100; i++) {
+    let v = gaintable[i];
+    if (v < 1e-128) v = 1e-128;
+    v = Math.max(-80, Math.LOG10E * 20 * Math.log(v));
+    v = (20 - v) * 3;
+    ctx.fillRect(i * 3 + 32, v + 32, 3, colHEIGHT - v);
+  }
+
+  // grid
+  ctx.fillStyle = '#c06060';
   for (let i = 0; i <= 10; i++) {
     // todo: baseSize ->364, marhin ->32
     const x = colX * i + rowEnd;
     const y = rowY * i + colEnd;
-    // row
-    ctx.fillRect(rowEnd, y, rowWIDTH, 1);
-    // col
-    ctx.fillRect(x, colEnd, 1, colHEIGHT);
-    
+    ctx.fillRect(rowEnd, y, rowWIDTH, 1); // row
+    ctx.fillRect(x, colEnd, 1, colHEIGHT); // col
+
     // label x, y
-    ctx.fillText(`${20 - i * 10}dB`, colX, y);
-    
+    ctx.fillText(`${20 - i * 10}dB`, colX, y); // label: x
+
     //ctx.fillText(`${80 - i * 10}dB`, x, colHEIGHT + (rowY * 1.75));
-    ctx.fillText(`${80 - i * 10}dB`, x + (rowEnd * 0.5), HEIGHT - (rowY * 0.5));
+    ctx.fillText(`${80 - i * 10}dB`, x + rowEnd * 0.5, HEIGHT - rowY * 0.5); // label: y
   }
   // bar
   ctx.fillStyle = '#f0e480';
-  ctx.fillRect(34 + n * 3, 32, 1, 300);
+  ctx.fillRect(34 + n*3, 32, 1, 300);
+  //console.log(n);
+  //ctx.fillRect(rowEnd + n, colEnd, 1, colHEIGHT);
 }
 
 window.addEventListener('resize', initCanvas);
