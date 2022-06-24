@@ -430,7 +430,7 @@ function Draw(n) {
     ctx.fillRect(x, colE, 1, colH);
     
     ctx.fillText(`${20 - i * 10}dB`, rowE * 0.1, y);
-    ctx.fillText(20 - i + 'dB', x, HEIGHT - (colE * 0.1));
+    ctx.fillText(`${80 - i * 10}dB`, x, colH + (rowY * 1.5));
   }
   // bar
   ctx.fillStyle = '#f0e480';
