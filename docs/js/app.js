@@ -300,12 +300,11 @@ const ctx = canvas.getContext('2d');
 function initCanvas() {
   canvas.width = cnvsDiv.clientWidth;
   canvas.height = cnvsDiv.clientWidth * setting_height;
-  //canvas.width = cnvsDiv.width = 364;
-  //canvas.height = cnvsDiv.height = 364;
   WIDTH = canvas.width;
   HEIGHT = canvas.height;
   halfHEIGHT = HEIGHT / 2;
   ctx.font = '0.6rem monospace';
+  //ctx.textAlign = 'center';
   Draw();
 }
 
@@ -426,11 +425,12 @@ function Draw(n) {
     const y = rowY * i + colE;
     // row
     ctx.fillRect(rowE, y, rowW, 1);
-    // y
+    // col
     ctx.fillRect(x, colE, 1, colH);
     
-    ctx.fillText(`${20 - i * 10}dB`, rowE * 0.1, y);
-    ctx.fillText(`${80 - i * 10}dB`, x, colH + (rowY * 1.5));
+    // label x, y
+    ctx.fillText(`${20 - i * 10}dB`, colX * 0.125, y);
+    ctx.fillText(`${80 - i * 10}dB`, x, colH + (rowY * 1.75));
   }
   // bar
   ctx.fillStyle = '#f0e480';
