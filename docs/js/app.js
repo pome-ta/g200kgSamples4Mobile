@@ -411,17 +411,26 @@ function Draw(n) {
 
   const rowY = colH / 10;
   const colX = rowW / 10;
+  /*
+  console.log(`rowE: ${rowE}`);
+  console.log(`colE: ${colE}`);
+  console.log(`rowY: ${rowY}`);
+  console.log(`colX: ${colX}`);
+  */
 
   //ctx.fillStyle = '#c06060';
   ctx.fillStyle = '#00ffff';
   for (let i = 0; i <= 10; i++) {
     // todo: baseSize ->364, marhin ->32
+    const x = colX * i + rowE;
+    const y = rowY * i + colE;
     // row
-    ctx.fillRect(rowE, rowY * i + colE, rowW, 1);
+    ctx.fillRect(rowE, y, rowW, 1);
     // y
-    ctx.fillRect(colX * i + rowE, colE, 1, colH);
-    ctx.fillText(20 - i + 'dB', 5, i * 30 + 35);
-    //ctx.fillText(20 - i + 'dB', 320 - i * 3, 345);
+    ctx.fillRect(x, colE, 1, colH);
+    
+    ctx.fillText(`${20 - i * 10}dB`, rowE * 0.1, y);
+    ctx.fillText(20 - i + 'dB', x, HEIGHT - (colE * 0.1));
   }
   // bar
   ctx.fillStyle = '#f0e480';
