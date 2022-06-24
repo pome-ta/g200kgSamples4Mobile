@@ -292,8 +292,9 @@ setAppendChild([
 
 /* canvas */
 let WIDTH, HEIGHT, halfHEIGHT;
-const setting_height = 0.75; // 4:3
+//const setting_height = 0.75; // 4:3
 //const setting_height = 0.5;
+const setting_height = 1.0;
 
 const ctx = canvas.getContext('2d');
 
@@ -303,8 +304,8 @@ function initCanvas() {
   WIDTH = canvas.width;
   HEIGHT = canvas.height;
   halfHEIGHT = HEIGHT / 2;
-  ctx.font = '0.6rem monospace';
-  //ctx.textAlign = 'center';
+  //ctx.font = '0.6rem monospace';
+  ctx.textAlign = 'end';
   Draw();
 }
 
@@ -402,35 +403,32 @@ function Draw(n) {
   }*/
 
   // grid
-  const rowE = WIDTH / 11.375;
-  const colE = HEIGHT / 11.375;
+  const rowEnd = WIDTH / 11.375;
+  const colEnd = HEIGHT / 11.375;
 
-  const rowW = WIDTH - rowE * 2;
-  const colH = HEIGHT - colE * 2;
+  const rowWIDTH = WIDTH - rowEnd * 2;
+  const colHEIGHT = HEIGHT - colEnd * 2;
 
-  const rowY = colH / 10;
-  const colX = rowW / 10;
-  /*
-  console.log(`rowE: ${rowE}`);
-  console.log(`colE: ${colE}`);
-  console.log(`rowY: ${rowY}`);
-  console.log(`colX: ${colX}`);
-  */
+  const rowY = colHEIGHT / 10;
+  const colX = rowWIDTH / 10;
+  
 
   //ctx.fillStyle = '#c06060';
   ctx.fillStyle = '#00ffff';
   for (let i = 0; i <= 10; i++) {
     // todo: baseSize ->364, marhin ->32
-    const x = colX * i + rowE;
-    const y = rowY * i + colE;
+    const x = colX * i + rowEnd;
+    const y = rowY * i + colEnd;
     // row
-    ctx.fillRect(rowE, y, rowW, 1);
+    ctx.fillRect(rowEnd, y, rowWIDTH, 1);
     // col
-    ctx.fillRect(x, colE, 1, colH);
+    ctx.fillRect(x, colEnd, 1, colHEIGHT);
     
     // label x, y
-    ctx.fillText(`${20 - i * 10}dB`, colX * 0.125, y);
-    ctx.fillText(`${80 - i * 10}dB`, x, colH + (rowY * 1.75));
+    ctx.fillText(`${20 - i * 10}dB`, colX, y);
+    
+    //ctx.fillText(`${80 - i * 10}dB`, x, colHEIGHT + (rowY * 1.75));
+    ctx.fillText(`${80 - i * 10}dB`, x + (rowEnd * 0.5), HEIGHT - (rowY * 0.5));
   }
   // bar
   ctx.fillStyle = '#f0e480';
