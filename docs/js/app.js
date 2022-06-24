@@ -355,7 +355,6 @@ ratioRange.addEventListener('input', Setup);
 atkRange.addEventListener('input', Setup);
 relRange.addEventListener('input', Setup);
 
-
 function Setup() {
   comp.threshold.value = threshRange.value;
   comp.knee.value = kneeRange.value;
@@ -402,7 +401,7 @@ function Draw(n) {
 
   const rowY = colHEIGHT / 10;
   const colX = rowWIDTH / 10;
-  
+
   const varX = rowEnd / 10;
 
   for (let i = 0; i < 100; i++) {
