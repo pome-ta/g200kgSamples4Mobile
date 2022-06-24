@@ -402,13 +402,19 @@ function Draw(n) {
 
   const rowY = colHEIGHT / 10;
   const colX = rowWIDTH / 10;
+  
+  const varX = rowEnd / 10;
 
   for (let i = 0; i < 100; i++) {
-    let v = gaintable[i];
-    if (v < 1e-128) v = 1e-128;
+    //let v = gaintable[i];
+    //if (v < 1e-128) v = 1e-128;
+    let v = gaintable[i] < 1e-128 ? 1e-128 : gaintable[i];
     v = Math.max(-80, Math.LOG10E * 20 * Math.log(v));
-    v = (20 - v) * 3;
-    ctx.fillRect(i * 3 + 32, v + 32, 3, colHEIGHT - v);
+    v = (20 - v) * varX;
+    const h = colHEIGHT - v ? v : colHEIGHT;
+    //ctx.fillRect(i * 3 + 32, v + 32, 3, 300 - v);
+    ctx.fillRect(i * varX + rowEnd, v + colEnd, 3, colHEIGHT - v);
+    //ctx.fillRect(i * 3 + 32, v + 32, 3, h);
   }
 
   // grid
@@ -428,7 +434,7 @@ function Draw(n) {
   }
   // bar
   ctx.fillStyle = '#f0e480';
-  ctx.fillRect(34 + n*3, 32, 1, 300);
+  //ctx.fillRect(34 + n*3, 32, 1, 300);
   //console.log(n);
   //ctx.fillRect(rowEnd + n, colEnd, 1, colHEIGHT);
 }
