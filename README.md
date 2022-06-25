@@ -9,3 +9,7 @@
 
 章ごとに、ブランチを切っていく
 
+[Web Audio API 解説 - 15.コンプレッサーの使い方 | g200kg Music & Software](https://www.g200kg.com/jp/docs/webaudio/compressor.html)
+
+
+canvas 調整中
