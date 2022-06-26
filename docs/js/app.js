@@ -228,7 +228,7 @@ const { touchBegan, touchMoved, touchEnded } = {
 
 /* audio */
 const soundPath = './sounds/loop.wav';
-const irPath = './sounds/s1_r1_bd.wav';
+const irPath = './sounds/ir/s1_r1_bd.wav';
 const audioctx = new AudioContext();
 const soundbuf = null;
 const irbuf = null;
