@@ -230,8 +230,8 @@ const { touchBegan, touchMoved, touchEnded } = {
 const soundPath = './sounds/loop.wav';
 const irPath = './sounds/ir/s1_r1_bd.wav';
 const audioctx = new AudioContext();
-const soundbuf = null;
-const irbuf = null;
+let soundbuf = null;
+let irbuf = null;
 const convolver = new ConvolverNode(audioctx);
 const revmix = new GainNode(audioctx);
 const drymix = new GainNode(audioctx);
@@ -242,12 +242,32 @@ drymix.connect(audioctx.destination);
 
 playButton.addEventListener(touchBegan, () => {
   audioctx.state === 'suspended' ? audioctx.resume() : null;
+  if (!source) {
+    source = new AudioBufferSourceNode(audioctx, {
+      buffer: soundbuf,
+      loop: true,
+    });
+    source.connect(drymix);
+    source.connect(convolver);
+    source.start();
+  }
+});
+
+stopButton.addEventListener(touchBegan, () => {
+  if (source) {
+    source.stop();
+    source = null;
+  }
 });
 
 revlevel.addEventListener('input', Setup);
 
 function Setup() {
-  audioctx;
+  const rev = revlevel.value;
+  revmix.gain.value = rev;
+  drymix.gain.value = 1 - rev;
+
+  revlevelval.textContent = parseNum(revlevel.value, revlevel.numtype);
 }
 
 async function LoadSample(actx, url) {
@@ -259,7 +279,7 @@ async function LoadSample(actx, url) {
 document.addEventListener('DOMContentLoaded', async () => {
   soundbuf = await LoadSample(audioctx, soundPath);
   irbuf = await LoadSample(audioctx, irPath);
-  
+  convolver.buffer = irbuf;
 });
 
 document.addEventListener('DOMContentLoaded', () => {
