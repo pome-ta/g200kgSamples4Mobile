@@ -22,7 +22,7 @@ function parseNum(value, numtype = 'float') {
 /* create document node element funcs */
 function createButton(idName, textContent = null) {
   const element = document.createElement('button');
-  element.style.width = '100%';
+  element.style.width = '50%';
   element.style.height = '4rem';
   element.type = 'button';
   element.id = idName;
@@ -166,147 +166,55 @@ function setCanvasStyles(...args) {
 
 /* setup document node element */
 const mainTitleHeader = document.createElement('h2');
-mainTitleHeader.textContent = 'DynamicsCompressor Test';
+mainTitleHeader.textContent = 'Convolver Test';
 
 const buttonDiv = document.createElement('div');
 buttonDiv.style.width = '100%';
 const playButton = createButton('play');
+const stopButton = createButton('stop');
 
 /* create controller objs */
-const threshObj = {
-  objName: 'Threshold',
+const ReverbLevelObj = {
+  objName: 'ReverbLevel',
   inputObj: {
-    id: 'threshRange',
-    min: -100,
-    max: 0.0,
-    step: 0.1,
-    value: -24.0,
-    numtype: 'float',
-  },
-  pObj: {
-    id: 'threshval',
-    label: '',
-  },
-};
-
-const kneeObj = {
-  objName: 'Knee',
-  inputObj: {
-    id: 'kneeRange',
-    min: 0.0,
-    max: 40.0,
-    step: 0.1,
-    value: 30.0,
-    numtype: 'float',
-  },
-  pObj: {
-    id: 'kneeval',
-    label: '',
-  },
-};
-
-const ratioObj = {
-  objName: 'Ratio',
-  inputObj: {
-    id: 'ratioRange',
-    min: 1.0,
-    max: 20.0,
-    step: 0.1,
-    value: 12.0,
-    numtype: 'float',
-  },
-  pObj: {
-    id: 'ratioval',
-    label: '',
-  },
-};
-
-const atkObj = {
-  objName: 'Attack',
-  inputObj: {
-    id: 'atkRange',
-    min: 0.0,
-    max: 0.1,
-    step: 0.001,
-    value: 0.003,
-    numtype: 'float',
-  },
-  pObj: {
-    id: 'atkval',
-    label: '',
-  },
-};
-
-const relObj = {
-  objName: 'Release',
-  inputObj: {
-    id: 'relRange',
+    id: 'revlevel',
     min: 0.0,
     max: 1.0,
     step: 0.01,
-    value: 0.25,
+    value: 0.5,
     numtype: 'float',
   },
   pObj: {
-    id: 'relval',
+    id: 'revlevelval',
     label: '',
   },
 };
 
-const controllerObjs = createControllerObjs([
-  threshObj,
-  kneeObj,
-  ratioObj,
-  atkObj,
-  relObj,
-]);
+const controllerObjs = createControllerObjs([ReverbLevelObj]);
 
-const [
-  [threshRange, threshval],
-  [kneeRange, kneeval],
-  [ratioRange, ratioval],
-  [atkRange, atkval],
-  [relRange, relval],
-] = Object.entries(controllerObjs).map(([key, val]) => val);
+const [[revlevel, revlevelval]] = Object.entries(controllerObjs).map(
+  ([key, val]) => val
+);
 
 const controllerTable = createControllerTable(controllerObjs);
 
-const cnvsDiv = document.createElement('div');
-cnvsDiv.style.width = '100%';
-cnvsDiv.style.position = 'relative';
-
-const baseCanvas = document.createElement('canvas');
-const canvas = document.createElement('canvas');
-setCanvasStyles(baseCanvas, canvas);
+const explanationParagraph = document.createElement('div');
+explanationParagraph.style.width = '100%';
+explanationParagraph.innerHTML = `
+  <p>* Impulse Response file from:<br/>
+  <a href="http://www.acoustics.hut.fi/projects/poririrs/">http://www.acoustics.hut.fi/projects/poririrs/</a><br/>
+  bin-dfeq.zip <br/>
+  (free for non-commercial use)
+  </p>`;
 
 /* appendChild document element */
 setAppendChild([
   mainTitleHeader,
   buttonDiv,
-  [playButton],
+  [playButton, stopButton],
   controllerTable,
-  cnvsDiv,
-  [baseCanvas, canvas],
+  explanationParagraph,
 ]);
-
-/* canvas */
-let WIDTH, HEIGHT, halfHEIGHT;
-const setting_height = 0.75; // 4:3
-//const setting_height = 0.5;
-//const setting_height = 1.0;
-
-const ctx = canvas.getContext('2d');
-
-function initCanvas() {
-  canvas.width = cnvsDiv.clientWidth;
-  canvas.height = cnvsDiv.clientWidth * setting_height;
-  WIDTH = canvas.width;
-  HEIGHT = canvas.height;
-  halfHEIGHT = HEIGHT / 2;
-  ctx.font = '0.6rem monospace';
-  ctx.textAlign = 'end';
-  Draw();
-}
 
 // todo: MouseEvent TouchEvent wrapper
 const { touchBegan, touchMoved, touchEnded } = {
@@ -321,127 +229,22 @@ const { touchBegan, touchMoved, touchEnded } = {
 /* audio */
 const audioctx = new AudioContext();
 
-const gaintable = new Array(100);
-for (let i = 0; i < 100; i++) {
-  gaintable[i] = 0;
-}
-
-const sig = new OscillatorNode(audioctx);
-const gain = new GainNode(audioctx, { gain: 0 });
-const comp = new DynamicsCompressorNode(audioctx);
-const ana = new AnalyserNode(audioctx);
-const wavdata = new Float32Array(512);
-
-let timer;
-let testcount = 0;
-let currentOutLevel = 0;
-let testing = 0;
-let maxlev = 0;
-sig.connect(gain).connect(comp).connect(ana).connect(audioctx.destination);
-sig.start();
-
 playButton.addEventListener(touchBegan, () => {
   audioctx.state === 'suspended' ? audioctx.resume() : null;
-  testing = 1;
-  gain.gain.value = 0;
-  testcount = -2;
-  maxlev = 0;
-  timer = setInterval(TestInterval, 50);
 });
 
-threshRange.addEventListener('input', Setup);
-kneeRange.addEventListener('input', Setup);
-ratioRange.addEventListener('input', Setup);
-atkRange.addEventListener('input', Setup);
-relRange.addEventListener('input', Setup);
+revlevel.addEventListener('input', Setup);
 
 function Setup() {
-  comp.threshold.value = threshRange.value;
-  comp.knee.value = kneeRange.value;
-  comp.ratio.value = ratioRange.value;
-  comp.attack.value = atkRange.value;
-  comp.release.value = relRange.value;
-
-  threshval.textContent = parseNum(threshRange.value, threshRange.numtype);
-  kneeval.textContent = parseNum(kneeRange.value, kneeRange.numtype);
-  ratioval.textContent = parseNum(ratioRange.value, ratioRange.numtype);
-  atkval.textContent = parseNum(atkRange.value, atkRange.numtype);
-  relval.textContent = parseNum(relRange.value, relRange.numtype);
+  audioctx;
 }
 
-function TestInterval() {
-  if (testcount > 0) {
-    ana.getFloatTimeDomainData(wavdata);
-    for (let i = 0; i < wavdata.length; ++i) {
-      const d = Math.abs(wavdata[i]);
-      if (d > maxlev) maxlev = d;
-    }
-    gaintable[testcount - 1] = maxlev;
-  }
-  maxlev = 0;
-  Draw(testcount - 1);
-  gain.gain.value = Math.pow(10, (testcount - 80) / 20);
-  if (++testcount > 100) {
-    gain.gain.value = 0;
-    clearInterval(timer);
-    testing = 0;
-  }
+async function LoadSample(actx, url) {
+  const res = await fetch(url);
+  const arraybuf = await res.arrayBuffer();
+  return actx.decodeAudioData(arraybuf);
 }
 
-function Draw(n) {
-  ctx.fillStyle = '#404040';
-  ctx.fillRect(0, 0, WIDTH, HEIGHT);
-  ctx.fillStyle = '#20c040';
-
-  const rowEnd = WIDTH / 11.375;
-  const colEnd = HEIGHT / 11.375;
-
-  const rowWIDTH = WIDTH - rowEnd * 2;
-  const colHEIGHT = HEIGHT - colEnd * 2;
-
-  const rowY = colHEIGHT / 10;
-  const colX = rowWIDTH / 10;
-
-  const varX = rowEnd / 10;
-
-  for (let i = 0; i < 100; i++) {
-    //let v = gaintable[i];
-    //if (v < 1e-128) v = 1e-128;
-    let v = gaintable[i] < 1e-128 ? 1e-128 : gaintable[i];
-    v = Math.max(-80, Math.LOG10E * 20 * Math.log(v));
-    v = (20 - v) * varX;
-    const h = colHEIGHT - v ? v : colHEIGHT;
-    //ctx.fillRect(i * 3 + 32, v + 32, 3, 300 - v);
-    ctx.fillRect(i * varX + rowEnd, v + colEnd, 3, colHEIGHT - v);
-    //ctx.fillRect(i * 3 + 32, v + 32, 3, h);
-  }
-
-  // grid
-  ctx.fillStyle = '#c06060';
-  for (let i = 0; i <= 10; i++) {
-    // todo: baseSize ->364, marhin ->32
-    const x = colX * i + rowEnd;
-    const y = rowY * i + colEnd;
-    ctx.fillRect(rowEnd, y, rowWIDTH, 1); // row
-    ctx.fillRect(x, colEnd, 1, colHEIGHT); // col
-
-    // label x, y
-    ctx.fillText(`${20 - i * 10}dB`, colX, y); // label: x
-
-    //ctx.fillText(`${80 - i * 10}dB`, x, colHEIGHT + (rowY * 1.75));
-    ctx.fillText(`${80 - i * 10}dB`, x + rowEnd * 0.5, HEIGHT - rowY * 0.5); // label: y
-  }
-  // bar
-  ctx.fillStyle = '#f0e480';
-  //ctx.fillRect(34 + n*3, 32, 1, 300);
-  //console.log(n);
-  //ctx.fillRect(rowEnd + n, colEnd, 1, colHEIGHT);
-}
-
-window.addEventListener('resize', initCanvas);
 document.addEventListener('DOMContentLoaded', () => {
-  initCanvas();
-  //DrawGraph();
-  //Draw();
   Setup();
 });
