@@ -174,38 +174,78 @@ const playButton = createButton('play');
 const stopButton = createButton('stop');
 
 /* create controller objs */
-const ReverbLevelObj = {
-  objName: 'ReverbLevel',
+
+// xxx: 辞書にする？
+const typeStr = ['equalpower', 'HRTF'];
+
+const panningModelObj = {
+  objName: 'panningModel',
+  selectObj: {
+    id: 'panmodel',
+  },
+};
+
+const positionXObj = {
+  objName: 'PositionX',
   inputObj: {
-    id: 'revlevel',
-    min: 0.0,
-    max: 1.0,
-    step: 0.01,
-    value: 0.5,
+    id: 'posx',
+    min: -10.0,
+    max: 10.0,
+    step: 0.1,
+    value: 0.0,
     numtype: 'float',
   },
   pObj: {
-    id: 'revlevelval',
+    id: 'posxval',
     label: '',
   },
 };
 
-const controllerObjs = createControllerObjs([ReverbLevelObj]);
+const positionYObj = {
+  objName: 'PositionY',
+  inputObj: {
+    id: 'posy',
+    min: -10.0,
+    max: 10.0,
+    step: 0.1,
+    value: 0.0,
+    numtype: 'float',
+  },
+  pObj: {
+    id: 'posyval',
+    label: '',
+  },
+};
 
-const [[revlevel, revlevelval]] = Object.entries(controllerObjs).map(
-  ([key, val]) => val
-);
+const positionZObj = {
+  objName: 'PositionZ',
+  inputObj: {
+    id: 'posz',
+    min: -10.0,
+    max: 10.0,
+    step: 0.1,
+    value: -5.0,
+    numtype: 'float',
+  },
+  pObj: {
+    id: 'poszval',
+    label: '',
+  },
+};
+
+const controllerObjs = createControllerObjs([
+  panningModelObj,
+  positionXObj,
+  positionYObj,
+  positionZObj,
+]);
+
+const [[panmodel], [posx, posxval], [posy, posyval], [posz, poszval]] =
+  Object.entries(controllerObjs).map(([key, val]) => val);
 
 const controllerTable = createControllerTable(controllerObjs);
 
-const explanationParagraph = document.createElement('div');
-explanationParagraph.style.width = '100%';
-explanationParagraph.innerHTML = `
-  <p>* Impulse Response file from:<br/>
-  <a href="http://www.acoustics.hut.fi/projects/poririrs/">http://www.acoustics.hut.fi/projects/poririrs/</a><br/>
-  bin-dfeq.zip <br/>
-  (free for non-commercial use)
-  </p>`;
+const dragTextNode = document.createTextNode('Drag to set position.');
 
 /* appendChild document element */
 setAppendChild([
@@ -213,7 +253,7 @@ setAppendChild([
   buttonDiv,
   [playButton, stopButton],
   controllerTable,
-  explanationParagraph,
+  dragTextNode,
 ]);
 
 // todo: MouseEvent TouchEvent wrapper
@@ -227,47 +267,50 @@ const { touchBegan, touchMoved, touchEnded } = {
 };
 
 /* audio */
+panmodel.selectedIndex = 1;
 const soundPath = './sounds/loop.wav';
-const irPath = './sounds/ir/s1_r1_bd.wav';
-const audioctx = new AudioContext();
-let soundbuf = null;
-let irbuf = null;
-const convolver = new ConvolverNode(audioctx);
-const revmix = new GainNode(audioctx);
-const drymix = new GainNode(audioctx);
-let source = null;
 
-convolver.connect(revmix).connect(audioctx.destination);
-drymix.connect(audioctx.destination);
+let px,
+  py,
+  pz = [0, 0, 0];
+const audioctx = new AudioContext();
+let buffer = null;
+
+//const source = new AudioBufferSourceNode(audioctx, {buffer:buffer, loop:true});
+const source = new AudioBufferSourceNode(audioctx, { loop: true });
+const panner = new PannerNode(audioctx, { panningModel: 'HRTF' });
+source.connect(panner).connect(audioctx.destination);
+audioctx.suspend();
+source.start();
 
 playButton.addEventListener(touchBegan, () => {
-  audioctx.state === 'suspended' ? audioctx.resume() : null;
-  if (!source) {
-    source = new AudioBufferSourceNode(audioctx, {
-      buffer: soundbuf,
-      loop: true,
-    });
-    source.connect(drymix);
-    source.connect(convolver);
-    source.start();
-  }
+  audioctx.resume();
 });
 
 stopButton.addEventListener(touchBegan, () => {
-  if (source) {
-    source.stop();
-    source = null;
-  }
+  audioctx.suspend();
 });
 
-revlevel.addEventListener('input', Setup);
+panmodel.addEventListener('change', SetupModel);
+posx.addEventListener('input', SetupPos);
+posy.addEventListener('input', SetupPos);
+posz.addEventListener('input', SetupPos);
 
-function Setup() {
-  const rev = revlevel.value;
-  revmix.gain.value = rev;
-  drymix.gain.value = 1 - rev;
+function SetupModel() {
+  panner.panningModel = typeStr[panmodel.selectedIndex];
+}
 
-  revlevelval.textContent = parseNum(revlevel.value, revlevel.numtype);
+function SetupPos() {
+  px = posx.value;
+  py = posy.value;
+  pz = posz.value;
+  panner.positionX.value = parseFloat(px);
+  panner.positionY.value = parseFloat(py);
+  panner.positionZ.value = parseFloat(pz);
+
+  posxval.textContent = parseNum(posx.value, posx.numtype);
+  posyval.textContent = parseNum(posy.value, posy.numtype);
+  poszval.textContent = parseNum(posz.value, posz.numtype);
 }
 
 async function LoadSample(actx, url) {
@@ -277,11 +320,11 @@ async function LoadSample(actx, url) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  soundbuf = await LoadSample(audioctx, soundPath);
-  irbuf = await LoadSample(audioctx, irPath);
-  convolver.buffer = irbuf;
+  buffer = await LoadSample(audioctx, soundPath);
+  source.buffer = buffer;
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-  Setup();
+  SetupModel();
+  SetupPos();
 });
