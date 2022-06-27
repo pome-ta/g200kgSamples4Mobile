@@ -166,7 +166,7 @@ function setCanvasStyles(...args) {
 
 /* setup document node element */
 const mainTitleHeader = document.createElement('h2');
-mainTitleHeader.textContent = 'Convolver Test';
+mainTitleHeader.textContent = 'Panner Test';
 
 const buttonDiv = document.createElement('div');
 buttonDiv.style.width = '100%';
@@ -245,6 +245,12 @@ const [[panmodel], [posx, posxval], [posy, posyval], [posz, poszval]] =
 
 const controllerTable = createControllerTable(controllerObjs);
 
+const cnvsDiv = document.createElement('div');
+cnvsDiv.style.width = '100%';
+const canvas = document.createElement('canvas');
+canvas.style.width = '100%';
+
+
 const dragTextNode = document.createTextNode('Drag to set position.');
 
 /* appendChild document element */
@@ -253,8 +259,27 @@ setAppendChild([
   buttonDiv,
   [playButton, stopButton],
   controllerTable,
+  cnvsDiv,
+  [canvas],
   dragTextNode,
 ]);
+
+
+/* canvas */
+let WIDTH, HEIGHT;
+const setting_height = 0.75; // 4:3
+//const setting_height = 0.5;
+
+const canvasctx = canvas.getContext('2d');
+
+function initCanvas() {
+  //canvas.width = cnvsDiv.clientWidth;
+  //canvas.height = cnvsDiv.clientWidth * setting_height;
+  canvas.width = 250;
+  canvas.height = 200;
+  WIDTH = canvas.width;
+  HEIGHT = canvas.height;
+}
 
 // todo: MouseEvent TouchEvent wrapper
 const { touchBegan, touchMoved, touchEnded } = {
@@ -282,6 +307,27 @@ const panner = new PannerNode(audioctx, { panningModel: 'HRTF' });
 source.connect(panner).connect(audioctx.destination);
 audioctx.suspend();
 source.start();
+
+
+function Draw() {
+  canvasctx.fillStyle = "#444";
+  canvasctx.fillRect(0, 0, 200, 200);
+  canvasctx.fillRect(210, 0, 20, 200);
+  canvasctx.fillStyle = "#080";
+  canvasctx.fillRect(219, 0, 2, 200);
+  canvasctx.fillStyle = "#f00";
+  canvasctx.fillRect(0, 99, 200, 3);
+  canvasctx.fillStyle = "#08f";
+  canvasctx.fillRect(99, 0, 3, 200);
+  canvasctx.fillStyle = "#fff";
+  canvasctx.strokeStyle = "#fff";
+  canvasctx.beginPath();
+  canvasctx.arc(100 + px * 10, 100 + pz * 10, 5, 0, 360, false);
+  canvasctx.arc(220, 100 - py * 10, 5, 0, 360, false);
+  canvasctx.fill();
+}
+
+
 
 playButton.addEventListener(touchBegan, () => {
   audioctx.resume();
@@ -311,6 +357,7 @@ function SetupPos() {
   posxval.textContent = parseNum(posx.value, posx.numtype);
   posyval.textContent = parseNum(posy.value, posy.numtype);
   poszval.textContent = parseNum(posz.value, posz.numtype);
+  Draw();
 }
 
 async function LoadSample(actx, url) {
@@ -325,6 +372,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
+  initCanvas();
   SetupModel();
   SetupPos();
+  
 });
