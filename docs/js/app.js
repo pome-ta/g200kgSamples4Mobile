@@ -340,8 +340,8 @@ function Mouse(e) {
   else {
     b = e.buttons;
   }
-  console.log(b);
-  if (b) {
+  
+  if (b || !b) {
     const rc = e.target.getBoundingClientRect();
     const x = (e.clientX - rc.left) | 0;
     const y = (e.clientY - rc.top) | 0;
