@@ -247,9 +247,8 @@ const controllerTable = createControllerTable(controllerObjs);
 
 const cnvsDiv = document.createElement('div');
 cnvsDiv.style.width = '100%';
-const canvas = document.createElement('canvas');
-canvas.style.width = '100%';
-
+const cv = document.createElement('canvas');
+cv.style.width = '100%';
 
 const dragTextNode = document.createTextNode('Drag to set position.');
 
@@ -260,25 +259,24 @@ setAppendChild([
   [playButton, stopButton],
   controllerTable,
   cnvsDiv,
-  [canvas],
+  [cv],
   dragTextNode,
 ]);
-
 
 /* canvas */
 let WIDTH, HEIGHT;
 const setting_height = 0.75; // 4:3
 //const setting_height = 0.5;
 
-const canvasctx = canvas.getContext('2d');
+const canvasctx = cv.getContext('2d');
 
 function initCanvas() {
   //canvas.width = cnvsDiv.clientWidth;
   //canvas.height = cnvsDiv.clientWidth * setting_height;
-  canvas.width = 250;
-  canvas.height = 200;
-  WIDTH = canvas.width;
-  HEIGHT = canvas.height;
+  cv.width = 250;
+  cv.height = 200;
+  WIDTH = cv.width;
+  HEIGHT = cv.height;
 }
 
 // todo: MouseEvent TouchEvent wrapper
@@ -308,26 +306,48 @@ source.connect(panner).connect(audioctx.destination);
 audioctx.suspend();
 source.start();
 
+cv.addEventListener(touchMoved, Mouse);
+cv.addEventListener(touchEnded, Mouse);
 
 function Draw() {
-  canvasctx.fillStyle = "#444";
+  canvasctx.fillStyle = '#444';
   canvasctx.fillRect(0, 0, 200, 200);
   canvasctx.fillRect(210, 0, 20, 200);
-  canvasctx.fillStyle = "#080";
+  canvasctx.fillStyle = '#080';
   canvasctx.fillRect(219, 0, 2, 200);
-  canvasctx.fillStyle = "#f00";
+  canvasctx.fillStyle = '#f00';
   canvasctx.fillRect(0, 99, 200, 3);
-  canvasctx.fillStyle = "#08f";
+  canvasctx.fillStyle = '#08f';
   canvasctx.fillRect(99, 0, 3, 200);
-  canvasctx.fillStyle = "#fff";
-  canvasctx.strokeStyle = "#fff";
+  canvasctx.fillStyle = '#fff';
+  canvasctx.strokeStyle = '#fff';
   canvasctx.beginPath();
   canvasctx.arc(100 + px * 10, 100 + pz * 10, 5, 0, 360, false);
   canvasctx.arc(220, 100 - py * 10, 5, 0, 360, false);
   canvasctx.fill();
 }
 
-
+function Mouse(e) {
+  console.log(e);
+  let b;
+  if (!e) e = window.event;
+  if (typeof e.buttons === 'undefined') b = e.which;
+  else b = e.buttons;
+  if (b) {
+    const rc = e.target.getBoundingClientRect();
+    const x = (e.clientX - rc.left) | 0;
+    const y = (e.clientY - rc.top) | 0;
+    if (x < 200) {
+      posx.value = (x - 100) * 0.1;
+      posz.value = (y - 100) * 0.1;
+      SetupPos();
+    }
+    if (x >= 210) {
+      posy.value = (100 - y) * 0.1;
+      SetupPos();
+    }
+  }
+}
 
 playButton.addEventListener(touchBegan, () => {
   audioctx.resume();
@@ -375,5 +395,4 @@ document.addEventListener('DOMContentLoaded', () => {
   initCanvas();
   SetupModel();
   SetupPos();
-  
 });
