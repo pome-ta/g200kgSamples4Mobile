@@ -248,7 +248,9 @@ const controllerTable = createControllerTable(controllerObjs);
 const cnvsDiv = document.createElement('div');
 cnvsDiv.style.width = '100%';
 const cv = document.createElement('canvas');
-cv.style.width = '100%';
+// cv.style.width = '100%';
+cv.style.width = 250;
+cv.style.height = 200;
 
 const dragTextNode = document.createTextNode('Drag to set position.');
 
