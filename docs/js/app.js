@@ -330,11 +330,17 @@ function Draw() {
 }
 
 function Mouse(e) {
-  console.log(e);
   let b;
-  if (!e) e = window.event;
-  if (typeof e.buttons === 'undefined') b = e.which;
-  else b = e.buttons;
+  if (!e) {
+    e = window.event;
+  }
+  if (typeof e.buttons === 'undefined') {
+    b = e.which;
+  }
+  else {
+    b = e.buttons;
+  }
+  console.log(b);
   if (b) {
     const rc = e.target.getBoundingClientRect();
     const x = (e.clientX - rc.left) | 0;
