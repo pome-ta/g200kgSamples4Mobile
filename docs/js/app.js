@@ -267,7 +267,7 @@ setAppendChild([
 
 /* canvas */
 let WIDTH, HEIGHT;
-const setting_height = 0.75; // 4:3
+//const setting_height = 0.75; // 4:3
 //const setting_height = 0.5;
 
 const canvasctx = cv.getContext('2d');
@@ -341,7 +341,8 @@ function Mouse(e) {
     b = e.buttons;
   }
   
-  if (b || !b) {
+  
+  if (b) {
     const rc = e.target.getBoundingClientRect();
     const x = (e.clientX - rc.left) | 0;
     const y = (e.clientY - rc.top) | 0;
