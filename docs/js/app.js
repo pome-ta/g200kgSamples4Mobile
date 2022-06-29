@@ -330,12 +330,15 @@ function Draw() {
 }
 
 function Mouse(e) {
+  //console.log(e.touches);
   let b;
   if (!e) {
     e = window.event;
   }
+  //console.log(e.buttons);
   if (typeof e.buttons === 'undefined') {
     b = e.which;
+    b += e.touches ? 1 : 0;
   }
   else {
     b = e.buttons;
@@ -343,9 +346,12 @@ function Mouse(e) {
   
   
   if (b) {
+    e.touches ? 
     const rc = e.target.getBoundingClientRect();
-    const x = (e.clientX - rc.left) | 0;
-    const y = (e.clientY - rc.top) | 0;
+    const clientX = e.clientX ? e.clientX : e.touches[0].clientX;
+    const clientY = e.clientY ? e.clientY : e.touches[0].clientY;
+    const x = (clientX - rc.left) | 0;
+    const y = (clientY - rc.top) | 0;
     if (x < 200) {
       posx.value = (x - 100) * 0.1;
       posz.value = (y - 100) * 0.1;
