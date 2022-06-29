@@ -308,6 +308,7 @@ source.connect(panner).connect(audioctx.destination);
 audioctx.suspend();
 source.start();
 
+cv.addEventListener(touchBegan, (e) => e.preventDefault());
 cv.addEventListener(touchMoved, Mouse);
 cv.addEventListener(touchEnded, Mouse);
 
@@ -330,26 +331,29 @@ function Draw() {
 }
 
 function Mouse(e) {
-  //console.log(e.touches);
   let b;
   if (!e) {
     e = window.event;
   }
-  //console.log(e.buttons);
   if (typeof e.buttons === 'undefined') {
     b = e.which;
     b += e.touches ? 1 : 0;
-  }
-  else {
+  } else {
     b = e.buttons;
   }
-  
-  
+
   if (b) {
-    e.touches ? 
     const rc = e.target.getBoundingClientRect();
-    const clientX = e.clientX ? e.clientX : e.touches[0].clientX;
-    const clientY = e.clientY ? e.clientY : e.touches[0].clientY;
+    const clientX = e?.clientX
+      ? e.clientX
+      : e.touches[0]?.clientX
+      ? e.touches[0].clientX
+      : e.changedTouches[0].clientX;
+    const clientY = e?.clientY
+      ? e.clientY
+      : e.touches[0]?.clientY
+      ? e.touches[0].clientY
+      : e.changedTouches[0].clientY;
     const x = (clientX - rc.left) | 0;
     const y = (clientY - rc.top) | 0;
     if (x < 200) {
