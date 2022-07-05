@@ -2,7 +2,7 @@
 
 なんで、
 
-``` .js
+```.js
 testcount = -2;
 ```
 
@@ -10,9 +10,9 @@ testcount = -2;
 
 # 📝 2022/06/23
 
-## canvas のlayer化
+## canvas の layer 化
 
-再描画面倒では？という流れから、canvas を2つ重ねることに
+再描画面倒では？という流れから、canvas を 2 つ重ねることに
 
 # 📝 2022/06/21
 
@@ -24,7 +24,7 @@ testcount = -2;
 
 ### `requestAnimationFrame`
 
-FrameRate 処理なので、こと、描画ならOK
+FrameRate 処理なので、こと、描画なら OK
 
 fps もそれなりに調整は可能
 
@@ -32,7 +32,7 @@ fps もそれなりに調整は可能
 
 ### `setInterval`
 
-別に悪い子じゃない。`canvas` 内のみで処理する時だけ、ちょっとclassic
+別に悪い子じゃない。`canvas` 内のみで処理する時だけ、ちょっと classic
 
 # 📝 2022/06/19
 
@@ -50,15 +50,15 @@ fps もそれなりに調整は可能
 
 ### `id` で取るか、変数で取るか
 
-まとめたdrawbar 要素配列の`length` を`for` で回して`querySelector` で取得中
+まとめた drawbar 要素配列の`length` を`for` で回して`querySelector` で取得中
 
-`id` で取得した時に、こちらのattribute を呼び出すのも気持ち悪いよね？
+`id` で取得した時に、こちらの attribute を呼び出すのも気持ち悪いよね？
 
 ## `input: range` のサイズ
 
 持ち手の所を大きくした方がいいかしら？
 
-疑似要素がjs からつくれず却下
+疑似要素が js からつくれず却下
 
 ## table header
 
